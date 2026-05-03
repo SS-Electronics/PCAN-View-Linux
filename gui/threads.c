@@ -1,0 +1,324 @@
+/*
+ * threads.c – Background threads, global state, connect/disconnect logic
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <pthread.h>
+
+#include <glib.h>
+#include <gtk/gtk.h>
+
+#include "../inc/app_state.h"
+#include "../inc/drv_can.h"
+#include "../inc/gui.h"
+#include "../inc/can_message.h"
+
+/* ------------------------------------------------------------------ */
+/* Global singletons                                                    */
+/* ------------------------------------------------------------------ */
+
+app_state_t   g_app;
+gui_widgets_t g_gui;
+
+/* ------------------------------------------------------------------ */
+/* State lifecycle                                                      */
+/* ------------------------------------------------------------------ */
+
+void app_state_init(void)
+{
+    memset(&g_app, 0, sizeof(g_app));
+    memset(&g_gui, 0, sizeof(g_gui));
+
+    pthread_mutex_init(&g_app.trace_mutex, NULL);
+    pthread_mutex_init(&g_app.dedup_mutex, NULL);
+
+    g_app.rx_queue     = g_async_queue_new_full(free);
+    g_app.tx_queue     = g_async_queue_new_full(free);
+    g_app.bitrate      = 500000;
+    g_app.data_bitrate = 2000000;
+    strncpy(g_app.iface, "vcan0", APP_MAX_IFACE_LEN - 1);
+}
+
+void app_state_cleanup(void)
+{
+    if (g_app.connected)
+        app_do_disconnect();
+
+    if (g_app.rx_queue) {
+        g_async_queue_unref(g_app.rx_queue);
+        g_app.rx_queue = NULL;
+    }
+    if (g_app.tx_queue) {
+        g_async_queue_unref(g_app.tx_queue);
+        g_app.tx_queue = NULL;
+    }
+    if (g_app.trace_file) {
+        fclose(g_app.trace_file);
+        g_app.trace_file = NULL;
+    }
+    if (g_app.dedup_table) {
+        g_hash_table_destroy(g_app.dedup_table);
+        g_app.dedup_table = NULL;
+    }
+
+    pthread_mutex_destroy(&g_app.trace_mutex);
+    pthread_mutex_destroy(&g_app.dedup_mutex);
+}
+
+/* ------------------------------------------------------------------ */
+/* Idle callbacks (posted from worker threads to GTK main thread)      */
+/* ------------------------------------------------------------------ */
+
+static gboolean idle_add_message(gpointer data)
+{
+    can_msg_t *msg = (can_msg_t *)data;
+    gui_add_message(msg);
+    free(msg);
+    return G_SOURCE_REMOVE;
+}
+
+static gboolean idle_update_stats(gpointer data)
+{
+    (void)data;
+    gui_update_stats();
+    return G_SOURCE_REMOVE;
+}
+
+/* ------------------------------------------------------------------ */
+/* Trace file writing                                                   */
+/* ------------------------------------------------------------------ */
+
+static void trace_write(const can_msg_t *msg)
+{
+    if (!g_app.tracing || !g_app.trace_file) return;
+
+    char id_buf[16], data_buf[192];
+    gui_format_id(id_buf, sizeof(id_buf), msg->id, msg->is_extended);
+    gui_format_data(data_buf, sizeof(data_buf), msg->data, msg->dlc);
+
+    double ts = (double)msg->timestamp.tv_sec
+              + (double)msg->timestamp.tv_nsec / 1e9;
+
+    pthread_mutex_lock(&g_app.trace_mutex);
+    fprintf(g_app.trace_file,
+            "%llu,%.6f,%s,%s,%s,%u,%s\n",
+            (unsigned long long)msg->seq,
+            ts,
+            msg->direction == CAN_DIR_TX ? "Tx" : "Rx",
+            id_buf,
+            gui_msg_type_str(msg),
+            msg->dlc,
+            data_buf);
+    pthread_mutex_unlock(&g_app.trace_mutex);
+}
+
+/* ------------------------------------------------------------------ */
+/* RX thread                                                            */
+/* ------------------------------------------------------------------ */
+
+void *thread_rx(void *arg)
+{
+    (void)arg;
+
+    while (g_app.rx_running) {
+        can_msg_t msg;
+        int ret = drv_can_recv(&msg, 100);
+
+        if (ret != DRV_CAN_OK) continue;
+
+        msg.seq       = __atomic_add_fetch(&g_app.msg_seq, 1,
+                                           __ATOMIC_SEQ_CST);
+        msg.direction = CAN_DIR_RX;
+
+        if (msg.is_error) {
+            __atomic_add_fetch(&g_app.error_count, 1, __ATOMIC_SEQ_CST);
+        } else {
+            __atomic_add_fetch(&g_app.rx_count, 1, __ATOMIC_SEQ_CST);
+            /* Accumulate bits for bus-load calculation */
+            uint64_t frame_bits = (uint64_t)(msg.is_extended ? 67u : 47u)
+                                + (uint64_t)msg.dlc * 8u;
+            __atomic_add_fetch(&g_app.period_bits, frame_bits,
+                               __ATOMIC_SEQ_CST);
+        }
+
+        /* Deliver to GUI */
+        can_msg_t *copy = malloc(sizeof(can_msg_t));
+        if (copy) {
+            *copy = msg;
+            gdk_threads_add_idle(idle_add_message, copy);
+        }
+
+        trace_write(&msg);
+    }
+    return NULL;
+}
+
+/* ------------------------------------------------------------------ */
+/* TX thread                                                            */
+/* ------------------------------------------------------------------ */
+
+void *thread_tx(void *arg)
+{
+    (void)arg;
+
+    while (g_app.tx_running) {
+        /* Wait up to 100 ms for a message to appear.
+         * g_async_queue_timeout_pop() takes absolute monotonic end time. */
+        guint64 end_time = (guint64)g_get_monotonic_time()
+                         + 100 * G_TIME_SPAN_MILLISECOND;
+        can_msg_t *msg = (can_msg_t *)
+            g_async_queue_timeout_pop(g_app.tx_queue, end_time);
+
+        if (!msg) continue;
+
+        int ret = drv_can_send(msg);
+        if (ret == DRV_CAN_OK) {
+            msg->seq       = __atomic_add_fetch(&g_app.msg_seq, 1,
+                                                __ATOMIC_SEQ_CST);
+            msg->direction = CAN_DIR_TX;
+            clock_gettime(CLOCK_REALTIME, &msg->timestamp);
+            __atomic_add_fetch(&g_app.tx_count, 1, __ATOMIC_SEQ_CST);
+
+            /* Echo TX frame to trace */
+            can_msg_t *copy = malloc(sizeof(can_msg_t));
+            if (copy) {
+                *copy = *msg;
+                gdk_threads_add_idle(idle_add_message, copy);
+            }
+            trace_write(msg);
+        }
+        free(msg);
+    }
+    return NULL;
+}
+
+/* ------------------------------------------------------------------ */
+/* Stats thread                                                         */
+/* ------------------------------------------------------------------ */
+
+void *thread_stats(void *arg)
+{
+    (void)arg;
+
+    while (g_app.stats_running) {
+        struct timespec ts = { 0, 500000000L }; /* 500 ms */
+        nanosleep(&ts, NULL);
+
+        if (!g_app.connected) continue;
+
+        /* Atomically collect bits accumulated in the last period */
+        uint64_t bits = __atomic_exchange_n(&g_app.period_bits, 0,
+                                            __ATOMIC_SEQ_CST);
+
+        /* bits / 0.5 s = bits/s;  load% = bits_per_sec / bitrate * 100 */
+        double load = (double)(bits * 2) / (double)g_app.bitrate * 100.0;
+        if (load > 100.0) load = 100.0;
+
+        __atomic_store_n((uint64_t *)&g_app.bus_load,
+                         *(uint64_t *)&load, __ATOMIC_SEQ_CST);
+
+        gdk_threads_add_idle(idle_update_stats, NULL);
+    }
+    return NULL;
+}
+
+/* ------------------------------------------------------------------ */
+/* Connect / Disconnect                                                 */
+/* ------------------------------------------------------------------ */
+
+void app_do_connect(void)
+{
+    if (g_app.connected) {
+        gui_show_error(g_gui.window, "Error", "Already connected.");
+        return;
+    }
+
+    can_driver_t *drv = drv_can_get_socketcan();
+    int ret = drv_can_init(drv,
+                           g_app.iface,
+                           g_app.bitrate,
+                           g_app.data_bitrate,
+                           g_app.fd_mode,
+                           g_app.listen_only);
+    if (ret != DRV_CAN_OK) {
+        char msg[256];
+        snprintf(msg, sizeof(msg),
+                 "Failed to connect to %s:\n%s\n\n"
+                 "Tip: ensure the interface exists and you have sufficient "
+                 "privileges (or run with sudo).",
+                 g_app.iface, drv_can_error_string(ret));
+        gui_show_error(g_gui.window, "Connection Error", msg);
+        return;
+    }
+
+    /* Reset counters */
+    __atomic_store_n(&g_app.rx_count,    0, __ATOMIC_SEQ_CST);
+    __atomic_store_n(&g_app.tx_count,    0, __ATOMIC_SEQ_CST);
+    __atomic_store_n(&g_app.error_count, 0, __ATOMIC_SEQ_CST);
+    __atomic_store_n(&g_app.msg_seq,     0, __ATOMIC_SEQ_CST);
+    __atomic_store_n(&g_app.period_bits, 0, __ATOMIC_SEQ_CST);
+    g_app.bus_load  = 0.0;
+    g_app.bus_state = CAN_BUS_ACTIVE;
+    g_app.connected = 1;
+
+    /* Start background threads */
+    g_app.rx_running    = 1;
+    g_app.tx_running    = 1;
+    g_app.stats_running = 1;
+    pthread_create(&g_app.rx_thread,    NULL, thread_rx,    NULL);
+    pthread_create(&g_app.tx_thread,    NULL, thread_tx,    NULL);
+    pthread_create(&g_app.stats_thread, NULL, thread_stats, NULL);
+
+    /* Update toolbar sensitivity */
+    if (g_gui.toolbar_connect)
+        gtk_widget_set_sensitive(g_gui.toolbar_connect, FALSE);
+    if (g_gui.toolbar_disconnect)
+        gtk_widget_set_sensitive(g_gui.toolbar_disconnect, TRUE);
+
+    gui_status_message("Connected to %s @ %u bps%s",
+                       g_app.iface, g_app.bitrate,
+                       g_app.listen_only ? "  [listen-only]" : "");
+}
+
+void app_do_disconnect(void)
+{
+    if (!g_app.connected) return;
+
+    g_app.rx_running    = 0;
+    g_app.tx_running    = 0;
+    g_app.stats_running = 0;
+
+    pthread_join(g_app.rx_thread,    NULL);
+    pthread_join(g_app.tx_thread,    NULL);
+    pthread_join(g_app.stats_thread, NULL);
+
+    drv_can_deinit();
+    g_app.connected = 0;
+
+    /* Stop trace if running */
+    if (g_app.tracing) {
+        g_app.tracing = 0;
+        pthread_mutex_lock(&g_app.trace_mutex);
+        if (g_app.trace_file) {
+            fclose(g_app.trace_file);
+            g_app.trace_file = NULL;
+        }
+        pthread_mutex_unlock(&g_app.trace_mutex);
+    }
+
+    /* Update toolbar sensitivity */
+    if (g_gui.toolbar_connect)
+        gtk_widget_set_sensitive(g_gui.toolbar_connect, TRUE);
+    if (g_gui.toolbar_disconnect)
+        gtk_widget_set_sensitive(g_gui.toolbar_disconnect, FALSE);
+    if (g_gui.toolbar_trace_start)
+        gtk_widget_set_sensitive(g_gui.toolbar_trace_start, FALSE);
+    if (g_gui.toolbar_trace_stop)
+        gtk_widget_set_sensitive(g_gui.toolbar_trace_stop, FALSE);
+
+    gui_update_stats();
+    gui_status_message("Disconnected from %s", g_app.iface);
+}
