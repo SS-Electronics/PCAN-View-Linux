@@ -75,7 +75,8 @@ void app_state_cleanup(void)
 static gboolean idle_add_message(gpointer data)
 {
     can_msg_t *msg = (can_msg_t *)data;
-    gui_add_message(msg);
+    if (!g_app.shutting_down && g_gui.trace_store)
+        gui_add_message(msg);
     free(msg);
     return G_SOURCE_REMOVE;
 }
@@ -83,7 +84,8 @@ static gboolean idle_add_message(gpointer data)
 static gboolean idle_update_stats(gpointer data)
 {
     (void)data;
-    gui_update_stats();
+    if (!g_app.shutting_down && g_gui.lbl_rx)
+        gui_update_stats();
     return G_SOURCE_REMOVE;
 }
 
@@ -203,9 +205,13 @@ void *thread_stats(void *arg)
 {
     (void)arg;
 
+    unsigned int ticks = 0;
     while (g_app.stats_running) {
-        struct timespec ts = { 0, 500000000L }; /* 500 ms */
+        struct timespec ts = { 0, 50000000L }; /* 50 ms slices → responds within 50 ms */
         nanosleep(&ts, NULL);
+
+        if (++ticks < 10) continue; /* accumulate 10 × 50 ms = 500 ms period */
+        ticks = 0;
 
         if (!g_app.connected) continue;
 
@@ -217,8 +223,8 @@ void *thread_stats(void *arg)
         double load = (double)(bits * 2) / (double)g_app.bitrate * 100.0;
         if (load > 100.0) load = 100.0;
 
-        __atomic_store_n((uint64_t *)&g_app.bus_load,
-                         *(uint64_t *)&load, __ATOMIC_SEQ_CST);
+        /* Double assignment is naturally atomic on x86-64 for aligned values */
+        g_app.bus_load = load;
 
         gdk_threads_add_idle(idle_update_stats, NULL);
     }
@@ -287,6 +293,9 @@ void app_do_disconnect(void)
 {
     if (!g_app.connected) return;
 
+    /* Signal idle callbacks to discard any late-arriving messages */
+    g_app.shutting_down = 1;
+
     g_app.rx_running    = 0;
     g_app.tx_running    = 0;
     g_app.stats_running = 0;
@@ -296,7 +305,8 @@ void app_do_disconnect(void)
     pthread_join(g_app.stats_thread, NULL);
 
     drv_can_deinit();
-    g_app.connected = 0;
+    g_app.connected     = 0;
+    g_app.shutting_down = 0;
 
     /* Stop trace if running */
     if (g_app.tracing) {

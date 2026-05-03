@@ -335,19 +335,20 @@ int socketcan_list_interfaces(char ifnames[][SOCKETCAN_MAX_IFACE],
     while ((ent = readdir(d)) != NULL && count < max_count) {
         if (ent->d_name[0] == '.') continue;
 
-        char path[256];
+        char path[300];
         snprintf(path, sizeof(path),
                  "/sys/class/net/%s/type", ent->d_name);
         FILE *f = fopen(path, "r");
         if (!f) continue;
 
         int type = 0;
-        (void)fscanf(f, "%d", &type);
+        int n = fscanf(f, "%d", &type);
         fclose(f);
 
-        if (type == 280 /* ARPHRD_CAN */) {
-            strncpy(ifnames[count], ent->d_name, SOCKETCAN_MAX_IFACE - 1);
-            ifnames[count][SOCKETCAN_MAX_IFACE - 1] = '\0';
+        if (n == 1 && type == 280 /* ARPHRD_CAN */) {
+            size_t nl = strlen(ent->d_name);
+            if (nl >= SOCKETCAN_MAX_IFACE) continue; /* name too long, skip */
+            memcpy(ifnames[count], ent->d_name, nl + 1);
             count++;
         }
     }

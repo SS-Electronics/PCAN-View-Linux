@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     GtkApplication *app = gtk_application_new(
         "com.peak-system.pcan-view-linux",
-        G_APPLICATION_FLAGS_NONE);
+        G_APPLICATION_DEFAULT_FLAGS);
 
     g_signal_connect(app, "activate",
                      G_CALLBACK(on_app_activate), NULL);

@@ -1,29 +1,39 @@
 # PCAN-View Linux – Makefile
 #
-# Build:  make
-# Run:    ./pcan-view
-# Clean:  make clean
-# Install:make install
-#
-# Dependencies: libgtk-3-dev, libglib2.0-dev, can-utils (optional)
-# See scripts/install_dependencies.sh
+# Build:   make               → build/pcan-view  (release)
+#          make DEBUG=1       → build/pcan-view  (debug)
+# Run:     ./build/pcan-view
+# Clean:   make clean         → removes build/ entirely
+# Install: make install
 
-TARGET  := pcan-view
+# ------------------------------------------------------------------ #
+# Directories                                                          #
+# ------------------------------------------------------------------ #
+BUILD_DIR := build
+OBJ_DIR   := $(BUILD_DIR)/obj
+
+# ------------------------------------------------------------------ #
+# Toolchain & flags                                                    #
+# ------------------------------------------------------------------ #
+TARGET  := $(BUILD_DIR)/pcan-view
 
 CC      := gcc
 CFLAGS  := -Wall -Wextra -Wpedantic -std=c11 \
            -D_GNU_SOURCE \
-           $(shell pkg-config --cflags gtk+-3.0)
+           $(shell pkg-config --cflags gtk+-3.0) \
+           -Iinc
+
 LDFLAGS := $(shell pkg-config --libs gtk+-3.0) -lpthread
 
-# Optimised release build by default; override with DEBUG=1
 ifeq ($(DEBUG),1)
 CFLAGS  += -g -O0 -DDEBUG
 else
 CFLAGS  += -O2
 endif
 
-# Source files
+# ------------------------------------------------------------------ #
+# Sources → objects (mirror source tree under build/obj/)             #
+# ------------------------------------------------------------------ #
 SRCS := main.c \
         driver/drv_can.c \
         driver/socketcan.c \
@@ -33,33 +43,47 @@ SRCS := main.c \
         gui/settings_dialog.c \
         gui/transmit_dialog.c
 
-OBJS := $(SRCS:.c=.o)
+OBJS := $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-# Include paths
-CFLAGS += -Iinc
+# Subdirectories that must exist before compiling
+OBJ_SUBDIRS := $(OBJ_DIR) \
+               $(OBJ_DIR)/driver \
+               $(OBJ_DIR)/gui
 
 # ------------------------------------------------------------------ #
-
-.PHONY: all clean install uninstall
+# Rules                                                                #
+# ------------------------------------------------------------------ #
+.PHONY: all clean install uninstall run
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
+# Link
+$(TARGET): $(OBJS) | $(BUILD_DIR)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
-	@echo "Build successful → $(TARGET)"
+	@echo "Build successful → $@"
 
-%.o: %.c
+# Compile each source into build/obj/<path>.o
+$(OBJ_DIR)/%.o: %.c | $(OBJ_SUBDIRS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Create output directories on demand
+$(BUILD_DIR) $(OBJ_SUBDIRS):
+	mkdir -p $@
+
+# Rebuild when any header changes
+$(OBJS): $(wildcard inc/*.h)
+
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -rf $(BUILD_DIR)
+	@echo "Cleaned build directory."
+
+run: all
+	@./$(TARGET)
 
 install: $(TARGET)
-	install -Dm755 $(TARGET) $(DESTDIR)/usr/local/bin/$(TARGET)
-	@echo "Installed to $(DESTDIR)/usr/local/bin/$(TARGET)"
+	install -Dm755 $(TARGET) $(DESTDIR)/usr/local/bin/pcan-view
+	@echo "Installed to $(DESTDIR)/usr/local/bin/pcan-view"
 
 uninstall:
-	rm -f $(DESTDIR)/usr/local/bin/$(TARGET)
-
-# Rebuild if any header changes
-$(OBJS): $(wildcard inc/*.h)
+	rm -f $(DESTDIR)/usr/local/bin/pcan-view
+	@echo "Uninstalled pcan-view."

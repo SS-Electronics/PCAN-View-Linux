@@ -103,7 +103,6 @@ GtkWidget *create_trace_view(void)
 
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), TRUE);
     gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(tree), TRUE);
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE);
 
     struct { int col; const char *title; int width; } cols[] = {
         { TCOL_SEQ,   "#",         70  },

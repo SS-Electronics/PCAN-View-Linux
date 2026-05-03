@@ -41,6 +41,7 @@ typedef struct {
     volatile int rx_running;
     volatile int tx_running;
     volatile int stats_running;
+    volatile int shutting_down;
 
     /* --- Queues (GLib GAsyncQueue) --- */
     GAsyncQueue *rx_queue;   /* can_msg_t* items  */

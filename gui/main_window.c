@@ -26,6 +26,21 @@
 extern GtkWidget *create_trace_view(void);
 extern GtkWidget *create_stats_panel(void);
 
+/* Forward-declared here; defined in the transmit-panel section below */
+#define TX_PANEL_DATA_COLS 8
+static struct {
+    GtkWidget *id_entry;
+    GtkWidget *ext_check;
+    GtkWidget *rtr_check;
+    GtkWidget *dlc_spin;
+    GtkWidget *data_entry[TX_PANEL_DATA_COLS];
+    GtkWidget *interval_spin;
+    GtkWidget *start_btn;
+    GtkWidget *stop_btn;
+    GtkWidget *status_lbl;
+    guint      cyclic_id;
+} s_txp;
+
 /* ------------------------------------------------------------------ */
 /* Toolbar / menu callbacks                                             */
 /* ------------------------------------------------------------------ */
@@ -33,6 +48,8 @@ extern GtkWidget *create_stats_panel(void);
 static gboolean on_window_delete(GtkWidget *w, GdkEvent *e, gpointer d)
 {
     (void)w; (void)e; (void)d;
+    /* Stop cyclic timer before disconnect to prevent callbacks on dead widgets */
+    if (s_txp.cyclic_id) { g_source_remove(s_txp.cyclic_id); s_txp.cyclic_id = 0; }
     app_do_disconnect();
     return FALSE; /* allow default window destruction */
 }
@@ -328,6 +345,201 @@ static gboolean on_key_press(GtkWidget *w, GdkEventKey *ev, gpointer d)
 }
 
 /* ------------------------------------------------------------------ */
+/* Inline transmit panel (shown as a notebook tab in the main window)  */
+/* ------------------------------------------------------------------ */
+
+static gboolean txp_cyclic_tick(gpointer data)
+{
+    (void)data;
+    if (!g_app.connected || !s_txp.cyclic_id) return G_SOURCE_REMOVE;
+
+    if (!GTK_IS_WIDGET(s_txp.id_entry)) { s_txp.cyclic_id = 0; return G_SOURCE_REMOVE; }
+
+    can_msg_t *msg = calloc(1, sizeof(can_msg_t));
+    if (!msg) return G_SOURCE_CONTINUE;
+
+    const char *ids = gtk_entry_get_text(GTK_ENTRY(s_txp.id_entry));
+    msg->id          = (uint32_t)strtoul(ids, NULL, 16);
+    msg->is_extended = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.ext_check));
+    msg->is_remote   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.rtr_check));
+    msg->dlc         = (uint8_t)gtk_spin_button_get_value_as_int(
+                           GTK_SPIN_BUTTON(s_txp.dlc_spin));
+    if (!msg->is_remote) {
+        for (int i = 0; i < msg->dlc && i < TX_PANEL_DATA_COLS; i++) {
+            const char *ds = gtk_entry_get_text(GTK_ENTRY(s_txp.data_entry[i]));
+            msg->data[i] = (uint8_t)strtoul(ds, NULL, 16);
+        }
+    }
+    g_async_queue_push(g_app.tx_queue, msg);
+    return G_SOURCE_CONTINUE;
+}
+
+static void txp_send_once(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+    if (!g_app.connected) {
+        gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl),
+                             "<span color='red'>Not connected</span>");
+        return;
+    }
+    can_msg_t *msg = calloc(1, sizeof(can_msg_t));
+    if (!msg) return;
+
+    const char *ids = gtk_entry_get_text(GTK_ENTRY(s_txp.id_entry));
+    msg->id          = (uint32_t)strtoul(ids, NULL, 16);
+    msg->is_extended = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.ext_check));
+    msg->is_remote   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.rtr_check));
+    msg->dlc         = (uint8_t)gtk_spin_button_get_value_as_int(
+                           GTK_SPIN_BUTTON(s_txp.dlc_spin));
+    if (!msg->is_remote) {
+        for (int i = 0; i < msg->dlc && i < TX_PANEL_DATA_COLS; i++) {
+            const char *ds = gtk_entry_get_text(GTK_ENTRY(s_txp.data_entry[i]));
+            msg->data[i] = (uint8_t)strtoul(ds, NULL, 16);
+        }
+    }
+    g_async_queue_push(g_app.tx_queue, msg);
+    gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl),
+                         "<span color='green'>Queued</span>");
+}
+
+static void txp_start_cyclic(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+    if (s_txp.cyclic_id) return;
+    guint ms = (guint)gtk_spin_button_get_value_as_int(
+                   GTK_SPIN_BUTTON(s_txp.interval_spin));
+    if (ms < 1) ms = 100;
+    s_txp.cyclic_id = g_timeout_add(ms, txp_cyclic_tick, NULL);
+    gtk_widget_set_sensitive(s_txp.start_btn, FALSE);
+    gtk_widget_set_sensitive(s_txp.stop_btn,  TRUE);
+    gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl),
+                         "<span color='blue'>Cyclic running</span>");
+}
+
+static void txp_stop_cyclic(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+    if (s_txp.cyclic_id) { g_source_remove(s_txp.cyclic_id); s_txp.cyclic_id = 0; }
+    gtk_widget_set_sensitive(s_txp.start_btn, TRUE);
+    gtk_widget_set_sensitive(s_txp.stop_btn,  FALSE);
+    gtk_label_set_text(GTK_LABEL(s_txp.status_lbl), "");
+}
+
+static void txp_dlc_changed(GtkSpinButton *btn, gpointer d)
+{
+    (void)d;
+    int dlc = gtk_spin_button_get_value_as_int(btn);
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
+        gtk_widget_set_sensitive(s_txp.data_entry[i], i < dlc);
+}
+
+static void txp_rtr_toggled(GtkToggleButton *btn, gpointer d)
+{
+    (void)d;
+    gboolean rtr = gtk_toggle_button_get_active(btn);
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
+        gtk_widget_set_sensitive(s_txp.data_entry[i], !rtr);
+}
+
+static GtkWidget *create_transmit_panel(void)
+{
+    GtkWidget *outer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+    gtk_widget_set_margin_start(outer, 8);
+    gtk_widget_set_margin_end(outer, 8);
+    gtk_widget_set_margin_top(outer, 6);
+    gtk_widget_set_margin_bottom(outer, 6);
+
+    /* ---- Frame setup row ---- */
+    GtkWidget *row1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_box_pack_start(GTK_BOX(outer), row1, FALSE, FALSE, 0);
+
+    gtk_box_pack_start(GTK_BOX(row1), gtk_label_new("ID (hex):"),
+                       FALSE, FALSE, 0);
+    s_txp.id_entry = gtk_entry_new();
+    gtk_entry_set_max_length(GTK_ENTRY(s_txp.id_entry), 8);
+    gtk_entry_set_text(GTK_ENTRY(s_txp.id_entry), "001");
+    gtk_entry_set_width_chars(GTK_ENTRY(s_txp.id_entry), 9);
+    gtk_box_pack_start(GTK_BOX(row1), s_txp.id_entry, FALSE, FALSE, 0);
+
+    s_txp.ext_check = gtk_check_button_new_with_label("Ext (29-bit)");
+    gtk_box_pack_start(GTK_BOX(row1), s_txp.ext_check, FALSE, FALSE, 0);
+
+    s_txp.rtr_check = gtk_check_button_new_with_label("RTR");
+    g_signal_connect(s_txp.rtr_check, "toggled",
+                     G_CALLBACK(txp_rtr_toggled), NULL);
+    gtk_box_pack_start(GTK_BOX(row1), s_txp.rtr_check, FALSE, FALSE, 0);
+
+    gtk_box_pack_start(GTK_BOX(row1), gtk_label_new("DLC:"),
+                       FALSE, FALSE, 0);
+    GtkAdjustment *dlc_adj = gtk_adjustment_new(8, 0, 8, 1, 1, 0);
+    s_txp.dlc_spin = gtk_spin_button_new(dlc_adj, 1, 0);
+    gtk_widget_set_size_request(s_txp.dlc_spin, 55, -1);
+    g_signal_connect(s_txp.dlc_spin, "value-changed",
+                     G_CALLBACK(txp_dlc_changed), NULL);
+    gtk_box_pack_start(GTK_BOX(row1), s_txp.dlc_spin, FALSE, FALSE, 0);
+
+    /* ---- Data bytes row ---- */
+    GtkWidget *row2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    gtk_box_pack_start(GTK_BOX(outer), row2, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(row2), gtk_label_new("Data:"),
+                       FALSE, FALSE, 0);
+
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++) {
+        char lbuf[6];
+        snprintf(lbuf, sizeof(lbuf), "[%d]", i);
+        gtk_box_pack_start(GTK_BOX(row2), gtk_label_new(lbuf), FALSE, FALSE, 0);
+        s_txp.data_entry[i] = gtk_entry_new();
+        gtk_entry_set_max_length(GTK_ENTRY(s_txp.data_entry[i]), 2);
+        gtk_entry_set_text(GTK_ENTRY(s_txp.data_entry[i]), "00");
+        gtk_entry_set_width_chars(GTK_ENTRY(s_txp.data_entry[i]), 3);
+        gtk_box_pack_start(GTK_BOX(row2), s_txp.data_entry[i], FALSE, FALSE, 0);
+    }
+
+    /* ---- Actions row ---- */
+    GtkWidget *row3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_box_pack_start(GTK_BOX(outer), row3, FALSE, FALSE, 0);
+
+    GtkWidget *send_btn = gtk_button_new_with_label("Send Once");
+    g_signal_connect(send_btn, "clicked", G_CALLBACK(txp_send_once), NULL);
+    gtk_box_pack_start(GTK_BOX(row3), send_btn, FALSE, FALSE, 0);
+
+    gtk_box_pack_start(GTK_BOX(row3),
+                       gtk_separator_new(GTK_ORIENTATION_VERTICAL),
+                       FALSE, FALSE, 4);
+
+    gtk_box_pack_start(GTK_BOX(row3),
+                       gtk_label_new("Interval (ms):"), FALSE, FALSE, 0);
+    GtkAdjustment *int_adj = gtk_adjustment_new(100, 1, 60000, 10, 100, 0);
+    s_txp.interval_spin = gtk_spin_button_new(int_adj, 10, 0);
+    gtk_widget_set_size_request(s_txp.interval_spin, 80, -1);
+    gtk_box_pack_start(GTK_BOX(row3), s_txp.interval_spin, FALSE, FALSE, 0);
+
+    s_txp.start_btn = gtk_button_new_with_label("Start Cyclic");
+    g_signal_connect(s_txp.start_btn, "clicked",
+                     G_CALLBACK(txp_start_cyclic), NULL);
+    gtk_box_pack_start(GTK_BOX(row3), s_txp.start_btn, FALSE, FALSE, 0);
+
+    s_txp.stop_btn = gtk_button_new_with_label("Stop Cyclic");
+    g_signal_connect(s_txp.stop_btn, "clicked",
+                     G_CALLBACK(txp_stop_cyclic), NULL);
+    gtk_widget_set_sensitive(s_txp.stop_btn, FALSE);
+    gtk_box_pack_start(GTK_BOX(row3), s_txp.stop_btn, FALSE, FALSE, 0);
+
+    gtk_box_pack_start(GTK_BOX(row3),
+                       gtk_separator_new(GTK_ORIENTATION_VERTICAL),
+                       FALSE, FALSE, 4);
+
+    GtkWidget *adv_btn = gtk_button_new_with_label("Advanced TX…");
+    g_signal_connect(adv_btn, "clicked", G_CALLBACK(on_transmit), NULL);
+    gtk_box_pack_start(GTK_BOX(row3), adv_btn, FALSE, FALSE, 0);
+
+    s_txp.status_lbl = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(row3), s_txp.status_lbl, FALSE, FALSE, 0);
+
+    return outer;
+}
+
+/* ------------------------------------------------------------------ */
 /* Main window                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -362,16 +574,26 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
                        gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),
                        FALSE, FALSE, 0);
 
-    /* Paned: trace on top, stats on bottom */
+    /* Paned: receive trace on top, notebook (stats + transmit) on bottom */
     GtkWidget *paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_start(GTK_BOX(vbox), paned, TRUE, TRUE, 0);
 
     GtkWidget *trace_scroll = create_trace_view();
-    gtk_widget_set_size_request(trace_scroll, -1, 400);
+    gtk_widget_set_size_request(trace_scroll, -1, 380);
     gtk_paned_pack1(GTK_PANED(paned), trace_scroll, TRUE, FALSE);
 
+    /* Bottom notebook: Statistics | Transmit */
+    GtkWidget *notebook = gtk_notebook_new();
+    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_TOP);
+    gtk_paned_pack2(GTK_PANED(paned), notebook, FALSE, FALSE);
+
     GtkWidget *stats = create_stats_panel();
-    gtk_paned_pack2(GTK_PANED(paned), stats, FALSE, FALSE);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), stats,
+                             gtk_label_new("Statistics"));
+
+    GtkWidget *tx_panel = create_transmit_panel();
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), tx_panel,
+                             gtk_label_new("Transmit"));
 
     /* Status bar */
     g_gui.statusbar    = gtk_statusbar_new();
@@ -383,6 +605,27 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
     gtk_statusbar_push(GTK_STATUSBAR(g_gui.statusbar),
                        g_gui.statusbar_ctx,
                        "Ready – use File > Connect or press F5 to connect.");
+
+    /* ---- Footer bar ---- */
+    GtkWidget *footer_sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_box_pack_start(GTK_BOX(vbox), footer_sep, FALSE, FALSE, 0);
+
+    GtkWidget *footer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_set_margin_start(footer, 8);
+    gtk_widget_set_margin_end(footer, 8);
+    gtk_widget_set_margin_top(footer, 3);
+    gtk_widget_set_margin_bottom(footer, 3);
+    gtk_box_pack_start(GTK_BOX(vbox), footer, FALSE, FALSE, 0);
+
+    GtkWidget *footer_lbl = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(footer_lbl),
+        "<small><b>SS Electronics</b>  |  "
+        "Author: Subhajit Roy  |  "
+        "<a href=\"mailto:subhajitroy005@gmail.com\">"
+        "subhajitroy005@gmail.com</a>  |  "
+        "License: GPL 3.0</small>");
+    gtk_label_set_xalign(GTK_LABEL(footer_lbl), 0.5f);
+    gtk_box_pack_start(GTK_BOX(footer), footer_lbl, TRUE, TRUE, 0);
 
     gtk_widget_show_all(window);
     return window;
