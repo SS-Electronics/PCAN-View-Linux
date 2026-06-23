@@ -15,6 +15,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -23,6 +24,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
+#include <sys/wait.h>
 
 #include <net/if.h>
 #include <linux/can.h>
@@ -37,15 +39,51 @@
 /* Internal helpers                                                     */
 /* ------------------------------------------------------------------ */
 
-static int run_cmd(const char *fmt, ...)
+static int socketcan_iface_name_valid(const char *iface)
 {
-    char cmd[512];
-    va_list ap;
-    va_start(ap, fmt);
-    vsnprintf(cmd, sizeof(cmd), fmt, ap);
-    va_end(ap);
-    int ret = system(cmd);
-    return (ret == 0) ? 0 : -1;
+    if (!iface || iface[0] == '\0')
+        return 0;
+
+    size_t len = strlen(iface);
+    if (len >= IFNAMSIZ || len >= SOCKETCAN_MAX_IFACE)
+        return 0;
+
+    for (size_t i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)iface[i];
+        if (!isalnum(c) && c != '_' && c != '-' && c != '.')
+            return 0;
+    }
+    return 1;
+}
+
+static int run_ip(const char *const argv[], int quiet_stderr)
+{
+    pid_t pid = fork();
+    if (pid < 0)
+        return -1;
+
+    if (pid == 0) {
+        if (quiet_stderr) {
+            int devnull = open("/dev/null", O_WRONLY);
+            if (devnull >= 0) {
+                dup2(devnull, STDERR_FILENO);
+                close(devnull);
+            }
+        }
+
+        execvp("ip", (char *const *)argv);
+        _exit(127);
+    }
+
+    int status = 0;
+    while (waitpid(pid, &status, 0) < 0) {
+        if (errno != EINTR)
+            return -1;
+    }
+
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+        return 0;
+    return -1;
 }
 
 /* Bring interface down, configure bitrate, bring up */
@@ -53,30 +91,61 @@ static int configure_interface(const char *iface, uint32_t bitrate,
                                 uint32_t data_bitrate, int fd_mode,
                                 int listen_only)
 {
+    char bitrate_buf[16];
+    char data_bitrate_buf[16];
+
+    snprintf(bitrate_buf, sizeof(bitrate_buf), "%u", bitrate);
+    snprintf(data_bitrate_buf, sizeof(data_bitrate_buf), "%u", data_bitrate);
+
     /* Bring down first (ignore error – may already be down) */
-    run_cmd("ip link set %s down 2>/dev/null", iface);
+    const char *down_args[] = {
+        "ip", "link", "set", iface, "down", NULL
+    };
+    run_ip(down_args, 1);
 
     if (fd_mode && data_bitrate > 0) {
-        if (run_cmd("ip link set %s type can bitrate %u dbitrate %u fd on",
-                    iface, bitrate, data_bitrate) != 0) {
+        const char *fd_args[] = {
+            "ip", "link", "set", iface, "type", "can",
+            "bitrate", bitrate_buf,
+            "dbitrate", data_bitrate_buf,
+            "fd", "on",
+            NULL
+        };
+        if (run_ip(fd_args, 0) != 0) {
             fprintf(stderr, "socketcan: failed to set CAN FD bitrate on %s\n",
                     iface);
             return -1;
         }
     } else {
-        if (run_cmd("ip link set %s type can bitrate %u",
-                    iface, bitrate) != 0) {
-            /* Virtual CAN doesn't need bitrate; try bringing up anyway */
-            fprintf(stderr, "socketcan: warning – bitrate config failed on "
-                    "%s (ok for vcan)\n", iface);
+        const char *can_args[] = {
+            "ip", "link", "set", iface, "type", "can",
+            "bitrate", bitrate_buf,
+            NULL
+        };
+        if (run_ip(can_args, 0) != 0) {
+            fprintf(stderr, "socketcan: failed to set CAN bitrate on %s\n",
+                    iface);
+            return -1;
         }
     }
 
     if (listen_only) {
-        run_cmd("ip link set %s type can listen-only on", iface);
+        const char *listen_args[] = {
+            "ip", "link", "set", iface, "type", "can",
+            "listen-only", "on",
+            NULL
+        };
+        if (run_ip(listen_args, 0) != 0) {
+            fprintf(stderr, "socketcan: failed to enable listen-only on %s\n",
+                    iface);
+            return -1;
+        }
     }
 
-    if (run_cmd("ip link set %s up", iface) != 0) {
+    const char *up_args[] = {
+        "ip", "link", "set", iface, "up", NULL
+    };
+    if (run_ip(up_args, 0) != 0) {
         fprintf(stderr, "socketcan: failed to bring up %s\n", iface);
         return -1;
     }
@@ -91,7 +160,7 @@ int socketcan_open(socketcan_ctx_t *ctx, const char *iface,
                    uint32_t bitrate, uint32_t data_bitrate,
                    int fd_mode, int listen_only)
 {
-    if (!ctx || !iface || iface[0] == '\0')
+    if (!ctx || !socketcan_iface_name_valid(iface))
         return DRV_CAN_ERR_PARAM;
 
     memset(ctx, 0, sizeof(*ctx));
@@ -100,7 +169,7 @@ int socketcan_open(socketcan_ctx_t *ctx, const char *iface,
     ctx->listen_only = listen_only;
     ctx->bitrate     = bitrate;
     ctx->data_bitrate = data_bitrate;
-    strncpy(ctx->iface, iface, SOCKETCAN_MAX_IFACE - 1);
+    memcpy(ctx->iface, iface, strlen(iface) + 1);
 
     /* Configure interface bitrate (skip for vcan) */
     if (strncmp(iface, "vcan", 4) != 0) {
@@ -109,7 +178,10 @@ int socketcan_open(socketcan_ctx_t *ctx, const char *iface,
             return DRV_CAN_ERR_INIT;
     } else {
         /* vcan: just bring it up */
-        run_cmd("ip link set %s up 2>/dev/null", iface);
+        const char *up_args[] = {
+            "ip", "link", "set", iface, "up", NULL
+        };
+        run_ip(up_args, 1);
     }
 
     /* Create raw CAN socket */
@@ -138,7 +210,7 @@ int socketcan_open(socketcan_ctx_t *ctx, const char *iface,
     /* Bind to the interface */
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(ifr));
-    strncpy(ifr.ifr_name, iface, IFNAMSIZ - 1);
+    memcpy(ifr.ifr_name, iface, strlen(iface) + 1);
     if (ioctl(ctx->sock_fd, SIOCGIFINDEX, &ifr) < 0) {
         perror("socketcan: ioctl SIOCGIFINDEX");
         close(ctx->sock_fd);
@@ -169,7 +241,10 @@ int socketcan_close(socketcan_ctx_t *ctx)
         ctx->sock_fd = -1;
     }
     if (strncmp(ctx->iface, "vcan", 4) != 0 && ctx->iface[0] != '\0') {
-        run_cmd("ip link set %s down 2>/dev/null", ctx->iface);
+        const char *down_args[] = {
+            "ip", "link", "set", ctx->iface, "down", NULL
+        };
+        run_ip(down_args, 1);
     }
     return DRV_CAN_OK;
 }
@@ -307,8 +382,14 @@ int socketcan_reset(socketcan_ctx_t *ctx)
     if (!ctx || ctx->iface[0] == '\0')
         return DRV_CAN_ERR_PARAM;
 
-    run_cmd("ip link set %s down 2>/dev/null", ctx->iface);
-    run_cmd("ip link set %s up 2>/dev/null",   ctx->iface);
+    const char *down_args[] = {
+        "ip", "link", "set", ctx->iface, "down", NULL
+    };
+    const char *up_args[] = {
+        "ip", "link", "set", ctx->iface, "up", NULL
+    };
+    run_ip(down_args, 1);
+    run_ip(up_args, 1);
     return DRV_CAN_OK;
 }
 

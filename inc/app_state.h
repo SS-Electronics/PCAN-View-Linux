@@ -14,6 +14,17 @@ typedef struct _GHashTable  GHashTable;
 #define APP_MAX_IFACE_LEN   32
 #define APP_TRACE_FILE_LEN 256
 
+typedef enum {
+    APP_ID_FORMAT_HEX = 0,
+    APP_ID_FORMAT_DEC = 1,
+} app_id_format_t;
+
+typedef enum {
+    APP_DATA_FORMAT_HEX   = 0,
+    APP_DATA_FORMAT_DEC   = 1,
+    APP_DATA_FORMAT_ASCII = 2,
+} app_data_format_t;
+
 typedef struct {
     /* --- Connection --- */
     volatile int  connected;
@@ -55,6 +66,8 @@ typedef struct {
 
     /* --- Message deduplication (unique-IDs view) --- */
     int             dedup_mode;
+    int             id_format;
+    int             data_format;
     pthread_mutex_t dedup_mutex;
     GHashTable     *dedup_table;  /* uint32_t id -> row index */
 

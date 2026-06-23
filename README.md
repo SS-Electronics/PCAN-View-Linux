@@ -49,7 +49,8 @@ PCAN-View-Linux/
 │   ├── settings_dialog.c      Connection settings dialog
 │   └── transmit_dialog.c      Message transmit window
 └── scripts/
-    └── install_dependencies.sh  Dependency installer (Debian/Ubuntu/Arch/Fedora)
+    ├── install_dependencies.sh  Dependency installer (Debian/Ubuntu/Arch/Fedora)
+    └── test_without_pcan.py     Local vcan smoke-test helper
 ```
 
 ---
@@ -151,7 +152,7 @@ sudo modprobe vcan
 sudo ip link add dev vcan0 type vcan
 sudo ip link set up vcan0
 
-./pcan-view
+./build/pcan-view
 # → File > Connect (or F5) → select vcan0, 500 kbit/s → Connect
 ```
 
@@ -162,7 +163,11 @@ cansend vcan0 123#DEADBEEF
 cansend vcan0 18FF50E5#0102030405060708    # extended frame
 ```
 
-### 5. Run with real PEAK hardware
+### 5. Virtual CAN test workflow
+
+For a complete no-hardware test flow, see [Virtual CAN Testing](#virtual-can-testing).
+
+### 6. Run with real PEAK hardware
 
 PEAK-System USB/PCIe interfaces are supported out-of-the-box via the
 `peak_usb` / `peak_pci` kernel module (Linux ≥ 3.2).
@@ -172,13 +177,121 @@ PEAK-System USB/PCIe interfaces are supported out-of-the-box via the
 ip link show type can
 
 # Connect using e.g. can0 at 500 kbit/s
-sudo ./pcan-view
+sudo ./build/pcan-view
 # → File > Connect → interface: can0, bitrate: 500 kbit/s → Connect
 ```
 
 The application will automatically run `ip link set <iface> type can
 bitrate <rate>` and `ip link set <iface> up`, so **root privileges (or
 `CAP_NET_ADMIN`)** are required for real hardware.
+
+---
+
+## Virtual CAN Testing
+
+Use this workflow to test the application without PEAK/PCAN hardware. It uses
+Linux SocketCAN with a virtual CAN interface named `vcan0`.
+
+### 1. Install prerequisites
+
+Recommended:
+
+```bash
+sudo ./scripts/install_dependencies.sh
+```
+
+Manual Debian/Ubuntu install:
+
+```bash
+sudo apt update
+sudo apt install -y build-essential pkg-config libgtk-3-dev can-utils iproute2 python3
+```
+
+Prepare the virtual CAN kernel module manually if you do not use the helper
+script:
+
+```bash
+sudo modprobe vcan
+sudo ip link add dev vcan0 type vcan
+sudo ip link set dev vcan0 up
+```
+
+Check that the interface is available:
+
+```bash
+ip -details link show dev vcan0
+```
+
+### 2. Run test scripts
+
+Build the app, create/bring up `vcan0` when needed, and verify SocketCAN
+loopback:
+
+```bash
+python3 scripts/test_without_pcan.py
+```
+
+If the app is already built:
+
+```bash
+python3 scripts/test_without_pcan.py --skip-build
+```
+
+If `vcan0` already exists and is up, skip interface setup:
+
+```bash
+python3 scripts/test_without_pcan.py --skip-build --no-setup
+```
+
+Generate demo traffic for the GUI after connecting the app to `vcan0`:
+
+```bash
+python3 scripts/test_without_pcan.py --skip-build --no-setup --traffic-seconds 30
+```
+
+Launch the GTK application after the smoke test:
+
+```bash
+python3 scripts/test_without_pcan.py --skip-build --no-setup --launch-app
+```
+
+You can also send individual frames from another terminal:
+
+```bash
+cansend vcan0 123#DEADBEEF
+cansend vcan0 18FF50E5#0102030405060708
+```
+
+### 3. What to check in the application
+
+Open the app:
+
+```bash
+./build/pcan-view
+```
+
+Then verify these items:
+
+1. **Connect**: use `File > Connect` or `F5`, select `vcan0`, keep bitrate at
+   `500000`, and click Connect. The toolbar should show connected state and
+   the statistics panel should show `vcan0`.
+2. **Receive trace**: run the demo traffic command above or use `cansend`.
+   New Rx rows should appear with timestamp, ID, type, DLC, data, and count.
+3. **Transmit once**: open the Transmit tab, set ID `123`, data bytes such as
+   `DE AD BE EF`, and click Send Once. A Tx row should appear.
+4. **Cyclic transmit**: set an interval such as `100 ms`, click Start Cyclic,
+   confirm repeated Tx activity, then click Stop Cyclic.
+5. **Advanced transmit**: open `CAN > Transmit...` and verify standard,
+   extended, RTR, and CAN FD validation messages behave as expected.
+6. **Display modes**: use `View > ID Format` and `View > Data Format` to switch
+   between hexadecimal, decimal, and ASCII display. Existing trace rows should
+   refresh.
+7. **Deduplication**: enable `View > Deduplicate Messages`, send repeated
+   frames with the same ID, and confirm the Count column increments.
+8. **Trace recording**: use `File > Start Trace...`, send traffic, stop the
+   trace, and confirm the CSV file contains the captured frames.
+9. **Disconnect**: use `File > Disconnect` or `F6`; the UI should return to a
+   disconnected state without crashing.
 
 ---
 

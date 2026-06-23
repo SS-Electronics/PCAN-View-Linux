@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <time.h>
+#include <ctype.h>
 
 #include <gtk/gtk.h>
 
@@ -15,6 +16,12 @@
 
 #define MAX_TRACE_ROWS  50000
 #define DEDUP_TABLE_SZ  0x800u   /* initial hash table size */
+#define DATA_TEXT_MAX   512
+#define RAW_DATA_MAX    ((CANFD_DATA_MAX * 2u) + 1u)
+#define ID_TEXT_MAX     16
+#define TIME_TEXT_MAX   32
+#define INTERVAL_TEXT_MAX 32
+#define FREQ_TEXT_MAX   32
 
 /* ------------------------------------------------------------------ */
 /* Formatting helpers                                                   */
@@ -22,23 +29,140 @@
 
 void gui_format_id(char *buf, size_t sz, uint32_t id, int is_ext)
 {
-    if (is_ext)
+    if (sz == 0) return;
+
+    if (g_app.id_format == APP_ID_FORMAT_DEC) {
+        snprintf(buf, sz, "%u", id);
+    } else if (is_ext) {
         snprintf(buf, sz, "%08X", id);
-    else
+    } else {
         snprintf(buf, sz, "%03X", id);
+    }
 }
 
 void gui_format_data(char *buf, size_t sz, const uint8_t *d, uint8_t dlc)
 {
+    if (sz == 0) return;
+    buf[0] = '\0';
+
     if (dlc == 0) {
-        strncpy(buf, "-", sz);
+        snprintf(buf, sz, "-");
         return;
     }
+
     size_t pos = 0;
-    for (uint8_t i = 0; i < dlc && pos + 3 < sz; i++) {
-        pos += (size_t)snprintf(buf + pos, sz - pos,
-                                i ? " %02X" : "%02X", d[i]);
+    if (g_app.data_format == APP_DATA_FORMAT_ASCII) {
+        for (uint8_t i = 0; i < dlc && pos + 1 < sz; i++) {
+            unsigned char c = d[i];
+            buf[pos++] = isprint(c) ? (char)c : '.';
+        }
+        buf[pos] = '\0';
+        return;
     }
+
+    for (uint8_t i = 0; i < dlc && pos + 4 < sz; i++) {
+        if (g_app.data_format == APP_DATA_FORMAT_DEC) {
+            pos += (size_t)snprintf(buf + pos, sz - pos,
+                                    i ? " %u" : "%u", d[i]);
+        } else {
+            pos += (size_t)snprintf(buf + pos, sz - pos,
+                                    i ? " %02X" : "%02X", d[i]);
+        }
+    }
+}
+
+static void format_raw_data(char *buf, size_t sz,
+                            const uint8_t *d, uint8_t dlc)
+{
+    if (sz == 0) return;
+    buf[0] = '\0';
+
+    size_t pos = 0;
+    for (uint8_t i = 0; i < dlc && pos + 3 <= sz; i++) {
+        pos += (size_t)snprintf(buf + pos, sz - pos, "%02X", d[i]);
+    }
+}
+
+static int hex_value(char c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+static uint8_t parse_raw_data(const char *raw, uint8_t *out, uint8_t dlc)
+{
+    if (!raw || !out) return 0;
+
+    uint8_t count = 0;
+    while (count < dlc && raw[count * 2] && raw[count * 2 + 1]) {
+        int hi = hex_value(raw[count * 2]);
+        int lo = hex_value(raw[count * 2 + 1]);
+        if (hi < 0 || lo < 0)
+            break;
+        out[count] = (uint8_t)((hi << 4) | lo);
+        count++;
+    }
+    return count;
+}
+
+static gint64 timespec_to_ns(const struct timespec *ts)
+{
+    return ((gint64)ts->tv_sec * 1000000000LL) + (gint64)ts->tv_nsec;
+}
+
+static void format_timestamp(char *buf, size_t sz, const struct timespec *ts)
+{
+    if (sz == 0) return;
+
+    time_t sec = ts->tv_sec;
+    struct tm tm_info;
+    if (!localtime_r(&sec, &tm_info)) {
+        snprintf(buf, sz, "--:--:--.---");
+        return;
+    }
+
+    snprintf(buf, sz, "%02d:%02d:%02d.%03ld",
+             tm_info.tm_hour, tm_info.tm_min, tm_info.tm_sec,
+             ts->tv_nsec / 1000000L);
+}
+
+static void format_interval(char *buf, size_t sz, gint64 delta_ns)
+{
+    if (sz == 0) return;
+    if (delta_ns <= 0) {
+        snprintf(buf, sz, "-");
+        return;
+    }
+
+    snprintf(buf, sz, "%.3f", (double)delta_ns / 1000000.0);
+}
+
+static void format_frequency(char *buf, size_t sz, gint64 delta_ns)
+{
+    if (sz == 0) return;
+    if (delta_ns <= 0) {
+        snprintf(buf, sz, "-");
+        return;
+    }
+
+    double hz = 1000000000.0 / (double)delta_ns;
+    if (hz >= 1000.0) {
+        snprintf(buf, sz, "%.0f", hz);
+    } else if (hz >= 10.0) {
+        snprintf(buf, sz, "%.1f", hz);
+    } else {
+        snprintf(buf, sz, "%.3f", hz);
+    }
+}
+
+static gboolean should_rollup_message(const can_msg_t *msg)
+{
+    if (msg->is_error)
+        return FALSE;
+
+    return msg->direction == CAN_DIR_RX || g_app.dedup_mode;
 }
 
 const char *gui_msg_type_str(const can_msg_t *m)
@@ -92,8 +216,15 @@ GtkWidget *create_trace_view(void)
         G_TYPE_STRING,   /* TYPE  */
         G_TYPE_UINT,     /* DLC   */
         G_TYPE_STRING,   /* DATA  */
+        G_TYPE_STRING,   /* INTERVAL */
+        G_TYPE_STRING,   /* FREQ */
         G_TYPE_UINT,     /* COUNT */
-        G_TYPE_STRING    /* FG    */
+        G_TYPE_STRING,   /* FG    */
+        G_TYPE_UINT,     /* ID_RAW */
+        G_TYPE_BOOLEAN,  /* EXT_RAW */
+        G_TYPE_UINT,     /* DIR_RAW */
+        G_TYPE_STRING,   /* DATA_RAW */
+        G_TYPE_INT64     /* TS_NS */
     );
     g_gui.trace_store = store;
 
@@ -112,6 +243,8 @@ GtkWidget *create_trace_view(void)
         { TCOL_TYPE,  "Type",      75  },
         { TCOL_DLC,   "DLC",       45  },
         { TCOL_DATA,  "Data",      350 },
+        { TCOL_INTERVAL, "Interval (ms)", 105 },
+        { TCOL_FREQ,  "Freq (Hz)", 90  },
         { TCOL_COUNT, "Count",     60  },
     };
 
@@ -126,6 +259,8 @@ GtkWidget *create_trace_view(void)
             GTK_TREE_VIEW_COLUMN_FIXED);
         gtk_tree_view_column_set_fixed_width(col, cols[i].width);
         gtk_tree_view_column_set_resizable(col, TRUE);
+        gtk_tree_view_column_set_sort_column_id(
+            col, cols[i].col == TCOL_ID ? TCOL_ID_RAW : cols[i].col);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col);
     }
 
@@ -210,7 +345,75 @@ void gui_add_message(const can_msg_t *msg)
 {
     if (!g_gui.trace_store) return;
 
-    /* Enforce max rows – remove oldest when limit reached */
+    /* RX rows roll up by CAN ID; optional dedup mode applies the same to TX. */
+    if (should_rollup_message(msg)) {
+        GtkTreeIter iter;
+        gboolean found = FALSE;
+        if (gtk_tree_model_get_iter_first(
+                GTK_TREE_MODEL(g_gui.trace_store), &iter)) {
+            do {
+                guint row_id = 0;
+                guint row_dir = 0;
+                gboolean row_ext = FALSE;
+                gtk_tree_model_get(GTK_TREE_MODEL(g_gui.trace_store),
+                                   &iter,
+                                   TCOL_ID_RAW, &row_id,
+                                   TCOL_EXT_RAW, &row_ext,
+                                   TCOL_DIR_RAW, &row_dir,
+                                   -1);
+                if (row_id == msg->id &&
+                    row_ext == (gboolean)msg->is_extended &&
+                    row_dir == (guint)msg->direction) {
+                    found = TRUE;
+
+                    guint cnt = 0;
+                    gint64 last_ts_ns = 0;
+                    gtk_tree_model_get(GTK_TREE_MODEL(g_gui.trace_store),
+                                       &iter,
+                                       TCOL_COUNT, &cnt,
+                                       TCOL_TS_NS, &last_ts_ns,
+                                       -1);
+
+                    gint64 ts_ns = timespec_to_ns(&msg->timestamp);
+                    gint64 delta_ns = last_ts_ns > 0 ? ts_ns - last_ts_ns : 0;
+                    if (delta_ns < 0)
+                        delta_ns = 0;
+
+                    char ts[TIME_TEXT_MAX];
+                    char data_buf[DATA_TEXT_MAX];
+                    char raw_data[RAW_DATA_MAX];
+                    char interval_buf[INTERVAL_TEXT_MAX];
+                    char freq_buf[FREQ_TEXT_MAX];
+                    format_timestamp(ts, sizeof(ts), &msg->timestamp);
+                    gui_format_data(data_buf, sizeof(data_buf),
+                                    msg->data, msg->dlc);
+                    format_raw_data(raw_data, sizeof(raw_data),
+                                    msg->data, msg->dlc);
+                    format_interval(interval_buf, sizeof(interval_buf),
+                                    delta_ns);
+                    format_frequency(freq_buf, sizeof(freq_buf), delta_ns);
+
+                    gtk_list_store_set(g_gui.trace_store, &iter,
+                        TCOL_TIME,  ts,
+                        TCOL_TYPE,  gui_msg_type_str(msg),
+                        TCOL_DLC,   (guint)msg->dlc,
+                        TCOL_DATA,  data_buf,
+                        TCOL_INTERVAL, interval_buf,
+                        TCOL_FREQ,  freq_buf,
+                        TCOL_COUNT, cnt + 1,
+                        TCOL_FG,    row_fg(msg),
+                        TCOL_DATA_RAW, raw_data,
+                        TCOL_TS_NS, ts_ns,
+                        -1);
+                    break;
+                }
+            } while (gtk_tree_model_iter_next(
+                         GTK_TREE_MODEL(g_gui.trace_store), &iter));
+        }
+        if (found) return;
+    }
+
+    /* Enforce max rows only when a new visible row is appended. */
     gint n = gtk_tree_model_iter_n_children(
         GTK_TREE_MODEL(g_gui.trace_store), NULL);
     if (n >= MAX_TRACE_ROWS) {
@@ -220,59 +423,20 @@ void gui_add_message(const can_msg_t *msg)
             gtk_list_store_remove(g_gui.trace_store, &first);
     }
 
-    /* In dedup mode, search for existing row with same ID */
-    if (g_app.dedup_mode && !msg->is_error) {
-        GtkTreeIter iter;
-        gboolean found = FALSE;
-        if (gtk_tree_model_get_iter_first(
-                GTK_TREE_MODEL(g_gui.trace_store), &iter)) {
-            do {
-                gchar *id_str = NULL;
-                gtk_tree_model_get(GTK_TREE_MODEL(g_gui.trace_store),
-                                   &iter, TCOL_ID, &id_str, -1);
-                char this_id[16];
-                gui_format_id(this_id, sizeof(this_id),
-                              msg->id, msg->is_extended);
-                if (id_str && strcmp(id_str, this_id) == 0) {
-                    found = TRUE;
-                    g_free(id_str);
-
-                    guint cnt = 0;
-                    gtk_tree_model_get(GTK_TREE_MODEL(g_gui.trace_store),
-                                       &iter, TCOL_COUNT, &cnt, -1);
-
-                    char ts[32], data_buf[192];
-                    struct tm *tm_info = localtime(&msg->timestamp.tv_sec);
-                    snprintf(ts, sizeof(ts), "%02d:%02d:%02d.%03ld",
-                             tm_info->tm_hour, tm_info->tm_min,
-                             tm_info->tm_sec,
-                             msg->timestamp.tv_nsec / 1000000L);
-                    gui_format_data(data_buf, sizeof(data_buf),
-                                    msg->data, msg->dlc);
-
-                    gtk_list_store_set(g_gui.trace_store, &iter,
-                        TCOL_TIME,  ts,
-                        TCOL_DATA,  data_buf,
-                        TCOL_COUNT, cnt + 1,
-                        -1);
-                    break;
-                }
-                g_free(id_str);
-            } while (gtk_tree_model_iter_next(
-                         GTK_TREE_MODEL(g_gui.trace_store), &iter));
-        }
-        if (found) return;
-    }
-
     /* Format fields */
-    char id_buf[16], data_buf[192], ts[32];
+    char id_buf[ID_TEXT_MAX];
+    char data_buf[DATA_TEXT_MAX];
+    char raw_data[RAW_DATA_MAX];
+    char ts[TIME_TEXT_MAX];
+    char interval_buf[INTERVAL_TEXT_MAX];
+    char freq_buf[FREQ_TEXT_MAX];
+    gint64 ts_ns = timespec_to_ns(&msg->timestamp);
     gui_format_id(id_buf, sizeof(id_buf), msg->id, msg->is_extended);
     gui_format_data(data_buf, sizeof(data_buf), msg->data, msg->dlc);
-
-    struct tm *tm_info = localtime(&msg->timestamp.tv_sec);
-    snprintf(ts, sizeof(ts), "%02d:%02d:%02d.%03ld",
-             tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec,
-             msg->timestamp.tv_nsec / 1000000L);
+    format_raw_data(raw_data, sizeof(raw_data), msg->data, msg->dlc);
+    format_timestamp(ts, sizeof(ts), &msg->timestamp);
+    format_interval(interval_buf, sizeof(interval_buf), 0);
+    format_frequency(freq_buf, sizeof(freq_buf), 0);
 
     GtkTreeIter iter;
     gtk_list_store_append(g_gui.trace_store, &iter);
@@ -284,8 +448,15 @@ void gui_add_message(const can_msg_t *msg)
         TCOL_TYPE,  gui_msg_type_str(msg),
         TCOL_DLC,   (guint)msg->dlc,
         TCOL_DATA,  data_buf,
+        TCOL_INTERVAL, interval_buf,
+        TCOL_FREQ,  freq_buf,
         TCOL_COUNT, 1u,
         TCOL_FG,    row_fg(msg),
+        TCOL_ID_RAW, (guint)msg->id,
+        TCOL_EXT_RAW, (gboolean)msg->is_extended,
+        TCOL_DIR_RAW, (guint)msg->direction,
+        TCOL_DATA_RAW, raw_data,
+        TCOL_TS_NS, ts_ns,
         -1);
 
     /* Auto-scroll to bottom */
@@ -304,6 +475,48 @@ void gui_clear_trace(void)
 {
     if (g_gui.trace_store)
         gtk_list_store_clear(g_gui.trace_store);
+}
+
+void gui_refresh_trace_display(void)
+{
+    if (!g_gui.trace_store) return;
+
+    GtkTreeIter iter;
+    if (!gtk_tree_model_get_iter_first(
+            GTK_TREE_MODEL(g_gui.trace_store), &iter))
+        return;
+
+    do {
+        guint id = 0;
+        guint dlc = 0;
+        gboolean is_ext = FALSE;
+        gchar *raw = NULL;
+
+        gtk_tree_model_get(GTK_TREE_MODEL(g_gui.trace_store), &iter,
+                           TCOL_ID_RAW, &id,
+                           TCOL_EXT_RAW, &is_ext,
+                           TCOL_DLC, &dlc,
+                           TCOL_DATA_RAW, &raw,
+                           -1);
+
+        uint8_t data[CANFD_DATA_MAX] = {0};
+        if (dlc > CANFD_DATA_MAX)
+            dlc = CANFD_DATA_MAX;
+        parse_raw_data(raw, data, (uint8_t)dlc);
+
+        char id_buf[ID_TEXT_MAX];
+        char data_buf[DATA_TEXT_MAX];
+        gui_format_id(id_buf, sizeof(id_buf), id, is_ext);
+        gui_format_data(data_buf, sizeof(data_buf), data, (uint8_t)dlc);
+
+        gtk_list_store_set(g_gui.trace_store, &iter,
+            TCOL_ID, id_buf,
+            TCOL_DATA, data_buf,
+            -1);
+
+        g_free(raw);
+    } while (gtk_tree_model_iter_next(
+                 GTK_TREE_MODEL(g_gui.trace_store), &iter));
 }
 
 /* ------------------------------------------------------------------ */

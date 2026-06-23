@@ -39,6 +39,8 @@ void app_state_init(void)
     g_app.tx_queue     = g_async_queue_new_full(free);
     g_app.bitrate      = 500000;
     g_app.data_bitrate = 2000000;
+    g_app.id_format    = APP_ID_FORMAT_HEX;
+    g_app.data_format  = APP_DATA_FORMAT_HEX;
     strncpy(g_app.iface, "vcan0", APP_MAX_IFACE_LEN - 1);
 }
 
@@ -97,9 +99,22 @@ static void trace_write(const can_msg_t *msg)
 {
     if (!g_app.tracing || !g_app.trace_file) return;
 
-    char id_buf[16], data_buf[192];
-    gui_format_id(id_buf, sizeof(id_buf), msg->id, msg->is_extended);
-    gui_format_data(data_buf, sizeof(data_buf), msg->data, msg->dlc);
+    char id_buf[16], data_buf[512];
+
+    if (msg->is_extended)
+        snprintf(id_buf, sizeof(id_buf), "%08X", msg->id);
+    else
+        snprintf(id_buf, sizeof(id_buf), "%03X", msg->id);
+
+    if (msg->dlc == 0) {
+        snprintf(data_buf, sizeof(data_buf), "-");
+    } else {
+        size_t pos = 0;
+        for (uint8_t i = 0; i < msg->dlc && pos + 4 < sizeof(data_buf); i++) {
+            pos += (size_t)snprintf(data_buf + pos, sizeof(data_buf) - pos,
+                                    i ? " %02X" : "%02X", msg->data[i]);
+        }
+    }
 
     double ts = (double)msg->timestamp.tv_sec
               + (double)msg->timestamp.tv_nsec / 1e9;

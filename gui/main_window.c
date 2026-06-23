@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <ctype.h>
 
 #include <gtk/gtk.h>
 
@@ -28,6 +30,10 @@ extern GtkWidget *create_stats_panel(void);
 
 /* Forward-declared here; defined in the transmit-panel section below */
 #define TX_PANEL_DATA_COLS 8
+#define TX_STD_ID_MAX      0x7FFu
+#define TX_EXT_ID_MAX      0x1FFFFFFFu
+#define TX_BYTE_MAX        0xFFu
+
 static struct {
     GtkWidget *id_entry;
     GtkWidget *ext_check;
@@ -171,8 +177,33 @@ static void on_dedup_toggle(GtkCheckMenuItem *item, gpointer d)
     (void)d;
     g_app.dedup_mode = gtk_check_menu_item_get_active(item);
     gui_clear_trace();
-    gui_status_message("Deduplication: %s",
+    gui_status_message("Tx roll-up: %s",
                        g_app.dedup_mode ? "ON" : "OFF");
+}
+
+static void on_id_format_toggle(GtkCheckMenuItem *item, gpointer d)
+{
+    int fmt = GPOINTER_TO_INT(d);
+    if (!gtk_check_menu_item_get_active(item))
+        return;
+
+    g_app.id_format = fmt;
+    gui_refresh_trace_display();
+    gui_status_message("ID display format: %s",
+        fmt == APP_ID_FORMAT_DEC ? "decimal" : "hexadecimal");
+}
+
+static void on_data_format_toggle(GtkCheckMenuItem *item, gpointer d)
+{
+    int fmt = GPOINTER_TO_INT(d);
+    if (!gtk_check_menu_item_get_active(item))
+        return;
+
+    g_app.data_format = fmt;
+    gui_refresh_trace_display();
+    gui_status_message("Data display format: %s",
+        fmt == APP_DATA_FORMAT_ASCII ? "ASCII" :
+        fmt == APP_DATA_FORMAT_DEC ? "decimal" : "hexadecimal");
 }
 
 /* ------------------------------------------------------------------ */
@@ -234,10 +265,65 @@ static GtkWidget *build_menubar(void)
     /* --- View --- */
     GtkWidget *view_menu = gtk_menu_new();
     GtkWidget *dedup_item = gtk_check_menu_item_new_with_mnemonic(
-        "_Deduplicate Messages");
+        "_Roll Up Tx Messages");
     g_signal_connect(dedup_item, "toggled",
                      G_CALLBACK(on_dedup_toggle), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), dedup_item);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu),
+        gtk_separator_menu_item_new());
+
+    GtkWidget *id_menu = gtk_menu_new();
+    GtkWidget *id_hex = gtk_radio_menu_item_new_with_mnemonic(
+        NULL, "_Hexadecimal");
+    GtkWidget *id_dec = gtk_radio_menu_item_new_with_mnemonic_from_widget(
+        GTK_RADIO_MENU_ITEM(id_hex), "_Decimal");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(id_hex),
+        g_app.id_format == APP_ID_FORMAT_HEX);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(id_dec),
+        g_app.id_format == APP_ID_FORMAT_DEC);
+    g_signal_connect(id_hex, "toggled",
+        G_CALLBACK(on_id_format_toggle),
+        GINT_TO_POINTER(APP_ID_FORMAT_HEX));
+    g_signal_connect(id_dec, "toggled",
+        G_CALLBACK(on_id_format_toggle),
+        GINT_TO_POINTER(APP_ID_FORMAT_DEC));
+    gtk_menu_shell_append(GTK_MENU_SHELL(id_menu), id_hex);
+    gtk_menu_shell_append(GTK_MENU_SHELL(id_menu), id_dec);
+
+    GtkWidget *id_item = gtk_menu_item_new_with_mnemonic("_ID Format");
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(id_item), id_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), id_item);
+
+    GtkWidget *data_menu = gtk_menu_new();
+    GtkWidget *data_hex = gtk_radio_menu_item_new_with_mnemonic(
+        NULL, "_Hexadecimal");
+    GtkWidget *data_dec = gtk_radio_menu_item_new_with_mnemonic_from_widget(
+        GTK_RADIO_MENU_ITEM(data_hex), "_Decimal");
+    GtkWidget *data_ascii = gtk_radio_menu_item_new_with_mnemonic_from_widget(
+        GTK_RADIO_MENU_ITEM(data_hex), "_ASCII");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(data_hex),
+        g_app.data_format == APP_DATA_FORMAT_HEX);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(data_dec),
+        g_app.data_format == APP_DATA_FORMAT_DEC);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(data_ascii),
+        g_app.data_format == APP_DATA_FORMAT_ASCII);
+    g_signal_connect(data_hex, "toggled",
+        G_CALLBACK(on_data_format_toggle),
+        GINT_TO_POINTER(APP_DATA_FORMAT_HEX));
+    g_signal_connect(data_dec, "toggled",
+        G_CALLBACK(on_data_format_toggle),
+        GINT_TO_POINTER(APP_DATA_FORMAT_DEC));
+    g_signal_connect(data_ascii, "toggled",
+        G_CALLBACK(on_data_format_toggle),
+        GINT_TO_POINTER(APP_DATA_FORMAT_ASCII));
+    gtk_menu_shell_append(GTK_MENU_SHELL(data_menu), data_hex);
+    gtk_menu_shell_append(GTK_MENU_SHELL(data_menu), data_dec);
+    gtk_menu_shell_append(GTK_MENU_SHELL(data_menu), data_ascii);
+
+    GtkWidget *data_item = gtk_menu_item_new_with_mnemonic("_Data Format");
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(data_item), data_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), data_item);
 
     GtkWidget *view_item = gtk_menu_item_new_with_mnemonic("_View");
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
@@ -348,6 +434,71 @@ static gboolean on_key_press(GtkWidget *w, GdkEventKey *ev, gpointer d)
 /* Inline transmit panel (shown as a notebook tab in the main window)  */
 /* ------------------------------------------------------------------ */
 
+static int parse_hex_u32_strict(const char *s, uint32_t max, uint32_t *out)
+{
+    if (!s || !out) return -1;
+
+    while (isspace((unsigned char)*s)) s++;
+    if (*s == '\0' || *s == '+' || *s == '-') return -1;
+
+    errno = 0;
+    char *end = NULL;
+    unsigned long v = strtoul(s, &end, 16);
+    if (errno == ERANGE || end == s || v > max) return -1;
+
+    while (isspace((unsigned char)*end)) end++;
+    if (*end != '\0') return -1;
+
+    *out = (uint32_t)v;
+    return 0;
+}
+
+static void txp_set_error(const char *msg)
+{
+    char markup[192];
+    snprintf(markup, sizeof(markup),
+             "<span color='red'>%s</span>", msg);
+    gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl), markup);
+}
+
+static gboolean txp_build_frame(can_msg_t *msg)
+{
+    memset(msg, 0, sizeof(*msg));
+
+    msg->is_extended = gtk_toggle_button_get_active(
+        GTK_TOGGLE_BUTTON(s_txp.ext_check));
+    msg->is_remote = gtk_toggle_button_get_active(
+        GTK_TOGGLE_BUTTON(s_txp.rtr_check));
+    msg->dlc = (uint8_t)gtk_spin_button_get_value_as_int(
+        GTK_SPIN_BUTTON(s_txp.dlc_spin));
+
+    const char *ids = gtk_entry_get_text(GTK_ENTRY(s_txp.id_entry));
+    uint32_t id_max = msg->is_extended ? TX_EXT_ID_MAX : TX_STD_ID_MAX;
+    if (parse_hex_u32_strict(ids, id_max, &msg->id) != 0) {
+        txp_set_error(msg->is_extended
+            ? "Invalid 29-bit ID"
+            : "Invalid 11-bit ID");
+        return FALSE;
+    }
+
+    if (!msg->is_remote) {
+        for (int i = 0; i < msg->dlc && i < TX_PANEL_DATA_COLS; i++) {
+            const char *ds = gtk_entry_get_text(
+                GTK_ENTRY(s_txp.data_entry[i]));
+            uint32_t value = 0;
+            if (parse_hex_u32_strict(ds, TX_BYTE_MAX, &value) != 0) {
+                char err[64];
+                snprintf(err, sizeof(err), "Invalid data byte [%d]", i);
+                txp_set_error(err);
+                return FALSE;
+            }
+            msg->data[i] = (uint8_t)value;
+        }
+    }
+
+    return TRUE;
+}
+
 static gboolean txp_cyclic_tick(gpointer data)
 {
     (void)data;
@@ -358,18 +509,11 @@ static gboolean txp_cyclic_tick(gpointer data)
     can_msg_t *msg = calloc(1, sizeof(can_msg_t));
     if (!msg) return G_SOURCE_CONTINUE;
 
-    const char *ids = gtk_entry_get_text(GTK_ENTRY(s_txp.id_entry));
-    msg->id          = (uint32_t)strtoul(ids, NULL, 16);
-    msg->is_extended = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.ext_check));
-    msg->is_remote   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.rtr_check));
-    msg->dlc         = (uint8_t)gtk_spin_button_get_value_as_int(
-                           GTK_SPIN_BUTTON(s_txp.dlc_spin));
-    if (!msg->is_remote) {
-        for (int i = 0; i < msg->dlc && i < TX_PANEL_DATA_COLS; i++) {
-            const char *ds = gtk_entry_get_text(GTK_ENTRY(s_txp.data_entry[i]));
-            msg->data[i] = (uint8_t)strtoul(ds, NULL, 16);
-        }
+    if (!txp_build_frame(msg)) {
+        free(msg);
+        return G_SOURCE_CONTINUE;
     }
+
     g_async_queue_push(g_app.tx_queue, msg);
     return G_SOURCE_CONTINUE;
 }
@@ -382,21 +526,15 @@ static void txp_send_once(GtkWidget *w, gpointer d)
                              "<span color='red'>Not connected</span>");
         return;
     }
-    can_msg_t *msg = calloc(1, sizeof(can_msg_t));
-    if (!msg) return;
-
-    const char *ids = gtk_entry_get_text(GTK_ENTRY(s_txp.id_entry));
-    msg->id          = (uint32_t)strtoul(ids, NULL, 16);
-    msg->is_extended = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.ext_check));
-    msg->is_remote   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(s_txp.rtr_check));
-    msg->dlc         = (uint8_t)gtk_spin_button_get_value_as_int(
-                           GTK_SPIN_BUTTON(s_txp.dlc_spin));
-    if (!msg->is_remote) {
-        for (int i = 0; i < msg->dlc && i < TX_PANEL_DATA_COLS; i++) {
-            const char *ds = gtk_entry_get_text(GTK_ENTRY(s_txp.data_entry[i]));
-            msg->data[i] = (uint8_t)strtoul(ds, NULL, 16);
-        }
+    can_msg_t frame;
+    if (!txp_build_frame(&frame)) {
+        return;
     }
+
+    can_msg_t *msg = malloc(sizeof(can_msg_t));
+    if (!msg) return;
+    *msg = frame;
+
     g_async_queue_push(g_app.tx_queue, msg);
     gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl),
                          "<span color='green'>Queued</span>");

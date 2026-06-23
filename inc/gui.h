@@ -14,8 +14,15 @@ enum {
     TCOL_TYPE,
     TCOL_DLC,
     TCOL_DATA,
+    TCOL_INTERVAL,
+    TCOL_FREQ,
     TCOL_COUNT,
     TCOL_FG,        /* row foreground colour (markup) */
+    TCOL_ID_RAW,    /* hidden numeric ID for sorting / reformatting */
+    TCOL_EXT_RAW,   /* hidden extended-ID flag */
+    TCOL_DIR_RAW,   /* hidden direction flag for row roll-up */
+    TCOL_DATA_RAW,  /* hidden compact hex data for reformatting */
+    TCOL_TS_NS,     /* hidden last timestamp in nanoseconds */
     TCOL_NUM
 };
 
@@ -48,6 +55,7 @@ GtkWidget *gui_create_main_window(GtkApplication *app);
 /* Message helpers */
 void gui_add_message(const can_msg_t *msg);
 void gui_clear_trace(void);
+void gui_refresh_trace_display(void);
 void gui_update_stats(void);
 void gui_status_message(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 

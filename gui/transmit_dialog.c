@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include <gtk/gtk.h>
 
@@ -28,6 +29,9 @@
 /* ------------------------------------------------------------------ */
 
 #define MAX_DATA_ENTRIES 64
+#define TX_STD_ID_MAX    0x7FFu
+#define TX_EXT_ID_MAX    0x1FFFFFFFu
+#define TX_BYTE_MAX      0xFFu
 
 typedef struct {
     GtkWidget *window;
@@ -52,12 +56,21 @@ static tx_win_t s_tx;
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-static int parse_hex_u32(const char *s, uint32_t *out)
+static int parse_hex_u32(const char *s, uint32_t max, uint32_t *out)
 {
-    char *end;
+    if (!s || !out) return -1;
+
+    while (isspace((unsigned char)*s)) s++;
+    if (*s == '\0' || *s == '+' || *s == '-') return -1;
+
+    errno = 0;
+    char *end = NULL;
     unsigned long v = strtoul(s, &end, 16);
-    while (*end == ' ') end++;
+    if (errno == ERANGE || end == s || v > max) return -1;
+
+    while (isspace((unsigned char)*end)) end++;
     if (*end != '\0') return -1;
+
     *out = (uint32_t)v;
     return 0;
 }
@@ -66,22 +79,36 @@ static gboolean build_frame(can_msg_t *msg)
 {
     memset(msg, 0, sizeof(*msg));
 
-    /* ID */
-    const char *id_str =
-        gtk_entry_get_text(GTK_ENTRY(s_tx.id_entry));
-    if (parse_hex_u32(id_str, &msg->id) != 0) {
-        gtk_label_set_markup(GTK_LABEL(s_tx.status_label),
-            "<span color='red'>Invalid ID (hex required)</span>");
-        return FALSE;
-    }
     msg->is_extended = gtk_toggle_button_get_active(
         GTK_TOGGLE_BUTTON(s_tx.ext_check));
     msg->is_remote   = gtk_toggle_button_get_active(
         GTK_TOGGLE_BUTTON(s_tx.rtr_check));
     msg->is_fd       = gtk_toggle_button_get_active(
         GTK_TOGGLE_BUTTON(s_tx.fd_check));
-    msg->is_brs      = gtk_toggle_button_get_active(
+    msg->is_brs      = msg->is_fd && gtk_toggle_button_get_active(
         GTK_TOGGLE_BUTTON(s_tx.brs_check));
+
+    if (msg->is_fd && msg->is_remote) {
+        gtk_label_set_markup(GTK_LABEL(s_tx.status_label),
+            "<span color='red'>CAN FD does not support RTR frames</span>");
+        return FALSE;
+    }
+
+    if (msg->is_fd && !g_app.fd_mode) {
+        gtk_label_set_markup(GTK_LABEL(s_tx.status_label),
+            "<span color='red'>Connection is not in CAN FD mode</span>");
+        return FALSE;
+    }
+
+    const char *id_str = gtk_entry_get_text(GTK_ENTRY(s_tx.id_entry));
+    uint32_t id_max = msg->is_extended ? TX_EXT_ID_MAX : TX_STD_ID_MAX;
+    if (parse_hex_u32(id_str, id_max, &msg->id) != 0) {
+        gtk_label_set_markup(GTK_LABEL(s_tx.status_label),
+            msg->is_extended
+                ? "<span color='red'>Invalid 29-bit ID</span>"
+                : "<span color='red'>Invalid 11-bit ID</span>");
+        return FALSE;
+    }
 
     msg->dlc = (uint8_t)gtk_spin_button_get_value_as_int(
         GTK_SPIN_BUTTON(s_tx.dlc_spin));
@@ -94,7 +121,7 @@ static gboolean build_frame(can_msg_t *msg)
             const char *ds =
                 gtk_entry_get_text(GTK_ENTRY(s_tx.data_entry[i]));
             uint32_t v = 0;
-            if (strlen(ds) > 0 && parse_hex_u32(ds, &v) != 0) {
+            if (strlen(ds) > 0 && parse_hex_u32(ds, TX_BYTE_MAX, &v) != 0) {
                 char buf[64];
                 snprintf(buf, sizeof(buf),
                          "<span color='red'>Invalid byte at pos %u</span>",
