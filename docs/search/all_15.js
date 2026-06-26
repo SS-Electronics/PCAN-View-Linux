@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['package_0',['Install from a &lt;tt&gt;.deb&lt;/tt&gt; package',['../index.html#autotoc_md18',1,'']]],
+  ['parse_5fhex_5fu32_1',['parse_hex_u32',['../transmit__dialog_8c.html#a045a32b25943acf9a884dfbfcd91b476',1,'transmit_dialog.c']]],
+  ['parse_5fhex_5fu32_5fstrict_2',['parse_hex_u32_strict',['../main__window_8c.html#a43334f6decc1f4e038aa76e698c02b2a',1,'main_window.c']]],
+  ['parse_5fraw_5fdata_3',['parse_raw_data',['../message__view_8c.html#ad77c61973a01a8415ce396a76975ac7d',1,'message_view.c']]],
+  ['pcan_20view_20feature_20comparison_4',['PCAN-View Feature Comparison',['../index.html#autotoc_md33',1,'']]],
+  ['pcan_20view_20linux_20·_20by_20taksys_5',['PCAN-View Linux  ·  by Taksys',['../index.html',1,'']]],
+  ['pcan_5fview_5fapp_5fname_6',['PCAN_VIEW_APP_NAME',['../version_8h.html#af4e7122e186cb6cac51a5811b0be12e4',1,'version.h']]],
+  ['pcan_5fview_5fauthor_7',['PCAN_VIEW_AUTHOR',['../version_8h.html#ac5a6fcdc4a25a2e7f303780ad6ba820c',1,'version.h']]],
+  ['pcan_5fview_5fcopyright_8',['PCAN_VIEW_COPYRIGHT',['../version_8h.html#a2217d00e60b82aedbd7cba4129849427',1,'version.h']]],
+  ['pcan_5fview_5femail_9',['PCAN_VIEW_EMAIL',['../version_8h.html#acd7336543a59d9f6a105199fb6da5215',1,'version.h']]],
+  ['pcan_5fview_5fvendor_10',['PCAN_VIEW_VENDOR',['../version_8h.html#a624ccdc16b9116402f487ca0b34a04cf',1,'version.h']]],
+  ['pcan_5fview_5fversion_11',['PCAN_VIEW_VERSION',['../version_8h.html#adef517d9bd252bf8ab1d0636974448eb',1,'version.h']]],
+  ['peak_20hardware_12',['6. Run with real PEAK hardware',['../index.html#autotoc_md27',1,'']]],
+  ['period_5fbits_13',['period_bits',['../structapp__state__t.html#aff7d0a8b6417e4f40426e96f3ae897d2',1,'app_state_t']]],
+  ['phase_5fseg1_14',['phase_seg1',['../structcan__bit__timing__t.html#a5b4b635dddfc29e0c8e866f3354f5cff',1,'can_bit_timing_t']]],
+  ['phase_5fseg2_15',['phase_seg2',['../structcan__bit__timing__t.html#a44d936cdd89bee855adf1ca968810925',1,'can_bit_timing_t']]],
+  ['placeholder_16',['placeholder',['../main__window_8c.html#a58861202ad73895638c74ab40e4d7141',1,'main_window.c']]],
+  ['populate_5finterfaces_17',['populate_interfaces',['../settings__dialog_8c.html#ac052eaeb03f81908d6da0c5bfbd6a995',1,'settings_dialog.c']]],
+  ['ppa_18',['Install from the Ubuntu PPA',['../index.html#autotoc_md19',1,'']]],
+  ['prerequisites_19',['prerequisites',['../index.html#autotoc_md30',1,'1. Install prerequisites'],['../index.html#autotoc_md13',1,'Prerequisites']]],
+  ['print_5fhelp_20',['print_help',['../main_8c.html#a7a009416f4f2c7c3eb5c92ad2bde6d3a',1,'main.c']]],
+  ['print_5fversion_21',['print_version',['../main_8c.html#a2e0d36c06cdd7fbacb264c67367d3b01',1,'main.c']]],
+  ['progress_5fbus_5fload_22',['progress_bus_load',['../structgui__widgets__t.html#a2ac208b013a2c2d79e8f1f961433212d',1,'gui_widgets_t']]],
+  ['project_20structure_23',['Project Structure',['../index.html#autotoc_md7',1,'']]],
+  ['prop_5fseg_24',['prop_seg',['../structcan__bit__timing__t.html#aa272047cdf3c24a418af47ac2f11fdc8',1,'can_bit_timing_t']]]
+];
