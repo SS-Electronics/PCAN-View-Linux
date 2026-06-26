@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #include <gtk/gtk.h>
 
@@ -27,23 +28,86 @@
 /* Declared in message_view.c */
 extern GtkWidget *create_trace_view(void);
 
+/* ------------------------------------------------------------------ */
+/* Branding / asset loading (Taksys logo)                               */
+/* ------------------------------------------------------------------ */
+
+/* Resolve an asset file shipped with the application.  Searches, in order:
+ * $PCAN_VIEW_ASSET_DIR, locations relative to the executable (dev + installed
+ * layouts), and the standard system share directories. */
+static const char *find_asset_path(const char *name)
+{
+    static char buf[1024];
+
+    const char *env = getenv("PCAN_VIEW_ASSET_DIR");
+    if (env && *env) {
+        snprintf(buf, sizeof(buf), "%s/%s", env, name);
+        if (access(buf, R_OK) == 0) return buf;
+    }
+
+    char exe[512];
+    ssize_t n = readlink("/proc/self/exe", exe, sizeof(exe) - 1);
+    if (n > 0) {
+        exe[n] = '\0';
+        char *slash = strrchr(exe, '/');
+        if (slash) {
+            *slash = '\0';
+            const char *rel[] = {
+                "assets", "../assets", "../share/pcan-view", NULL
+            };
+            for (int i = 0; rel[i]; i++) {
+                snprintf(buf, sizeof(buf), "%s/%s/%s", exe, rel[i], name);
+                if (access(buf, R_OK) == 0) return buf;
+            }
+        }
+    }
+
+    const char *fixed[] = {
+        "assets",
+        "/usr/local/share/pcan-view",
+        "/usr/share/pcan-view",
+        NULL
+    };
+    for (int i = 0; fixed[i]; i++) {
+        snprintf(buf, sizeof(buf), "%s/%s", fixed[i], name);
+        if (access(buf, R_OK) == 0) return buf;
+    }
+    return NULL;
+}
+
+/* Load the Taksys logo scaled into a square of `size` px, or NULL if missing. */
+static GdkPixbuf *gui_load_logo(int size)
+{
+    const char *p = find_asset_path("taksys_logo.png");
+    if (!p) return NULL;
+    GError *err = NULL;
+    GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_scale(p, size, size, TRUE, &err);
+    if (err) {
+        g_error_free(err);
+        return NULL;
+    }
+    return pix;
+}
+
 /* Forward-declared here; defined in the transmit-panel section below */
-#define TX_PANEL_DATA_COLS 8
+#define TX_PANEL_DATA_COLS CANFD_DATA_MAX   /* up to 64 byte fields for CAN FD */
 #define TX_PANEL_MAX_ROWS   16
 #define TX_STD_ID_MAX      0x7FFu
 #define TX_EXT_ID_MAX      0x1FFFFFFFu
 #define TX_BYTE_MAX        0xFFu
 
 /* Grid column layout shared by the header row and every transmit row, so the
- * fields stay aligned and resize by ratio with the window. */
+ * fixed fields stay aligned and resize by ratio with the window.  The variable
+ * number of data-byte fields (1 byte for classic CAN … up to 64 for CAN FD)
+ * lives inside a single wrapping GtkFlowBox occupying the TXG_COL_DATA cell. */
 enum {
     TXG_COL_NUM = 0,
     TXG_COL_ID,
     TXG_COL_EXT,
     TXG_COL_RTR,
     TXG_COL_DLC,
-    TXG_COL_DATA0,                                   /* 8 data byte columns */
-    TXG_COL_INTERVAL = TXG_COL_DATA0 + TX_PANEL_DATA_COLS,
+    TXG_COL_DATA,           /* flow-box of 1..64 data byte entries */
+    TXG_COL_INTERVAL,
     TXG_COL_SEND,
     TXG_COL_START,
     TXG_COL_STOP,
@@ -56,6 +120,7 @@ typedef struct {
     GtkWidget *ext_check;
     GtkWidget *rtr_check;
     GtkWidget *dlc_spin;
+    GtkWidget *data_box;                       /* GtkFlowBox holding the bytes */
     GtkWidget *data_entry[TX_PANEL_DATA_COLS];
     GtkWidget *interval_spin;
     GtkWidget *send_btn;
@@ -126,6 +191,9 @@ static void on_clear(GtkWidget *w, gpointer d)
     gui_status_message("Trace cleared.");
 }
 
+/* Trace > Start : begin capturing every Rx/Tx frame into the in-memory buffer.
+ * Trace > Stop  : halt capture (the buffer is retained for export).
+ * Trace > Save  : write the captured frames to a CSV file. */
 static void on_trace_start(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -136,8 +204,77 @@ static void on_trace_start(GtkWidget *w, gpointer d)
     }
     if (g_app.tracing) return;
 
+    pthread_mutex_lock(&g_app.trace_mutex);
+    g_app.trace_len = 0;      /* discard any previous capture */
+    g_app.tracing   = 1;
+    pthread_mutex_unlock(&g_app.trace_mutex);
+
+    gtk_widget_set_sensitive(g_gui.toolbar_trace_start, FALSE);
+    gtk_widget_set_sensitive(g_gui.toolbar_trace_stop,  TRUE);
+    gui_status_message("Trace recording started…");
+}
+
+static void on_trace_stop(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+    if (!g_app.tracing) return;
+
+    g_app.tracing = 0;
+
+    gtk_widget_set_sensitive(g_gui.toolbar_trace_start, TRUE);
+    gtk_widget_set_sensitive(g_gui.toolbar_trace_stop,  FALSE);
+    gui_status_message("Trace stopped – %zu frame(s) captured. "
+                       "Use Trace > Save to export CSV.", g_app.trace_len);
+}
+
+/* Write one captured frame as a CSV record. */
+static void trace_csv_write_row(FILE *fp, const can_msg_t *msg)
+{
+    char id_buf[16];
+    char data_buf[3 * CANFD_DATA_MAX + 4];
+
+    if (msg->is_extended)
+        snprintf(id_buf, sizeof(id_buf), "%08X", msg->id);
+    else
+        snprintf(id_buf, sizeof(id_buf), "%03X", msg->id);
+
+    if (msg->dlc == 0) {
+        snprintf(data_buf, sizeof(data_buf), "-");
+    } else {
+        size_t pos = 0;
+        for (uint8_t i = 0; i < msg->dlc && i < CANFD_DATA_MAX &&
+                            pos + 4 < sizeof(data_buf); i++) {
+            pos += (size_t)snprintf(data_buf + pos, sizeof(data_buf) - pos,
+                                    i ? " %02X" : "%02X", msg->data[i]);
+        }
+    }
+
+    double ts = (double)msg->timestamp.tv_sec
+              + (double)msg->timestamp.tv_nsec / 1e9;
+
+    fprintf(fp, "%llu,%.6f,%s,%s,%s,%u,%s\n",
+            (unsigned long long)msg->seq,
+            ts,
+            msg->direction == CAN_DIR_TX ? "Tx" : "Rx",
+            id_buf,
+            gui_msg_type_str(msg),
+            msg->dlc,
+            data_buf);
+}
+
+static void on_trace_save(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+
+    if (g_app.trace_len == 0) {
+        gui_show_error(g_gui.window, "Save Trace",
+                       "No trace data captured yet.\n"
+                       "Use Trace > Start, generate some traffic, then Stop.");
+        return;
+    }
+
     GtkWidget *dlg = gtk_file_chooser_dialog_new(
-        "Save Trace File",
+        "Save Trace as CSV",
         GTK_WINDOW(g_gui.window),
         GTK_FILE_CHOOSER_ACTION_SAVE,
         "_Cancel", GTK_RESPONSE_CANCEL,
@@ -154,44 +291,27 @@ static void on_trace_start(GtkWidget *w, gpointer d)
 
     if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
         char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-        strncpy(g_app.trace_filename, fn,
-                APP_TRACE_FILE_LEN - 1);
+        strncpy(g_app.trace_filename, fn, APP_TRACE_FILE_LEN - 1);
+        g_app.trace_filename[APP_TRACE_FILE_LEN - 1] = '\0';
         g_free(fn);
 
-        pthread_mutex_lock(&g_app.trace_mutex);
-        g_app.trace_file = fopen(g_app.trace_filename, "w");
-        if (g_app.trace_file) {
-            fprintf(g_app.trace_file,
-                    "seq,timestamp,direction,id,type,dlc,data\n");
-            g_app.tracing = 1;
-            gtk_widget_set_sensitive(g_gui.toolbar_trace_start, FALSE);
-            gtk_widget_set_sensitive(g_gui.toolbar_trace_stop,  TRUE);
-            gui_status_message("Tracing to %s", g_app.trace_filename);
+        FILE *fp = fopen(g_app.trace_filename, "w");
+        if (fp) {
+            fprintf(fp, "seq,timestamp,direction,id,type,dlc,data\n");
+            pthread_mutex_lock(&g_app.trace_mutex);
+            size_t n = g_app.trace_len;
+            for (size_t i = 0; i < n; i++)
+                trace_csv_write_row(fp, &g_app.trace_buf[i]);
+            pthread_mutex_unlock(&g_app.trace_mutex);
+            fclose(fp);
+            gui_status_message("Saved %zu frame(s) to %s",
+                               n, g_app.trace_filename);
         } else {
             gui_show_error(g_gui.window, "Trace Error",
-                           "Could not open trace file for writing.");
+                           "Could not open file for writing.");
         }
-        pthread_mutex_unlock(&g_app.trace_mutex);
     }
     gtk_widget_destroy(dlg);
-}
-
-static void on_trace_stop(GtkWidget *w, gpointer d)
-{
-    (void)w; (void)d;
-    if (!g_app.tracing) return;
-
-    g_app.tracing = 0;
-    pthread_mutex_lock(&g_app.trace_mutex);
-    if (g_app.trace_file) {
-        fclose(g_app.trace_file);
-        g_app.trace_file = NULL;
-    }
-    pthread_mutex_unlock(&g_app.trace_mutex);
-
-    gtk_widget_set_sensitive(g_gui.toolbar_trace_start, TRUE);
-    gtk_widget_set_sensitive(g_gui.toolbar_trace_stop,  FALSE);
-    gui_status_message("Trace saved to %s", g_app.trace_filename);
 }
 
 static void on_transmit(GtkWidget *w, gpointer d)
@@ -266,53 +386,71 @@ static GtkWidget *menu_item(const char *label,
     return item;
 }
 
-static GtkWidget *stats_menu_row(const char *name, GtkWidget **value_out)
+/* One "Caption: value" cell of the statistics bar; returns the value label so
+ * gui_update_stats() can refresh it. */
+static GtkWidget *stats_bar_field(GtkWidget *bar, const char *caption,
+                                  const char *initial)
 {
-    GtkWidget *item = gtk_menu_item_new();
-    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-    gtk_container_set_border_width(GTK_CONTAINER(box), 6);
-    gtk_container_add(GTK_CONTAINER(item), box);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 
-    GtkWidget *name_lbl = gtk_label_new(name);
-    gtk_label_set_xalign(GTK_LABEL(name_lbl), 0.0f);
-    gtk_widget_set_size_request(name_lbl, 96, -1);
-    gtk_box_pack_start(GTK_BOX(box), name_lbl, FALSE, FALSE, 0);
+    GtkWidget *cap = gtk_label_new(NULL);
+    char markup[64];
+    snprintf(markup, sizeof(markup), "<small><b>%s</b></small>", caption);
+    gtk_label_set_markup(GTK_LABEL(cap), markup);
+    gtk_box_pack_start(GTK_BOX(box), cap, FALSE, FALSE, 0);
 
-    GtkWidget *value_lbl = gtk_label_new("—");
-    gtk_label_set_xalign(GTK_LABEL(value_lbl), 0.0f);
-    gtk_box_pack_start(GTK_BOX(box), value_lbl, TRUE, TRUE, 0);
+    GtkWidget *val = gtk_label_new(NULL);
+    char vmarkup[64];
+    snprintf(vmarkup, sizeof(vmarkup), "<small>%s</small>", initial);
+    gtk_label_set_markup(GTK_LABEL(val), vmarkup);
+    gtk_box_pack_start(GTK_BOX(box), val, FALSE, FALSE, 0);
 
-    if (value_out)
-        *value_out = value_lbl;
-    return item;
+    gtk_box_pack_start(GTK_BOX(bar), box, FALSE, FALSE, 0);
+    return val;
 }
 
-static GtkWidget *build_stats_menu_item(void)
+static void stats_bar_separator(GtkWidget *bar)
 {
-    GtkWidget *stats_menu = gtk_menu_new();
+    gtk_box_pack_start(GTK_BOX(bar),
+                       gtk_separator_new(GTK_ORIENTATION_VERTICAL),
+                       FALSE, FALSE, 0);
+}
 
-    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
-        stats_menu_row("Interface", &g_gui.lbl_connection));
-    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
-        stats_menu_row("Bitrate", &g_gui.lbl_bitrate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
-        stats_menu_row("Bus Load", &g_gui.lbl_bus_load));
-    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
-        stats_menu_row("Rx Frames", &g_gui.lbl_rx));
-    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
-        stats_menu_row("Tx Frames", &g_gui.lbl_tx));
-    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
-        stats_menu_row("Error Frames", &g_gui.lbl_err));
-    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
-        stats_menu_row("Bus State", &g_gui.lbl_bus_state));
+/* Statistics bar shown directly below the menu bar. */
+static GtkWidget *build_stats_bar(void)
+{
+    GtkWidget *bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_widget_set_margin_start(bar, 8);
+    gtk_widget_set_margin_end(bar, 8);
+    gtk_widget_set_margin_top(bar, 3);
+    gtk_widget_set_margin_bottom(bar, 3);
 
-    GtkWidget *stats_item = gtk_menu_item_new();
-    g_gui.lbl_stats_summary = gtk_label_new(
-        "Statistics: — | Rx 0 | Tx 0 | Err 0 | Load 0.0%");
-    gtk_container_add(GTK_CONTAINER(stats_item), g_gui.lbl_stats_summary);
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(stats_item), stats_menu);
+    g_gui.lbl_connection = stats_bar_field(bar, "Interface:", "—");
+    stats_bar_separator(bar);
+    g_gui.lbl_bitrate    = stats_bar_field(bar, "Bitrate:", "—");
+    stats_bar_separator(bar);
 
-    return stats_item;
+    /* Bus load as a compact progress bar. */
+    GtkWidget *load_cap = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(load_cap), "<small><b>Bus Load:</b></small>");
+    gtk_box_pack_start(GTK_BOX(bar), load_cap, FALSE, FALSE, 0);
+    g_gui.progress_bus_load = gtk_progress_bar_new();
+    gtk_progress_bar_set_show_text(
+        GTK_PROGRESS_BAR(g_gui.progress_bus_load), TRUE);
+    gtk_widget_set_size_request(g_gui.progress_bus_load, 130, -1);
+    gtk_widget_set_valign(g_gui.progress_bus_load, GTK_ALIGN_CENTER);
+    gtk_box_pack_start(GTK_BOX(bar), g_gui.progress_bus_load, FALSE, FALSE, 0);
+    stats_bar_separator(bar);
+
+    g_gui.lbl_rx        = stats_bar_field(bar, "Rx:", "0");
+    stats_bar_separator(bar);
+    g_gui.lbl_tx        = stats_bar_field(bar, "Tx:", "0");
+    stats_bar_separator(bar);
+    g_gui.lbl_err       = stats_bar_field(bar, "Err:", "0");
+    stats_bar_separator(bar);
+    g_gui.lbl_bus_state = stats_bar_field(bar, "State:", "—");
+
+    return bar;
 }
 
 /* ------------------------------------------------------------------ */
@@ -332,17 +470,26 @@ static GtkWidget *build_menubar(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu),
         gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu),
-        menu_item("_Start Trace…", G_CALLBACK(on_trace_start), NULL));
-    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu),
-        menu_item("S_top Trace",   G_CALLBACK(on_trace_stop),  NULL));
-    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu),
-        gtk_separator_menu_item_new());
-    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu),
         menu_item("_Quit",         G_CALLBACK(on_quit),        NULL));
 
     GtkWidget *file_item = gtk_menu_item_new_with_mnemonic("_File");
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(file_item), file_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(bar), file_item);
+
+    /* --- Trace --- */
+    GtkWidget *trace_menu = gtk_menu_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(trace_menu),
+        menu_item("_Start",        G_CALLBACK(on_trace_start), NULL));
+    gtk_menu_shell_append(GTK_MENU_SHELL(trace_menu),
+        menu_item("S_top",         G_CALLBACK(on_trace_stop),  NULL));
+    gtk_menu_shell_append(GTK_MENU_SHELL(trace_menu),
+        gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(trace_menu),
+        menu_item("_Save as CSV…", G_CALLBACK(on_trace_save),  NULL));
+
+    GtkWidget *trace_item = gtk_menu_item_new_with_mnemonic("_Trace");
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(trace_item), trace_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(bar), trace_item);
 
     /* --- CAN --- */
     GtkWidget *can_menu = gtk_menu_new();
@@ -425,8 +572,6 @@ static GtkWidget *build_menubar(void)
     GtkWidget *view_item = gtk_menu_item_new_with_mnemonic("_View");
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(bar), view_item);
-
-    gtk_menu_shell_append(GTK_MENU_SHELL(bar), build_stats_menu_item());
 
     /* --- Help --- */
     GtkWidget *help_menu = gtk_menu_new();
@@ -587,7 +732,8 @@ static void txp_clear_row(tx_panel_row_t *row)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(row->rtr_check), FALSE);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(row->dlc_spin), 8);
     for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
-        gtk_entry_set_text(GTK_ENTRY(row->data_entry[i]), "00");
+        if (row->data_entry[i])
+            gtk_entry_set_text(GTK_ENTRY(row->data_entry[i]), "00");
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(row->interval_spin), 100);
     txp_stop_cyclic_row(row, "Cleared");
 }
@@ -633,20 +779,45 @@ static void txp_add_row(void)
                      G_CALLBACK(txp_rtr_toggled), GINT_TO_POINTER(row_index));
     gtk_grid_attach(grid, row->rtr_check, TXG_COL_RTR, grid_row, 1, 1);
 
-    GtkAdjustment *dlc_adj = gtk_adjustment_new(8, 0, 8, 1, 1, 0);
+    /* DLC range follows the link mode: 0..8 for classic CAN, 0..64 for CAN FD.
+     * gui_tx_panel_update_fd() widens the upper bound when FD is active. */
+    int dlc_max = g_app.fd_mode ? CANFD_DATA_MAX : CAN_MAX_DLC;
+    GtkAdjustment *dlc_adj = gtk_adjustment_new(8, 0, dlc_max, 1, 8, 0);
     row->dlc_spin = gtk_spin_button_new(dlc_adj, 1, 0);
     g_signal_connect(row->dlc_spin, "value-changed",
                      G_CALLBACK(txp_dlc_changed), GINT_TO_POINTER(row_index));
     gtk_grid_attach(grid, row->dlc_spin, TXG_COL_DLC, grid_row, 1, 1);
+
+    /* Data bytes live in a wrapping flow-box so a 64-byte FD frame stays inside
+     * the window (the bytes wrap to new lines instead of forcing a scroll). */
+    row->data_box = gtk_flow_box_new();
+    gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(row->data_box),
+                                    GTK_SELECTION_NONE);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(row->data_box),
+                                   GTK_ORIENTATION_HORIZONTAL);
+    gtk_flow_box_set_homogeneous(GTK_FLOW_BOX(row->data_box), TRUE);
+    gtk_flow_box_set_min_children_per_line(GTK_FLOW_BOX(row->data_box), 1);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(row->data_box),
+                                           CANFD_DATA_MAX);
+    gtk_flow_box_set_column_spacing(GTK_FLOW_BOX(row->data_box), 2);
+    gtk_flow_box_set_row_spacing(GTK_FLOW_BOX(row->data_box), 2);
+    gtk_widget_set_hexpand(row->data_box, TRUE);
+    gtk_grid_attach(grid, row->data_box, TXG_COL_DATA, grid_row, 1, 1);
 
     for (int i = 0; i < TX_PANEL_DATA_COLS; i++) {
         row->data_entry[i] = gtk_entry_new();
         gtk_entry_set_max_length(GTK_ENTRY(row->data_entry[i]), 2);
         gtk_entry_set_text(GTK_ENTRY(row->data_entry[i]), "00");
         gtk_entry_set_width_chars(GTK_ENTRY(row->data_entry[i]), 2);
-        gtk_widget_set_hexpand(row->data_entry[i], TRUE);
-        gtk_grid_attach(grid, row->data_entry[i],
-                        TXG_COL_DATA0 + i, grid_row, 1, 1);
+        gtk_flow_box_insert(GTK_FLOW_BOX(row->data_box),
+                            row->data_entry[i], -1);
+        /* The byte (and its auto-created GtkFlowBoxChild wrapper) is shown or
+         * hidden by txp_update_data_fields(); keep show_all from revealing the
+         * bytes beyond the current DLC. */
+        GtkWidget *wrap = gtk_widget_get_parent(row->data_entry[i]);
+        gtk_widget_set_no_show_all(row->data_entry[i], TRUE);
+        if (wrap)
+            gtk_widget_set_no_show_all(wrap, TRUE);
     }
 
     GtkAdjustment *int_adj = gtk_adjustment_new(100, 1, 60000, 10, 100, 0);
@@ -688,16 +859,15 @@ static void txp_remove_last_row(void)
         g_source_remove(row->cyclic_id);
         row->cyclic_id = 0;
     }
-    /* Destroy every widget that makes up this grid row. */
+    /* Destroy every widget that makes up this grid row.  Destroying the flow-box
+     * (data_box) also destroys all its child byte entries. */
     GtkWidget *widgets[] = {
         row->num_lbl, row->id_entry, row->ext_check, row->rtr_check,
-        row->dlc_spin, row->interval_spin, row->send_btn,
+        row->dlc_spin, row->data_box, row->interval_spin, row->send_btn,
         row->start_btn, row->stop_btn, row->status_lbl,
     };
     for (size_t i = 0; i < sizeof(widgets) / sizeof(widgets[0]); i++)
         if (widgets[i]) gtk_widget_destroy(widgets[i]);
-    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
-        if (row->data_entry[i]) gtk_widget_destroy(row->data_entry[i]);
     memset(row, 0, sizeof(*row));
     s_txp.count--;
 }
@@ -717,8 +887,30 @@ static void txp_update_data_fields(tx_panel_row_t *row)
     int dlc = gtk_spin_button_get_value_as_int(
         GTK_SPIN_BUTTON(row->dlc_spin));
 
-    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
-        gtk_widget_set_sensitive(row->data_entry[i], !rtr && i < dlc);
+    /* Show exactly DLC byte fields (none for a remote frame); the data indexes
+     * are added/removed dynamically as the DLC spin changes. */
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++) {
+        if (!row->data_entry[i])
+            continue;
+        gboolean visible = !rtr && i < dlc;
+        GtkWidget *wrap = gtk_widget_get_parent(row->data_entry[i]);
+        gtk_widget_set_visible(row->data_entry[i], visible);
+        if (wrap)
+            gtk_widget_set_visible(wrap, visible);
+    }
+}
+
+/* CAN FD frames only carry specific payload lengths.  Round a requested byte
+ * count up to the next valid CAN FD length (0..8,12,16,20,24,32,48,64). */
+static uint8_t canfd_round_len(int n)
+{
+    static const uint8_t valid[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64
+    };
+    for (size_t i = 0; i < sizeof(valid) / sizeof(valid[0]); i++)
+        if (n <= valid[i])
+            return valid[i];
+    return CANFD_DATA_MAX;
 }
 
 static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg)
@@ -732,8 +924,15 @@ static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg)
         GTK_TOGGLE_BUTTON(row->ext_check));
     msg->is_remote = gtk_toggle_button_get_active(
         GTK_TOGGLE_BUTTON(row->rtr_check));
-    msg->dlc = (uint8_t)gtk_spin_button_get_value_as_int(
+
+    /* Frames are sent as CAN FD when the link is in FD mode (BRS enabled). */
+    msg->is_fd  = g_app.fd_mode ? 1 : 0;
+    msg->is_brs = g_app.fd_mode ? 1 : 0;
+
+    int req_len = gtk_spin_button_get_value_as_int(
         GTK_SPIN_BUTTON(row->dlc_spin));
+    if (!msg->is_fd && req_len > CAN_MAX_DLC)
+        req_len = CAN_MAX_DLC;
 
     const char *ids = gtk_entry_get_text(GTK_ENTRY(row->id_entry));
     uint32_t id_max = msg->is_extended ? TX_EXT_ID_MAX : TX_STD_ID_MAX;
@@ -745,7 +944,7 @@ static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg)
     }
 
     if (!msg->is_remote) {
-        for (int i = 0; i < msg->dlc && i < TX_PANEL_DATA_COLS; i++) {
+        for (int i = 0; i < req_len && i < TX_PANEL_DATA_COLS; i++) {
             const char *ds = gtk_entry_get_text(
                 GTK_ENTRY(row->data_entry[i]));
             uint32_t value = 0;
@@ -759,6 +958,9 @@ static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg)
         }
     }
 
+    /* CAN FD payloads must be a valid length; pad up if needed (extra bytes
+     * are already zero from the memset above). */
+    msg->dlc = msg->is_fd ? canfd_round_len(req_len) : (uint8_t)req_len;
     return TRUE;
 }
 
@@ -948,26 +1150,19 @@ static GtkWidget *create_transmit_panel(void)
 
     /* Header row (grid row 0) – aligned with every transmit row below. */
     struct { int col; const char *txt; gboolean expand; } hdr[] = {
-        { TXG_COL_NUM,      "#",          FALSE },
-        { TXG_COL_ID,       "CAN-ID",     TRUE  },
-        { TXG_COL_EXT,      "Ext",        FALSE },
-        { TXG_COL_RTR,      "RTR",        FALSE },
-        { TXG_COL_DLC,      "DLC",        FALSE },
-        { TXG_COL_INTERVAL, "Cycle (ms)", FALSE },
-        { TXG_COL_STATUS,   "Status",     FALSE },
+        { TXG_COL_NUM,      "#",            FALSE },
+        { TXG_COL_ID,       "CAN-ID",       TRUE  },
+        { TXG_COL_EXT,      "Ext",          FALSE },
+        { TXG_COL_RTR,      "RTR",          FALSE },
+        { TXG_COL_DLC,      "DLC",          FALSE },
+        { TXG_COL_DATA,     "Data (hex)",   TRUE  },
+        { TXG_COL_INTERVAL, "Cycle (ms)",   FALSE },
+        { TXG_COL_STATUS,   "Status",       FALSE },
     };
     for (size_t i = 0; i < sizeof(hdr) / sizeof(hdr[0]); i++) {
         GtkWidget *h = txp_header_label(hdr[i].txt);
         gtk_widget_set_hexpand(h, hdr[i].expand);
         gtk_grid_attach(GTK_GRID(s_txp.rows_box), h, hdr[i].col, 0, 1, 1);
-    }
-    for (int i = 0; i < TX_PANEL_DATA_COLS; i++) {
-        char b[4];
-        snprintf(b, sizeof(b), "%d", i);
-        GtkWidget *h = txp_header_label(b);
-        gtk_widget_set_hexpand(h, TRUE);
-        gtk_grid_attach(GTK_GRID(s_txp.rows_box), h,
-                        TXG_COL_DATA0 + i, 0, 1, 1);
     }
 
     gtk_container_add(GTK_CONTAINER(scroll), s_txp.rows_box);
@@ -975,8 +1170,27 @@ static GtkWidget *create_transmit_panel(void)
     /* Initialize with one default row */
     s_txp.count = 0;
     txp_add_row();
+    gui_tx_panel_update_fd();
 
     return frame;
+}
+
+/* Sync every transmit row's DLC range and visible data fields with the current
+ * CAN FD link mode (called after connect and at panel creation). */
+void gui_tx_panel_update_fd(void)
+{
+    int max = g_app.fd_mode ? CANFD_DATA_MAX : CAN_MAX_DLC;
+    for (int r = 0; r < s_txp.count; r++) {
+        tx_panel_row_t *row = &s_txp.rows[r];
+        if (!GTK_IS_SPIN_BUTTON(row->dlc_spin))
+            continue;
+        GtkAdjustment *adj = gtk_spin_button_get_adjustment(
+            GTK_SPIN_BUTTON(row->dlc_spin));
+        gtk_adjustment_set_upper(adj, max);
+        if (gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(row->dlc_spin)) > max)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(row->dlc_spin), max);
+        txp_update_data_fields(row);
+    }
 }
 
 
@@ -992,6 +1206,13 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
     gtk_window_set_title(GTK_WINDOW(window), "PCAN-View Linux");
     gtk_window_set_default_size(GTK_WINDOW(window), 1100, 700);
 
+    /* Application / window icon (Taksys logo). */
+    GdkPixbuf *win_icon = gui_load_logo(128);
+    if (win_icon) {
+        gtk_window_set_icon(GTK_WINDOW(window), win_icon);
+        g_object_unref(win_icon);
+    }
+
     /* On window close: disconnect CAN then allow default destroy */
     g_signal_connect(window, "delete-event",
                      G_CALLBACK(on_window_delete), NULL);
@@ -1005,6 +1226,12 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
     /* Menu bar */
     GtkWidget *menubar = build_menubar();
     gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
+
+    /* Statistics bar (directly below the menu bar) */
+    gtk_box_pack_start(GTK_BOX(vbox), build_stats_bar(), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox),
+                       gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),
+                       FALSE, FALSE, 0);
 
     /* Toolbar */
     GtkWidget *toolbar = build_toolbar();
@@ -1047,9 +1274,18 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
     gtk_widget_set_margin_bottom(footer, 3);
     gtk_box_pack_start(GTK_BOX(vbox), footer, FALSE, FALSE, 0);
 
+    /* Company icon (Taksys logo) in front of the footer text. */
+    GdkPixbuf *footer_logo = gui_load_logo(20);
+    if (footer_logo) {
+        GtkWidget *footer_icon = gtk_image_new_from_pixbuf(footer_logo);
+        g_object_unref(footer_logo);
+        gtk_widget_set_margin_end(footer_icon, 6);
+        gtk_box_pack_start(GTK_BOX(footer), footer_icon, FALSE, FALSE, 0);
+    }
+
     GtkWidget *footer_lbl = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(footer_lbl),
-        "<small><b>SS Electronics</b>  |  "
+        "<small><b>Taksys</b>  |  "
         "Author: Subhajit Roy  |  "
         "<a href=\"mailto:subhajitroy005@gmail.com\">"
         "subhajitroy005@gmail.com</a>  |  "
@@ -1070,15 +1306,22 @@ void gui_show_about_dialog(GtkWidget *parent)
 {
     GtkAboutDialog *dlg = GTK_ABOUT_DIALOG(gtk_about_dialog_new());
     gtk_about_dialog_set_program_name(dlg, "PCAN-View Linux");
-    gtk_about_dialog_set_version(dlg, "1.0.0");
+    gtk_about_dialog_set_version(dlg, "1.1.0");
     gtk_about_dialog_set_comments(dlg,
         "Open-source CAN bus monitor and analyser for Linux.\n"
         "Uses the Linux SocketCAN subsystem (PF_CAN).\n"
-        "Inspired by PEAK-System PCAN-View.");
+        "Inspired by PEAK-System PCAN-View.\n\n"
+        "Developed and maintained by Taksys.");
+    gtk_about_dialog_set_copyright(dlg, "Copyright \302\251 2026 Taksys");
     gtk_about_dialog_set_license_type(dlg, GTK_LICENSE_APACHE_2_0);
-    gtk_about_dialog_set_website(dlg,
-        "https://www.peak-system.com/fileadmin/media/linux/index.php");
-    gtk_about_dialog_set_website_label(dlg, "PEAK-System Linux drivers");
+    gtk_about_dialog_set_website(dlg, "https://taksys.in");
+    gtk_about_dialog_set_website_label(dlg, "Taksys");
+
+    GdkPixbuf *logo = gui_load_logo(96);
+    if (logo) {
+        gtk_about_dialog_set_logo(dlg, logo);
+        g_object_unref(logo);
+    }
 
     if (parent)
         gtk_window_set_transient_for(GTK_WINDOW(dlg),

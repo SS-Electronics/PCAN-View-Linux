@@ -192,10 +192,10 @@ void gui_show_settings_dialog(GtkWidget *parent)
 
     /* --- Tip label --- */
     GtkWidget *tip = gtk_label_new(
-        "<small><i>Tip: run as root or use a vcan interface for testing.\n"
-        "Create vcan:  sudo modprobe vcan &amp;&amp; "
-        "sudo ip link add dev vcan0 type vcan &amp;&amp; "
-        "sudo ip link set up vcan0</i></small>");
+        "<small><i>Tip: select <b>vcan0</b> for off-hardware testing. "
+        "Missing vcan/CAN interfaces are created and brought up automatically "
+        "(a graphical authentication prompt may appear — no terminal sudo "
+        "needed).</i></small>");
     gtk_label_set_use_markup(GTK_LABEL(tip), TRUE);
     gtk_label_set_line_wrap(GTK_LABEL(tip), TRUE);
     gtk_widget_set_margin_top(tip, 8);

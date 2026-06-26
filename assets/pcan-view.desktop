@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.1
+Name=PCAN-View Linux
+GenericName=CAN Bus Monitor
+Comment=CAN / CAN FD bus monitor and analyser (by Taksys)
+Exec=pcan-view
+Icon=pcan-view
+Terminal=false
+Categories=Development;Electronics;Engineering;Utility;
+Keywords=CAN;CANFD;SocketCAN;CANbus;Automotive;Bus;Trace;
+StartupNotify=true

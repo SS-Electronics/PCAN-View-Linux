@@ -61,6 +61,11 @@ void app_state_cleanup(void)
         fclose(g_app.trace_file);
         g_app.trace_file = NULL;
     }
+    if (g_app.trace_buf) {
+        free(g_app.trace_buf);
+        g_app.trace_buf = NULL;
+        g_app.trace_len = g_app.trace_cap = 0;
+    }
     if (g_app.dedup_table) {
         g_hash_table_destroy(g_app.dedup_table);
         g_app.dedup_table = NULL;
@@ -92,43 +97,32 @@ static gboolean idle_update_stats(gpointer data)
 }
 
 /* ------------------------------------------------------------------ */
-/* Trace file writing                                                   */
+/* Trace capture (in-memory; exported to CSV via Trace > Save)          */
 /* ------------------------------------------------------------------ */
 
-static void trace_write(const can_msg_t *msg)
+#define TRACE_BUF_MAX 2000000u   /* hard cap so a long run can't exhaust RAM */
+
+/* Append one frame to the in-memory trace buffer.  Called from the RX and TX
+ * worker threads, so it is guarded by trace_mutex (shared with the CSV writer
+ * in the GTK thread). */
+static void trace_record(const can_msg_t *msg)
 {
-    if (!g_app.tracing || !g_app.trace_file) return;
-
-    char id_buf[16], data_buf[512];
-
-    if (msg->is_extended)
-        snprintf(id_buf, sizeof(id_buf), "%08X", msg->id);
-    else
-        snprintf(id_buf, sizeof(id_buf), "%03X", msg->id);
-
-    if (msg->dlc == 0) {
-        snprintf(data_buf, sizeof(data_buf), "-");
-    } else {
-        size_t pos = 0;
-        for (uint8_t i = 0; i < msg->dlc && pos + 4 < sizeof(data_buf); i++) {
-            pos += (size_t)snprintf(data_buf + pos, sizeof(data_buf) - pos,
-                                    i ? " %02X" : "%02X", msg->data[i]);
-        }
-    }
-
-    double ts = (double)msg->timestamp.tv_sec
-              + (double)msg->timestamp.tv_nsec / 1e9;
+    if (!g_app.tracing) return;
 
     pthread_mutex_lock(&g_app.trace_mutex);
-    fprintf(g_app.trace_file,
-            "%llu,%.6f,%s,%s,%s,%u,%s\n",
-            (unsigned long long)msg->seq,
-            ts,
-            msg->direction == CAN_DIR_TX ? "Tx" : "Rx",
-            id_buf,
-            gui_msg_type_str(msg),
-            msg->dlc,
-            data_buf);
+    if (g_app.tracing && g_app.trace_len < TRACE_BUF_MAX) {
+        if (g_app.trace_len >= g_app.trace_cap) {
+            size_t ncap = g_app.trace_cap ? g_app.trace_cap * 2 : 4096;
+            can_msg_t *nb = realloc(g_app.trace_buf,
+                                    ncap * sizeof(can_msg_t));
+            if (nb) {
+                g_app.trace_buf = nb;
+                g_app.trace_cap = ncap;
+            }
+        }
+        if (g_app.trace_len < g_app.trace_cap)
+            g_app.trace_buf[g_app.trace_len++] = *msg;
+    }
     pthread_mutex_unlock(&g_app.trace_mutex);
 }
 
@@ -168,7 +162,7 @@ void *thread_rx(void *arg)
             gdk_threads_add_idle(idle_add_message, copy);
         }
 
-        trace_write(&msg);
+        trace_record(&msg);
     }
     return NULL;
 }
@@ -202,7 +196,7 @@ void *thread_tx(void *arg)
             __atomic_add_fetch(&g_app.tx_count, 1, __ATOMIC_SEQ_CST);
 
             gdk_threads_add_idle(idle_update_stats, NULL);
-            trace_write(msg);
+            trace_record(msg);
         }
         free(msg);
     }
@@ -301,6 +295,10 @@ void app_do_connect(void)
     if (g_gui.toolbar_disconnect)
         gtk_widget_set_sensitive(g_gui.toolbar_disconnect, TRUE);
 
+    /* Reflect the (possibly FD) link mode in the transmit panel so the per-row
+     * DLC can grow to 64 bytes when CAN FD is enabled. */
+    gui_tx_panel_update_fd();
+
     gui_status_message("Connected to %s @ %u bps%s",
                        g_app.iface, g_app.bitrate,
                        g_app.listen_only ? "  [listen-only]" : "");
@@ -330,16 +328,10 @@ void app_do_disconnect(void)
     g_app.connected     = 0;
     g_app.shutting_down = 0;
 
-    /* Stop trace if running */
-    if (g_app.tracing) {
+    /* Stop trace capture if running, but keep the captured frames so the user
+     * can still export them to CSV via Trace > Save after disconnecting. */
+    if (g_app.tracing)
         g_app.tracing = 0;
-        pthread_mutex_lock(&g_app.trace_mutex);
-        if (g_app.trace_file) {
-            fclose(g_app.trace_file);
-            g_app.trace_file = NULL;
-        }
-        pthread_mutex_unlock(&g_app.trace_mutex);
-    }
 
     /* Update toolbar sensitivity */
     if (g_gui.toolbar_connect)

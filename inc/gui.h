@@ -54,6 +54,9 @@ extern gui_widgets_t g_gui;
 /* Main window */
 GtkWidget *gui_create_main_window(GtkApplication *app);
 
+/* Sync the transmit panel with the current CAN FD link mode (DLC up to 64). */
+void gui_tx_panel_update_fd(void);
+
 /* Message helpers */
 void gui_add_message(const can_msg_t *msg);
 void gui_clear_trace(void);

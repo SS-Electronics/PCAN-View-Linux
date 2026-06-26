@@ -4,7 +4,23 @@
 #          make DEBUG=1       → build/pcan-view  (debug)
 # Run:     ./build/pcan-view
 # Clean:   make clean         → removes build/ entirely
-# Install: make install
+#
+# One-shot install (dependencies + compile + system install + desktop entry):
+#          sudo make install
+# Only install build/runtime dependencies:
+#          sudo make install-deps
+# Remove an installed copy:
+#          sudo make uninstall
+
+# ------------------------------------------------------------------ #
+# Install layout (override with PREFIX=… DESTDIR=…)                    #
+# ------------------------------------------------------------------ #
+PREFIX  ?= /usr/local
+DESTDIR ?=
+BINDIR   := $(PREFIX)/bin
+SHAREDIR := $(PREFIX)/share/pcan-view
+APPDIR   := $(PREFIX)/share/applications
+ICONDIR  := $(PREFIX)/share/icons/hicolor/256x256/apps
 
 # ------------------------------------------------------------------ #
 # Directories                                                          #
@@ -53,7 +69,7 @@ OBJ_SUBDIRS := $(OBJ_DIR) \
 # ------------------------------------------------------------------ #
 # Rules                                                                #
 # ------------------------------------------------------------------ #
-.PHONY: all clean install uninstall run
+.PHONY: all clean install install-deps install-files uninstall run
 
 all: $(TARGET)
 
@@ -80,10 +96,32 @@ clean:
 run: all
 	@./$(TARGET)
 
-install: $(TARGET)
-	install -Dm755 $(TARGET) $(DESTDIR)/usr/local/bin/pcan-view
-	@echo "Installed to $(DESTDIR)/usr/local/bin/pcan-view"
+# Install system build/runtime dependencies (auto-detects apt/dnf/pacman).
+install-deps:
+	@echo "==> Installing dependencies (requires root)…"
+	@bash scripts/install_dependencies.sh
+
+# Full end-user install: dependencies → compile → install binary + desktop entry
+# + icon.  Run as root:  sudo make install
+install: install-deps all install-files
+	@echo ""
+	@echo "==> PCAN-View Linux installed successfully."
+	@echo "    Launch it from your application menu or run: pcan-view"
+
+# Copy the built binary and application resources into the system.
+install-files: $(TARGET)
+	@echo "==> Installing files to $(DESTDIR)$(PREFIX)…"
+	install -Dm755 $(TARGET)                  $(DESTDIR)$(BINDIR)/pcan-view
+	install -Dm644 assets/taksys_logo.png     $(DESTDIR)$(SHAREDIR)/taksys_logo.png
+	install -Dm644 assets/taksys_logo.png     $(DESTDIR)$(ICONDIR)/pcan-view.png
+	install -Dm644 assets/pcan-view.desktop   $(DESTDIR)$(APPDIR)/pcan-view.desktop
+	-update-desktop-database $(DESTDIR)$(APPDIR) 2>/dev/null || true
+	-gtk-update-icon-cache -q $(DESTDIR)$(PREFIX)/share/icons/hicolor 2>/dev/null || true
 
 uninstall:
-	rm -f $(DESTDIR)/usr/local/bin/pcan-view
+	rm -f $(DESTDIR)$(BINDIR)/pcan-view
+	rm -f $(DESTDIR)$(APPDIR)/pcan-view.desktop
+	rm -f $(DESTDIR)$(ICONDIR)/pcan-view.png
+	rm -rf $(DESTDIR)$(SHAREDIR)
+	-update-desktop-database $(DESTDIR)$(APPDIR) 2>/dev/null || true
 	@echo "Uninstalled pcan-view."

@@ -65,6 +65,11 @@ typedef struct {
     char            trace_filename[APP_TRACE_FILE_LEN];
     pthread_mutex_t trace_mutex;
 
+    /* --- In-memory trace capture (Trace menu: Start/Stop/Save CSV) --- */
+    can_msg_t      *trace_buf;     /* dynamically grown ring of captured frames */
+    size_t          trace_len;     /* number of frames currently captured       */
+    size_t          trace_cap;     /* allocated capacity (in frames)            */
+
     /* --- Message deduplication (unique-IDs view) --- */
     int             dedup_mode;
     int             id_format;
