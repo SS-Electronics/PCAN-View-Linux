@@ -5,6 +5,10 @@
 # Build output (all compiler artefacts live here)
 /build/
 
+# Local-only docs (kept out of commits)
+/ISSUES.md
+/PROJECT_CONTEXT.md
+
 # ------------------------------------------------------------------ #
 # C / GCC                                                              #
 # ------------------------------------------------------------------ #
@@ -100,6 +104,27 @@ compile_commands.json
 tags
 TAGS
 cscope.*
+
+# ------------------------------------------------------------------ #
+# Generated documentation (Doxygen output)                            #
+# ------------------------------------------------------------------ #
+/docs/
+
+# ------------------------------------------------------------------ #
+# Debian / package build artefacts                                    #
+# ------------------------------------------------------------------ #
+/debian/.debhelper/
+/debian/pcan-view/
+/debian/files
+/debian/*.substvars
+/debian/*.debhelper.log
+/debian/debhelper-build-stamp
+/obj-*/
+../pcan-view_*.deb
+../pcan-view_*.changes
+../pcan-view_*.buildinfo
+../pcan-view_*.dsc
+../pcan-view_*.tar.*
 
 # ------------------------------------------------------------------ #
 # Logs & local scratch                                                #

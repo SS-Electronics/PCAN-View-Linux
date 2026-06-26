@@ -1,11 +1,19 @@
-/*
- * settings_dialog.c – CAN connection settings dialog
+/**
+ * @file settings_dialog.c
+ * @brief Modal CAN connection-settings dialog.
  *
- * Allows the user to select:
- *   - CAN interface (auto-discovered from /sys/class/net)
- *   - Nominal bitrate
- *   - CAN FD mode + data bitrate
- *   - Listen-only mode
+ * @details
+ * Presents the connection options and, on confirmation, writes them into
+ * @ref g_app and triggers @ref app_do_connect.  The user can choose:
+ *   - the CAN interface (auto-discovered from `/sys/class/net`, with `vcan0`
+ *     always offered as a fallback),
+ *   - the nominal bit rate,
+ *   - CAN FD mode and its data bit rate,
+ *   - listen-only mode.
+ *
+ * @author Subhajit Roy <subhajitroy005@gmail.com>
+ * @date 2026
+ * @copyright SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -22,6 +30,13 @@
 /* Interface discovery                                                  */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Fill the interface combo with discovered CAN interfaces.
+ *
+ * Always lists `vcan0` first, then any other CAN interfaces, and pre-selects
+ * the one currently stored in @ref g_app.
+ * @param combo  The combo box to populate.
+ */
 static void populate_interfaces(GtkComboBoxText *combo)
 {
 #define MAX_IF 32
@@ -62,7 +77,7 @@ static void populate_interfaces(GtkComboBoxText *combo)
 static struct {
     const char *label;
     uint32_t    value;
-} s_bitrates[] = {
+} s_bitrates[] = {  /**< Selectable nominal bit rates. */
     { "10 kbit/s",   10000   },
     { "20 kbit/s",   20000   },
     { "50 kbit/s",   50000   },
@@ -77,7 +92,7 @@ static struct {
 static struct {
     const char *label;
     uint32_t    value;
-} s_fd_bitrates[] = {
+} s_fd_bitrates[] = {  /**< Selectable CAN FD data bit rates. */
     { "1 Mbit/s",   1000000  },
     { "2 Mbit/s",   2000000  },
     { "4 Mbit/s",   4000000  },
@@ -87,7 +102,11 @@ static struct {
     { "12 Mbit/s", 12000000  },
 };
 
-/* Callback: enable/disable FD data-rate widgets */
+/**
+ * @brief "Enable CAN FD" toggle handler — enables the data-rate widget.
+ * @param btn   The CAN FD check button.
+ * @param data  The data-bitrate widget to (de)sensitise.
+ */
 static void on_fd_toggled(GtkToggleButton *btn, gpointer data)
 {
     GtkWidget *drate_box = GTK_WIDGET(data);

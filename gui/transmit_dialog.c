@@ -1,15 +1,17 @@
-/*
- * transmit_dialog.c – CAN message transmit window
+/**
+ * @file transmit_dialog.c
+ * @brief Advanced ("Transmit...") CAN/CAN FD message composer window.
  *
- * Non-modal secondary window:
- *  - Frame ID (hex), extended/standard toggle
- *  - Frame type: Data / Remote
- *  - CAN FD toggle + BRS
- *  - DLC (0..8, or 0..64 for FD)
- *  - Data bytes (hex entry fields, up to 8 shown for classic CAN,
- *                scrollable for FD)
- *  - "Send Once" button
- *  - Cyclic transmit: interval (ms), Start / Stop cyclic
+ * @details
+ * A non-modal secondary window for hand-crafting a single frame with full
+ * control over: identifier (hex) and standard/extended flag, data vs. remote
+ * (RTR) frame, CAN FD + BRS, DLC (0..8 classic, 0..64 FD), individual data
+ * bytes, and one-shot or cyclic transmission at a configurable interval.
+ * Frames are validated by @ref build_frame and pushed onto `g_app.tx_queue`.
+ *
+ * @author Subhajit Roy <subhajitroy005@gmail.com>
+ * @date 2026
+ * @copyright SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -33,6 +35,7 @@
 #define TX_EXT_ID_MAX    0x1FFFFFFFu
 #define TX_BYTE_MAX      0xFFu
 
+/** @brief Widget state for the advanced transmit window (singleton @ref s_tx). */
 typedef struct {
     GtkWidget *window;
     GtkWidget *id_entry;
@@ -50,12 +53,18 @@ typedef struct {
     guint      cyclic_timer_id;
 } tx_win_t;
 
+/** @brief The single advanced-transmit window instance. */
 static tx_win_t s_tx;
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Strictly parse a hex string into a bounded `uint32_t`.
+ * @param s    Input text. @param max Maximum allowed value. @param out Result.
+ * @return 0 on success, -1 on malformed input or overflow.
+ */
 static int parse_hex_u32(const char *s, uint32_t max, uint32_t *out)
 {
     if (!s || !out) return -1;
@@ -75,6 +84,11 @@ static int parse_hex_u32(const char *s, uint32_t max, uint32_t *out)
     return 0;
 }
 
+/**
+ * @brief Validate the form fields and assemble a @ref can_msg_t.
+ * @param msg  Output frame.
+ * @return TRUE if valid (status label cleared), FALSE on a validation error.
+ */
 static gboolean build_frame(can_msg_t *msg)
 {
     memset(msg, 0, sizeof(*msg));
@@ -135,6 +149,7 @@ static gboolean build_frame(can_msg_t *msg)
     return TRUE;
 }
 
+/** @brief Build and enqueue the current frame for transmission. */
 static void send_frame(void)
 {
     if (!g_app.connected) {
@@ -158,6 +173,7 @@ static void send_frame(void)
 /* Cyclic send                                                          */
 /* ------------------------------------------------------------------ */
 
+/** @brief Cyclic-timer callback: send one frame per tick. @param data Unused. @return Continue/remove. */
 static gboolean cyclic_tick(gpointer data)
 {
     (void)data;
@@ -166,6 +182,7 @@ static gboolean cyclic_tick(gpointer data)
     return G_SOURCE_CONTINUE;
 }
 
+/** @brief "Start Cyclic" handler — arm the periodic send timer. @param w Widget. @param d Unused. */
 static void on_cyclic_start(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -180,6 +197,7 @@ static void on_cyclic_start(GtkWidget *w, gpointer d)
     gtk_widget_set_sensitive(s_tx.cyclic_btn_stop,  TRUE);
 }
 
+/** @brief "Stop Cyclic" handler — disarm the periodic send timer. @param w Widget. @param d Unused. */
 static void on_cyclic_stop(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -196,6 +214,7 @@ static void on_cyclic_stop(GtkWidget *w, gpointer d)
 /* DLC / FD changed – update data entry sensitivity                    */
 /* ------------------------------------------------------------------ */
 
+/** @brief Re-range the DLC spin and enable exactly the active data-byte fields. */
 static void update_data_fields(void)
 {
     int is_fd  = gtk_toggle_button_get_active(
@@ -219,18 +238,21 @@ static void update_data_fields(void)
     }
 }
 
+/** @brief CAN FD toggle handler. @param b Button. @param d Unused. */
 static void on_fd_toggled(GtkToggleButton *b, gpointer d)
 {
     (void)b; (void)d;
     update_data_fields();
 }
 
+/** @brief DLC spin change handler. @param b Spin button. @param d Unused. */
 static void on_dlc_changed(GtkSpinButton *b, gpointer d)
 {
     (void)b; (void)d;
     update_data_fields();
 }
 
+/** @brief Remote-frame toggle handler. @param b Button. @param d Unused. */
 static void on_rtr_toggled(GtkToggleButton *b, gpointer d)
 {
     (void)b; (void)d;
@@ -241,12 +263,14 @@ static void on_rtr_toggled(GtkToggleButton *b, gpointer d)
 /* Window construction                                                  */
 /* ------------------------------------------------------------------ */
 
+/** @brief "Send Once" handler. @param w Widget. @param d Unused. */
 static void on_send_once(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
     send_frame();
 }
 
+/** @brief Window destroy handler — cancel the cyclic timer and clear state. @param w Widget. @param d Unused. */
 static void on_tx_win_destroy(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;

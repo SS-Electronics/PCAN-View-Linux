@@ -1,0 +1,10 @@
+pcan-view (1.1.0-1) noble; urgency=medium
+
+  * Initial Debian packaging for the Taksys customer release.
+  * Statistics bar below the menu bar.
+  * Trace menu with Start/Stop and CSV export.
+  * CAN FD transmit with per-row DLC up to 64 bytes and dynamic data fields.
+  * Taksys branding (About dialog, footer, application icon) and desktop entry.
+  * Full Doxygen API documentation.
+
+ -- Subhajit Roy <subhajitroy005@gmail.com>  Fri, 26 Jun 2026 23:13:35 +0530

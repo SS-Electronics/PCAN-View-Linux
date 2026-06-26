@@ -1,11 +1,17 @@
-/*
- * drv_can.c – Generic CAN driver abstraction layer
+/**
+ * @file drv_can.c
+ * @brief Generic CAN driver abstraction and the SocketCAN binding.
  *
- * Provides a hardware-independent interface via a can_driver_t function
- * pointer table.  The default back-end is SocketCAN.
+ * @details
+ * Implements the hardware-independent `drv_can_*` API declared in
+ * @ref drv_can.h.  Each call dispatches through the currently selected
+ * @ref can_driver_t vtable (set by @ref drv_can_init).  This file also defines
+ * the built-in SocketCAN vtable, whose members are thin adapters that forward
+ * to the `socketcan_*` functions while binding the shared @ref s_sck_ctx.
  *
- * To plug in a different back-end (e.g. PCAN-Basic chardev API) create a
- * new can_driver_t struct and pass it to drv_can_init().
+ * @author Subhajit Roy <subhajitroy005@gmail.com>
+ * @date 2026
+ * @copyright SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -13,8 +19,13 @@
 #include "../inc/drv_can.h"
 #include "../inc/socketcan.h"
 
-/* ---------- SocketCAN wrapper ---------- */
+/**
+ * @name SocketCAN vtable adapters
+ * @brief Thin wrappers binding @ref s_sck_ctx to the `socketcan_*` calls.
+ * @{
+ */
 
+/** @brief Per-process SocketCAN connection context. */
 static socketcan_ctx_t s_sck_ctx;
 
 static int sck_init(const char *iface, uint32_t bitrate,
@@ -65,6 +76,7 @@ static const char *sck_error_string(int err)
     return socketcan_error_string(err);
 }
 
+/** @brief The built-in SocketCAN driver vtable. */
 static can_driver_t s_socketcan_driver = {
     .init         = sck_init,
     .deinit       = sck_deinit,
@@ -76,14 +88,14 @@ static can_driver_t s_socketcan_driver = {
     .reset        = sck_reset,
     .error_string = sck_error_string,
 };
+/** @} */
 
 can_driver_t *drv_can_get_socketcan(void)
 {
     return &s_socketcan_driver;
 }
 
-/* ---------- Active driver state ---------- */
-
+/** @brief Currently selected driver vtable, or NULL when disconnected. */
 static can_driver_t *s_active_drv = NULL;
 
 int drv_can_init(can_driver_t *drv, const char *iface, uint32_t bitrate,

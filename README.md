@@ -8,6 +8,31 @@ and CAN FD transmission, bus-load metering, and CSV trace export.
 
 ---
 
+## Screenshots
+
+**Main window** — live receive trace with roll-up counts, the statistics bar
+below the menu, and the inline transmit panel:
+
+![PCAN-View Linux main window](assets/screenshots/main-window.png)
+
+**CAN FD transmit** — when CAN FD is enabled, a transmit row's DLC grows to 64
+and the data-byte fields are added/removed dynamically, wrapping to fit:
+
+![CAN FD transmit with 64 data bytes](assets/screenshots/canfd-transmit.png)
+
+<table>
+<tr>
+<td width="58%"><b>Connection settings</b><br>
+<img src="assets/screenshots/connection-settings.png" alt="Connection settings dialog">
+</td>
+<td width="42%"><b>About</b><br>
+<img src="assets/screenshots/about-dialog.png" alt="About dialog (Taksys)">
+</td>
+</tr>
+</table>
+
+---
+
 ## Features
 
 | Feature | Detail |
@@ -76,8 +101,12 @@ PCAN-View-Linux/
 │   ├── settings_dialog.c      Connection settings dialog
 │   └── transmit_dialog.c      Message transmit window
 ├── assets/
-│   ├── taksys_logo.png        Taksys brand logo (about dialog, icon, footer)
+│   ├── taksys_logo.png        Taksys brand logo (about dialog + footer)
+│   ├── pcan-view.png          256×256 application icon
 │   └── pcan-view.desktop      Desktop launcher entry
+├── debian/                    Debian/Ubuntu packaging (control, rules, …)
+├── .github/workflows/         CI/CD: build/test, docs, .deb + PPA release
+├── Doxyfile                   Doxygen configuration (output → ./docs)
 └── scripts/
     ├── install_dependencies.sh  Dependency installer (Debian/Ubuntu/Arch/Fedora)
     └── test_without_pcan.py     Local vcan smoke-test helper
@@ -191,6 +220,34 @@ After installation, launch **PCAN-View Linux** from your application menu or run
 Override the install location with `PREFIX=` / `DESTDIR=`, e.g.
 `sudo make install PREFIX=/usr`.
 
+### Install from a `.deb` package
+
+A Debian/Ubuntu package can be built from the bundled `debian/` packaging and
+installed with `apt` (which resolves the GTK runtime dependencies):
+
+```bash
+sudo apt-get install -y devscripts debhelper build-essential pkgconf \
+    libgtk-3-dev libglib2.0-dev
+dpkg-buildpackage -us -uc -b          # produces ../pcan-view_<version>_<arch>.deb
+sudo apt-get install -y ../pcan-view_*.deb
+```
+
+Remove it again with `sudo apt-get purge -y pcan-view`.
+
+### Install from the Ubuntu PPA
+
+Released versions are published to a Launchpad PPA. Once the PPA is added, the
+package installs and updates like any other:
+
+```bash
+sudo add-apt-repository ppa:subhajitroy/pcan-view
+sudo apt-get update
+sudo apt-get install -y pcan-view
+```
+
+> The CI pipeline (`.github/workflows/ppa.yml`) builds the signed source package
+> per Ubuntu series and uploads it to the PPA on each version tag.
+
 ---
 
 ## Build & Run (from source)
@@ -231,7 +288,7 @@ cansend vcan0 18FF50E5#0102030405060708    # extended frame
 
 ### 5. Virtual CAN test workflow
 
-For a complete no-hardware test flow, see [Virtual CAN Testing](#virtual-can-testing).
+For a complete no-hardware test flow, see the **Virtual CAN Testing** section below.
 
 ### 6. Run with real PEAK hardware
 
@@ -368,6 +425,40 @@ static can_driver_t my_driver = {
 /* Use it */
 drv_can_init(&my_driver, "can0", 500000, 0, 0, 0);
 ```
+
+---
+
+## API Documentation
+
+The codebase carries full Doxygen documentation (file, type, and function level).
+Generate the HTML reference locally:
+
+```bash
+sudo apt-get install -y doxygen graphviz
+make docs            # or: doxygen Doxyfile
+xdg-open docs/index.html
+```
+
+The output is written to `./docs/index.html`. The CI pipeline
+(`.github/workflows/docs.yml`) also builds the documentation and publishes it to
+GitHub Pages on every push to `main`.
+
+A man page is installed with the package and is also available in the source
+tree at `debian/pcan-view.1`:
+
+```bash
+man pcan-view
+```
+
+---
+
+## Continuous Integration
+
+| Workflow | Purpose |
+|---|---|
+| `.github/workflows/ci.yml` | Build, `--version` smoke, headless GUI smoke (xvfb), Doxygen build, `.deb` build, `lintian`, and an install/removal test. |
+| `.github/workflows/docs.yml` | Build the Doxygen docs and deploy to GitHub Pages. |
+| `.github/workflows/ppa.yml` | On a `vX.Y.Z` tag: build the `.deb` for the GitHub Release and upload the signed source package to the Ubuntu PPA. |
 
 ---
 

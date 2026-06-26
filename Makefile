@@ -33,7 +33,13 @@ OBJ_DIR   := $(BUILD_DIR)/obj
 # ------------------------------------------------------------------ #
 TARGET  := $(BUILD_DIR)/pcan-view
 
-CC      := gcc
+CC      ?= gcc
+
+# EXTRA_CFLAGS / EXTRA_LDFLAGS let packaging inject hardening flags
+# (e.g. from `dpkg-buildflags`) without disturbing the base flags.
+EXTRA_CFLAGS  ?=
+EXTRA_LDFLAGS ?=
+
 CFLAGS  := -Wall -Wextra -Wpedantic -std=c11 \
            -D_GNU_SOURCE \
            $(shell pkg-config --cflags gtk+-3.0) \
@@ -46,6 +52,9 @@ CFLAGS  += -g -O0 -DDEBUG
 else
 CFLAGS  += -O2
 endif
+
+CFLAGS  += $(EXTRA_CFLAGS)
+LDFLAGS += $(EXTRA_LDFLAGS)
 
 # ------------------------------------------------------------------ #
 # Sources → objects (mirror source tree under build/obj/)             #
@@ -69,7 +78,7 @@ OBJ_SUBDIRS := $(OBJ_DIR) \
 # ------------------------------------------------------------------ #
 # Rules                                                                #
 # ------------------------------------------------------------------ #
-.PHONY: all clean install install-deps install-files uninstall run
+.PHONY: all clean install install-deps install-files uninstall run docs docs-clean
 
 all: $(TARGET)
 
@@ -93,6 +102,20 @@ clean:
 	rm -rf $(BUILD_DIR)
 	@echo "Cleaned build directory."
 
+# ------------------------------------------------------------------ #
+# Documentation (Doxygen → ./docs/index.html)                         #
+# ------------------------------------------------------------------ #
+docs:
+	@command -v doxygen >/dev/null 2>&1 || { \
+		echo "doxygen not found. Install it: sudo apt install doxygen graphviz"; \
+		exit 1; }
+	doxygen Doxyfile
+	@echo "Documentation generated → docs/index.html"
+
+docs-clean:
+	rm -rf docs
+	@echo "Removed generated documentation."
+
 run: all
 	@./$(TARGET)
 
@@ -104,19 +127,21 @@ install-deps:
 # Full end-user install: dependencies → compile → install binary + desktop entry
 # + icon.  Run as root:  sudo make install
 install: install-deps all install-files
+	-update-desktop-database $(DESTDIR)$(APPDIR) 2>/dev/null || true
+	-gtk-update-icon-cache -q -f -t $(DESTDIR)$(PREFIX)/share/icons/hicolor 2>/dev/null || true
 	@echo ""
 	@echo "==> PCAN-View Linux installed successfully."
 	@echo "    Launch it from your application menu or run: pcan-view"
 
-# Copy the built binary and application resources into the system.
+# Copy the built binary and application resources into the system.  This target
+# performs no icon/desktop cache updates so it is safe for packaging (the .deb
+# maintainer scripts/triggers handle caches at install time).
 install-files: $(TARGET)
 	@echo "==> Installing files to $(DESTDIR)$(PREFIX)…"
 	install -Dm755 $(TARGET)                  $(DESTDIR)$(BINDIR)/pcan-view
 	install -Dm644 assets/taksys_logo.png     $(DESTDIR)$(SHAREDIR)/taksys_logo.png
-	install -Dm644 assets/taksys_logo.png     $(DESTDIR)$(ICONDIR)/pcan-view.png
+	install -Dm644 assets/pcan-view.png       $(DESTDIR)$(ICONDIR)/pcan-view.png
 	install -Dm644 assets/pcan-view.desktop   $(DESTDIR)$(APPDIR)/pcan-view.desktop
-	-update-desktop-database $(DESTDIR)$(APPDIR) 2>/dev/null || true
-	-gtk-update-icon-cache -q $(DESTDIR)$(PREFIX)/share/icons/hicolor 2>/dev/null || true
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/pcan-view

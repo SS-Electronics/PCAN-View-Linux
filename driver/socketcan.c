@@ -1,13 +1,20 @@
-/*
- * socketcan.c – SocketCAN back-end for PCAN-View Linux
+/**
+ * @file socketcan.c
+ * @brief SocketCAN back-end for PCAN-View Linux (`PF_CAN` / `SOCK_RAW`).
  *
- * Uses the standard Linux SocketCAN subsystem (PF_CAN / SOCK_RAW).
- * Bitrate configuration is performed via the "ip" utility so that
- * the application does not need a Netlink implementation.
+ * @details
+ * Implements the `socketcan_*` operations declared in @ref socketcan.h on top
+ * of the Linux SocketCAN subsystem.  Interface bring-up and bit-rate
+ * configuration are delegated to the `ip` utility (run directly when the
+ * process already has `CAP_NET_ADMIN`, otherwise transparently re-tried through
+ * `pkexec` for a graphical authentication) so no bespoke Netlink code is
+ * required.  Classic CAN and CAN FD frames are both supported.
  *
- * Reference:
- *   https://www.kernel.org/doc/Documentation/networking/can.rst
- *   https://www.peak-system.com/fileadmin/media/linux/index.php
+ * @see https://www.kernel.org/doc/Documentation/networking/can.rst
+ *
+ * @author Subhajit Roy <subhajitroy005@gmail.com>
+ * @date 2026
+ * @copyright SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -56,7 +63,7 @@ static int socketcan_iface_name_valid(const char *iface)
     return 1;
 }
 
-/* Return non-zero if the interface currently has IFF_UP set. */
+/** @brief Return non-zero if interface @p iface currently has `IFF_UP`. */
 static int iface_is_up(const char *iface)
 {
     char path[300];
@@ -70,8 +77,7 @@ static int iface_is_up(const char *iface)
     return (n == 1) && (flags & 1u /* IFF_UP */);
 }
 
-/* Locate an absolute path to the "ip" tool (needed when launching it through
- * pkexec, which will not search $PATH). */
+/** @brief Locate an absolute path to the `ip` tool (pkexec ignores `$PATH`). */
 static const char *ip_tool_path(void)
 {
     static const char *candidates[] = {
@@ -83,7 +89,12 @@ static const char *ip_tool_path(void)
     return "ip";
 }
 
-/* Fork/exec argv[0] with argv, waiting for it to finish. */
+/**
+ * @brief Fork/exec @p argv and wait for completion.
+ * @param argv         NULL-terminated argument vector (argv[0] is the program).
+ * @param quiet_stderr  Non-zero to redirect the child's stderr to /dev/null.
+ * @return 0 if the child exited with status 0, -1 otherwise.
+ */
 static int run_argv(const char *const argv[], int quiet_stderr)
 {
     pid_t pid = fork();
@@ -114,9 +125,16 @@ static int run_argv(const char *const argv[], int quiet_stderr)
     return -1;
 }
 
-/* Run an "ip …" command, transparently retrying through pkexec for a graphical
- * polkit authentication when we lack CAP_NET_ADMIN.  This lets the user bring
- * up vcan/CAN interfaces without typing sudo in a terminal. */
+/**
+ * @brief Run an `ip …` command, retrying through `pkexec` if it fails.
+ *
+ * Tries the command directly first (succeeds with CAP_NET_ADMIN); on failure it
+ * re-runs `pkexec <abs ip> <args…>` for a graphical polkit prompt, so the user
+ * can bring up vcan/CAN interfaces without a terminal `sudo`.
+ * @param ip_argv       `ip` argument vector (argv[0] == "ip").
+ * @param quiet_stderr  Non-zero to silence stderr on the elevated attempt.
+ * @return 0 on success, -1 otherwise.
+ */
 static int run_ip_priv(const char *const ip_argv[], int quiet_stderr)
 {
     /* Fast path: succeeds when already running with sufficient privileges. */
@@ -136,7 +154,16 @@ static int run_ip_priv(const char *const ip_argv[], int quiet_stderr)
     return run_argv(pk_argv, quiet_stderr);
 }
 
-/* Bring interface down, configure bitrate, bring up */
+/**
+ * @brief Bring an interface down, apply CAN/CAN FD timing, and bring it up.
+ * @param iface        Interface name.
+ * @param bitrate      Nominal bit rate (bit/s).
+ * @param data_bitrate CAN FD data bit rate (bit/s).
+ * @param fd_mode      Non-zero to enable CAN FD.
+ * @param listen_only  Non-zero for listen-only mode.
+ * @param timing       Optional manual bit timing (may be NULL).
+ * @return 0 on success, -1 on failure.
+ */
 static int configure_interface(const char *iface, uint32_t bitrate,
                                 uint32_t data_bitrate, int fd_mode,
                                 int listen_only,

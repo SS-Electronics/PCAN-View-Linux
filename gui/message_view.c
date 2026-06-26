@@ -1,5 +1,19 @@
-/*
- * message_view.c – CAN trace view and statistics panel
+/**
+ * @file message_view.c
+ * @brief CAN trace `GtkTreeView`, value formatting, and statistics rendering.
+ *
+ * @details
+ * Builds and maintains the receive/transmit trace list and its backing
+ * `GtkListStore`, including row roll-up (deduplication) by CAN ID, interval and
+ * frequency computation, and re-formatting when the ID/data display mode
+ * changes.  Also provides the shared value-formatting helpers
+ * (@ref gui_format_id, @ref gui_format_data, @ref gui_msg_type_str, …), the
+ * statistics refresh (@ref gui_update_stats), the status-bar helper, and the
+ * modal error dialog.
+ *
+ * @author Subhajit Roy <subhajitroy005@gmail.com>
+ * @date 2026
+ * @copyright SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -71,6 +85,10 @@ void gui_format_data(char *buf, size_t sz, const uint8_t *d, uint8_t dlc)
     }
 }
 
+/**
+ * @brief Format payload bytes as a compact uppercase hex string (no spaces).
+ * @param buf Output buffer. @param sz Size. @param d Bytes. @param dlc Count.
+ */
 static void format_raw_data(char *buf, size_t sz,
                             const uint8_t *d, uint8_t dlc)
 {
@@ -83,6 +101,7 @@ static void format_raw_data(char *buf, size_t sz,
     }
 }
 
+/** @brief Convert a hex digit to its value, or -1 if not a hex digit. @param c Char. @return 0..15 or -1. */
 static int hex_value(char c)
 {
     if (c >= '0' && c <= '9') return c - '0';
@@ -91,6 +110,11 @@ static int hex_value(char c)
     return -1;
 }
 
+/**
+ * @brief Parse a compact hex string back into bytes.
+ * @param raw Hex string. @param out Output bytes. @param dlc Max bytes.
+ * @return Number of bytes parsed.
+ */
 static uint8_t parse_raw_data(const char *raw, uint8_t *out, uint8_t dlc)
 {
     if (!raw || !out) return 0;
@@ -107,11 +131,13 @@ static uint8_t parse_raw_data(const char *raw, uint8_t *out, uint8_t dlc)
     return count;
 }
 
+/** @brief Convert a `timespec` to nanoseconds. @param ts Time. @return Nanoseconds. */
 static gint64 timespec_to_ns(const struct timespec *ts)
 {
     return ((gint64)ts->tv_sec * 1000000000LL) + (gint64)ts->tv_nsec;
 }
 
+/** @brief Render a `timespec` as `HH:MM:SS.mmm`. @param buf Out. @param sz Size. @param ts Time. */
 static void format_timestamp(char *buf, size_t sz, const struct timespec *ts)
 {
     if (sz == 0) return;
@@ -128,6 +154,7 @@ static void format_timestamp(char *buf, size_t sz, const struct timespec *ts)
              ts->tv_nsec / 1000000L);
 }
 
+/** @brief Render an inter-frame interval in milliseconds. @param buf Out. @param sz Size. @param delta_ns Delta. */
 static void format_interval(char *buf, size_t sz, gint64 delta_ns)
 {
     if (sz == 0) return;
@@ -139,6 +166,7 @@ static void format_interval(char *buf, size_t sz, gint64 delta_ns)
     snprintf(buf, sz, "%.3f", (double)delta_ns / 1000000.0);
 }
 
+/** @brief Render a frame frequency in hertz from an interval. @param buf Out. @param sz Size. @param delta_ns Delta. */
 static void format_frequency(char *buf, size_t sz, gint64 delta_ns)
 {
     if (sz == 0) return;
@@ -157,6 +185,7 @@ static void format_frequency(char *buf, size_t sz, gint64 delta_ns)
     }
 }
 
+/** @brief Decide whether @p msg should roll up onto an existing row. @param msg Frame. @return TRUE to roll up. */
 static gboolean should_rollup_message(const can_msg_t *msg)
 {
     if (msg->is_error)
@@ -194,6 +223,7 @@ const char *gui_bus_state_color(uint8_t st)
 }
 
 /* Row foreground colour */
+/** @brief Return the row foreground colour for a frame, or NULL for default. @param m Frame. @return Colour or NULL. */
 static const char *row_fg(const can_msg_t *m)
 {
     if (m->is_error)                return "red";
@@ -205,6 +235,10 @@ static const char *row_fg(const can_msg_t *m)
 /* Trace view creation                                                  */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Create the trace `GtkTreeView` and its backing `GtkListStore`.
+ * @return A scrolled-window container holding the tree view.
+ */
 GtkWidget *create_trace_view(void)
 {
     GtkListStore *store = gtk_list_store_new(
@@ -277,6 +311,10 @@ GtkWidget *create_trace_view(void)
 /* Statistics panel                                                     */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Create a vertical statistics panel (legacy/optional layout).
+ * @return A framed grid of statistic labels.
+ */
 GtkWidget *create_stats_panel(void)
 {
     GtkWidget *frame = gtk_frame_new("Bus Statistics");

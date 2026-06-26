@@ -7,6 +7,6 @@ Comment=CAN / CAN FD bus monitor and analyser (by Taksys)
 Exec=pcan-view
 Icon=pcan-view
 Terminal=false
-Categories=Development;Electronics;Engineering;Utility;
+Categories=Development;Electronics;
 Keywords=CAN;CANFD;SocketCAN;CANbus;Automotive;Bus;Trace;
 StartupNotify=true

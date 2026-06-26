@@ -1,5 +1,19 @@
-/*
- * threads.c – Background threads, global state, connect/disconnect logic
+/**
+ * @file threads.c
+ * @brief Background worker threads, global state, and connect/disconnect logic.
+ *
+ * @details
+ * Defines the application singletons @ref g_app and @ref g_gui and their
+ * lifecycle (@ref app_state_init / @ref app_state_cleanup).  Hosts the three
+ * worker threads — @ref thread_rx, @ref thread_tx, and @ref thread_stats — which
+ * communicate results back to the GTK main thread via `gdk_threads_add_idle()`.
+ * Also implements the in-memory trace capture (@ref trace_record) and the
+ * @ref app_do_connect / @ref app_do_disconnect lifecycle that starts and joins
+ * the threads.
+ *
+ * @author Subhajit Roy <subhajitroy005@gmail.com>
+ * @date 2026
+ * @copyright SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -20,8 +34,8 @@
 /* Global singletons                                                    */
 /* ------------------------------------------------------------------ */
 
-app_state_t   g_app;
-gui_widgets_t g_gui;
+app_state_t   g_app; /**< Global application state singleton.   */
+gui_widgets_t g_gui; /**< Global GUI widget registry singleton.  */
 
 /* ------------------------------------------------------------------ */
 /* State lifecycle                                                      */
@@ -79,6 +93,11 @@ void app_state_cleanup(void)
 /* Idle callbacks (posted from worker threads to GTK main thread)      */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Idle callback: hand a received frame to the trace view.
+ * @param data Heap `can_msg_t*` (freed here).
+ * @return G_SOURCE_REMOVE (one-shot).
+ */
 static gboolean idle_add_message(gpointer data)
 {
     can_msg_t *msg = (can_msg_t *)data;
@@ -88,6 +107,11 @@ static gboolean idle_add_message(gpointer data)
     return G_SOURCE_REMOVE;
 }
 
+/**
+ * @brief Idle callback: refresh the statistics bar on the GTK thread.
+ * @param data Unused.
+ * @return G_SOURCE_REMOVE (one-shot).
+ */
 static gboolean idle_update_stats(gpointer data)
 {
     (void)data;
@@ -100,11 +124,17 @@ static gboolean idle_update_stats(gpointer data)
 /* Trace capture (in-memory; exported to CSV via Trace > Save)          */
 /* ------------------------------------------------------------------ */
 
-#define TRACE_BUF_MAX 2000000u   /* hard cap so a long run can't exhaust RAM */
+#define TRACE_BUF_MAX 2000000u   /**< Hard cap so a long run can't exhaust RAM. */
 
-/* Append one frame to the in-memory trace buffer.  Called from the RX and TX
- * worker threads, so it is guarded by trace_mutex (shared with the CSV writer
- * in the GTK thread). */
+/**
+ * @brief Append one frame to the in-memory trace buffer.
+ *
+ * Called from the RX and TX worker threads, so it is guarded by
+ * `g_app.trace_mutex` (shared with the CSV writer on the GTK thread). The buffer
+ * grows geometrically and stops at #TRACE_BUF_MAX frames.
+ *
+ * @param msg  Frame to capture (copied by value).
+ */
 static void trace_record(const can_msg_t *msg)
 {
     if (!g_app.tracing) return;

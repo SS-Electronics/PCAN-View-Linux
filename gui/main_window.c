@@ -1,15 +1,36 @@
-/*
- * main_window.c – Main GTK3 application window
+/**
+ * @file main_window.c
+ * @brief Main GTK3 window: menu bar, statistics bar, toolbar, trace, TX panel.
  *
- * Layout:
+ * @details
+ * Constructs and owns the entire main-window UI and most of its behaviour:
+ *   - the menu bar (File, Trace, CAN, View, Help),
+ *   - the always-visible statistics bar below the menu,
+ *   - the toolbar,
+ *   - a vertical paned area with the receive trace on top and the inline
+ *     transmit panel below,
+ *   - the Trace capture menu (Start/Stop/Save as CSV),
+ *   - the inline transmit panel with per-row CAN FD DLC up to 64 and dynamic,
+ *     wrapping data-byte fields,
+ *   - Taksys branding (window icon, footer, About dialog).
+ *
+ * Window layout:
+ * @verbatim
  *   GtkApplicationWindow
  *   └─ GtkBox (vertical)
  *      ├─ GtkMenuBar
+ *      ├─ statistics bar  (GtkBox)
  *      ├─ GtkToolbar
  *      ├─ GtkPaned (vertical)
- *      │  ├─ trace view  (scrolled GtkTreeView)
- *      │  └─ transmit rows (scrolled GtkGrid)
- *      └─ GtkStatusbar
+ *      │  ├─ trace view   (scrolled GtkTreeView)
+ *      │  └─ transmit panel (scrolled GtkGrid + per-row GtkFlowBox)
+ *      ├─ GtkStatusbar
+ *      └─ footer  (Taksys logo + credits)
+ * @endverbatim
+ *
+ * @author Subhajit Roy <subhajitroy005@gmail.com>
+ * @date 2026
+ * @copyright SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -24,17 +45,23 @@
 #include "../inc/gui.h"
 #include "../inc/app_state.h"
 #include "../inc/can_message.h"
+#include "../inc/version.h"
 
-/* Declared in message_view.c */
+/** @brief Trace view factory implemented in message_view.c. @return Scrolled tree view. */
 extern GtkWidget *create_trace_view(void);
 
 /* ------------------------------------------------------------------ */
 /* Branding / asset loading (Taksys logo)                               */
 /* ------------------------------------------------------------------ */
 
-/* Resolve an asset file shipped with the application.  Searches, in order:
- * $PCAN_VIEW_ASSET_DIR, locations relative to the executable (dev + installed
- * layouts), and the standard system share directories. */
+/**
+ * @brief Resolve a bundled asset file across dev and installed layouts.
+ *
+ * Searches, in order: `$PCAN_VIEW_ASSET_DIR`, paths relative to the executable
+ * (dev `assets/` and installed `../share/pcan-view`), and the system share dirs.
+ * @param name  Asset filename (e.g. "taksys_logo.png").
+ * @return Static path string valid until the next call, or NULL if not found.
+ */
 static const char *find_asset_path(const char *name)
 {
     static char buf[1024];
@@ -75,7 +102,11 @@ static const char *find_asset_path(const char *name)
     return NULL;
 }
 
-/* Load the Taksys logo scaled into a square of `size` px, or NULL if missing. */
+/**
+ * @brief Load the Taksys logo scaled into a square of @p size px.
+ * @param size  Target edge length in pixels.
+ * @return A new GdkPixbuf (caller unrefs) or NULL if unavailable.
+ */
 static GdkPixbuf *gui_load_logo(int size)
 {
     const char *p = find_asset_path("taksys_logo.png");
@@ -162,6 +193,10 @@ static void txp_rtr_toggled(GtkToggleButton *btn, gpointer d);
 /* Toolbar / menu callbacks                                             */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Window `delete-event`: stop cyclic TX and disconnect before destroy.
+ * @param w Window. @param e Event. @param d Unused. @return FALSE (allow destroy).
+ */
 static gboolean on_window_delete(GtkWidget *w, GdkEvent *e, gpointer d)
 {
     (void)w; (void)e; (void)d;
@@ -171,12 +206,18 @@ static gboolean on_window_delete(GtkWidget *w, GdkEvent *e, gpointer d)
     return FALSE; /* allow default window destruction */
 }
 
+/**
+ * @brief Connect action — open the settings/connect dialog.
+ */
 static void on_connect(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
     gui_show_settings_dialog(g_gui.window);
 }
 
+/**
+ * @brief Disconnect action — stop cyclic TX and disconnect.
+ */
 static void on_disconnect(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -184,6 +225,9 @@ static void on_disconnect(GtkWidget *w, gpointer d)
     app_do_disconnect();
 }
 
+/**
+ * @brief Clear-trace action.
+ */
 static void on_clear(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -191,9 +235,12 @@ static void on_clear(GtkWidget *w, gpointer d)
     gui_status_message("Trace cleared.");
 }
 
-/* Trace > Start : begin capturing every Rx/Tx frame into the in-memory buffer.
- * Trace > Stop  : halt capture (the buffer is retained for export).
- * Trace > Save  : write the captured frames to a CSV file. */
+/**
+ * @brief Trace > Start — begin capturing every Rx/Tx frame in memory.
+ *
+ * @ref on_trace_stop halts capture (the buffer is retained); @ref on_trace_save
+ * writes the captured frames to a CSV file.
+ */
 static void on_trace_start(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -214,6 +261,9 @@ static void on_trace_start(GtkWidget *w, gpointer d)
     gui_status_message("Trace recording started…");
 }
 
+/**
+ * @brief Trace > Stop — halt capture (buffer retained for export).
+ */
 static void on_trace_stop(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -227,7 +277,11 @@ static void on_trace_stop(GtkWidget *w, gpointer d)
                        "Use Trace > Save to export CSV.", g_app.trace_len);
 }
 
-/* Write one captured frame as a CSV record. */
+/**
+ * @brief Write one captured frame as a CSV record.
+ * @param fp   Open output file.
+ * @param msg  Frame to serialise.
+ */
 static void trace_csv_write_row(FILE *fp, const can_msg_t *msg)
 {
     char id_buf[16];
@@ -262,6 +316,9 @@ static void trace_csv_write_row(FILE *fp, const can_msg_t *msg)
             data_buf);
 }
 
+/**
+ * @brief Trace > Save as CSV — export the captured buffer to a file.
+ */
 static void on_trace_save(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -314,24 +371,36 @@ static void on_trace_save(GtkWidget *w, gpointer d)
     gtk_widget_destroy(dlg);
 }
 
+/**
+ * @brief Open the advanced transmit window.
+ */
 static void on_transmit(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
     gui_show_transmit_window();
 }
 
+/**
+ * @brief Open the connection-settings dialog.
+ */
 static void on_settings(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
     gui_show_settings_dialog(g_gui.window);
 }
 
+/**
+ * @brief Open the About dialog.
+ */
 static void on_about(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
     gui_show_about_dialog(g_gui.window);
 }
 
+/**
+ * @brief Quit action — tear down and destroy the main window.
+ */
 static void on_quit(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
@@ -340,6 +409,9 @@ static void on_quit(GtkWidget *w, gpointer d)
     gtk_widget_destroy(g_gui.window);
 }
 
+/**
+ * @brief View > Roll Up Tx — toggle TX deduplication.
+ */
 static void on_dedup_toggle(GtkCheckMenuItem *item, gpointer d)
 {
     (void)d;
@@ -349,6 +421,9 @@ static void on_dedup_toggle(GtkCheckMenuItem *item, gpointer d)
                        g_app.dedup_mode ? "ON" : "OFF");
 }
 
+/**
+ * @brief View > ID Format — switch ID display radix.
+ */
 static void on_id_format_toggle(GtkCheckMenuItem *item, gpointer d)
 {
     int fmt = GPOINTER_TO_INT(d);
@@ -361,6 +436,9 @@ static void on_id_format_toggle(GtkCheckMenuItem *item, gpointer d)
         fmt == APP_ID_FORMAT_DEC ? "decimal" : "hexadecimal");
 }
 
+/**
+ * @brief View > Data Format — switch payload display format.
+ */
 static void on_data_format_toggle(GtkCheckMenuItem *item, gpointer d)
 {
     int fmt = GPOINTER_TO_INT(d);
@@ -378,6 +456,11 @@ static void on_data_format_toggle(GtkCheckMenuItem *item, gpointer d)
 /* Menu helpers                                                         */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Create a mnemonic menu item wired to a callback.
+ * @param label Mnemonic label. @param cb Activate callback. @param data User data.
+ * @return The menu item.
+ */
 static GtkWidget *menu_item(const char *label,
                              GCallback cb, gpointer data)
 {
@@ -386,8 +469,13 @@ static GtkWidget *menu_item(const char *label,
     return item;
 }
 
-/* One "Caption: value" cell of the statistics bar; returns the value label so
- * gui_update_stats() can refresh it. */
+/**
+ * @brief Add one "caption: value" cell to the statistics bar.
+ * @param bar      The statistics bar box.
+ * @param caption  Bold caption text.
+ * @param initial  Initial value text.
+ * @return The value label, so @ref gui_update_stats can refresh it.
+ */
 static GtkWidget *stats_bar_field(GtkWidget *bar, const char *caption,
                                   const char *initial)
 {
@@ -409,6 +497,9 @@ static GtkWidget *stats_bar_field(GtkWidget *bar, const char *caption,
     return val;
 }
 
+/**
+ * @brief Append a vertical separator to the statistics bar. @param bar Bar box.
+ */
 static void stats_bar_separator(GtkWidget *bar)
 {
     gtk_box_pack_start(GTK_BOX(bar),
@@ -416,7 +507,10 @@ static void stats_bar_separator(GtkWidget *bar)
                        FALSE, FALSE, 0);
 }
 
-/* Statistics bar shown directly below the menu bar. */
+/**
+ * @brief Build the statistics bar shown directly below the menu bar.
+ * @return The populated bar widget.
+ */
 static GtkWidget *build_stats_bar(void)
 {
     GtkWidget *bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
@@ -457,6 +551,9 @@ static GtkWidget *build_stats_bar(void)
 /* Menu bar                                                             */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Build the application menu bar. @return The menu bar widget.
+ */
 static GtkWidget *build_menubar(void)
 {
     GtkWidget *bar = gtk_menu_bar_new();
@@ -589,6 +686,11 @@ static GtkWidget *build_menubar(void)
 /* Toolbar                                                              */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Create an icon tool button.
+ * @param icon Icon name. @param tooltip Tooltip. @param cb Click callback.
+ * @return The tool item as a widget.
+ */
 static GtkWidget *make_toolbtn(const char *icon, const char *tooltip,
                                 GCallback cb)
 {
@@ -600,6 +702,9 @@ static GtkWidget *make_toolbtn(const char *icon, const char *tooltip,
     return GTK_WIDGET(btn);
 }
 
+/**
+ * @brief Build the main toolbar. @return The toolbar widget.
+ */
 static GtkWidget *build_toolbar(void)
 {
     GtkWidget *tb = gtk_toolbar_new();
@@ -657,6 +762,10 @@ static GtkWidget *build_toolbar(void)
 /* Keyboard shortcuts                                                   */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Global key handler (F5 connect, F6 disconnect, Ctrl+Del clear).
+ * @param w Widget. @param ev Key event. @param d Unused. @return TRUE if handled.
+ */
 static gboolean on_key_press(GtkWidget *w, GdkEventKey *ev, gpointer d)
 {
     (void)w; (void)d;
@@ -678,6 +787,10 @@ static gboolean on_key_press(GtkWidget *w, GdkEventKey *ev, gpointer d)
 /* Inline transmit panel (shown as a notebook tab in the main window)  */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Strictly parse a bounded hex value.
+ * @param s Text. @param max Max value. @param out Result. @return 0 ok, -1 error.
+ */
 static int parse_hex_u32_strict(const char *s, uint32_t max, uint32_t *out)
 {
     if (!s || !out) return -1;
@@ -697,6 +810,10 @@ static int parse_hex_u32_strict(const char *s, uint32_t max, uint32_t *out)
     return 0;
 }
 
+/**
+ * @brief Map a row-index pointer to its transmit-row struct.
+ * @param data Row index as pointer. @return Row pointer or NULL.
+ */
 static tx_panel_row_t *txp_row_from_data(gpointer data)
 {
     int row = GPOINTER_TO_INT(data);
@@ -723,6 +840,9 @@ static void txp_set_status(tx_panel_row_t *row,
     gtk_label_set_markup(GTK_LABEL(row->status_lbl), markup);
 }
 
+/**
+ * @brief Reset one transmit row to defaults. @param row Row.
+ */
 static void txp_clear_row(tx_panel_row_t *row)
 {
     if (!row) return;
@@ -738,12 +858,18 @@ static void txp_clear_row(tx_panel_row_t *row)
     txp_stop_cyclic_row(row, "Cleared");
 }
 
+/**
+ * @brief Reset every transmit row to defaults.
+ */
 static void txp_clear_all(void)
 {
     for (int i = 0; i < s_txp.count; i++)
         txp_clear_row(&s_txp.rows[i]);
 }
 
+/**
+ * @brief Append a new transmit row to the panel grid.
+ */
 static void txp_add_row(void)
 {
     if (s_txp.count >= TX_PANEL_MAX_ROWS)
@@ -851,6 +977,9 @@ static void txp_add_row(void)
     gtk_widget_show_all(s_txp.rows_box);
 }
 
+/**
+ * @brief Remove and destroy the last transmit row.
+ */
 static void txp_remove_last_row(void)
 {
     if (s_txp.count <= 0) return;
@@ -872,11 +1001,17 @@ static void txp_remove_last_row(void)
     s_txp.count--;
 }
 
+/**
+ * @brief Show a red error status on a row. @param row Row. @param msg Message.
+ */
 static void txp_set_error(tx_panel_row_t *row, const char *msg)
 {
     txp_set_status(row, "red", msg);
 }
 
+/**
+ * @brief Show exactly DLC data-byte fields for a row (none if RTR). @param row Row.
+ */
 static void txp_update_data_fields(tx_panel_row_t *row)
 {
     if (!row || !GTK_IS_SPIN_BUTTON(row->dlc_spin))
@@ -900,8 +1035,13 @@ static void txp_update_data_fields(tx_panel_row_t *row)
     }
 }
 
-/* CAN FD frames only carry specific payload lengths.  Round a requested byte
- * count up to the next valid CAN FD length (0..8,12,16,20,24,32,48,64). */
+/**
+ * @brief Round a byte count up to a valid CAN FD payload length.
+ *
+ * CAN FD frames only carry specific lengths (0..8, 12, 16, 20, 24, 32, 48, 64).
+ * @param n  Requested length.
+ * @return The smallest valid CAN FD length >= @p n (capped at 64).
+ */
 static uint8_t canfd_round_len(int n)
 {
     static const uint8_t valid[] = {
@@ -913,6 +1053,10 @@ static uint8_t canfd_round_len(int n)
     return CANFD_DATA_MAX;
 }
 
+/**
+ * @brief Validate a transmit row and assemble a frame.
+ * @param row Row. @param msg Output frame. @return TRUE if valid.
+ */
 static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg)
 {
     if (!row || !msg)
@@ -964,6 +1108,10 @@ static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg)
     return TRUE;
 }
 
+/**
+ * @brief Build and enqueue a row's frame for transmission.
+ * @param row_index Row. @param cyclic Non-zero if from the cyclic timer. @return TRUE on success.
+ */
 static gboolean txp_queue_frame(int row_index, gboolean cyclic)
 {
     tx_panel_row_t *row = txp_row_from_data(GINT_TO_POINTER(row_index));
@@ -992,6 +1140,9 @@ static gboolean txp_queue_frame(int row_index, gboolean cyclic)
     return TRUE;
 }
 
+/**
+ * @brief Stop a row's cyclic timer and update its buttons. @param row Row. @param status Status text.
+ */
 static void txp_stop_cyclic_row(tx_panel_row_t *row, const char *status)
 {
     if (!row)
@@ -1009,12 +1160,18 @@ static void txp_stop_cyclic_row(tx_panel_row_t *row, const char *status)
         txp_set_status(row, NULL, status);
 }
 
+/**
+ * @brief Stop cyclic transmission on every row.
+ */
 static void txp_stop_all_cyclic(void)
 {
     for (int i = 0; i < TX_PANEL_MAX_ROWS; i++)
         txp_stop_cyclic_row(&s_txp.rows[i], "");
 }
 
+/**
+ * @brief Cyclic-timer callback for one row. @param data Row index. @return Continue/remove.
+ */
 static gboolean txp_cyclic_tick(gpointer data)
 {
     int row_index = GPOINTER_TO_INT(data);
@@ -1031,12 +1188,18 @@ static gboolean txp_cyclic_tick(gpointer data)
     return G_SOURCE_CONTINUE;
 }
 
+/**
+ * @brief "Send" button handler for a row. @param w Widget. @param d Row index.
+ */
 static void txp_send_once(GtkWidget *w, gpointer d)
 {
     (void)w;
     txp_queue_frame(GPOINTER_TO_INT(d), FALSE);
 }
 
+/**
+ * @brief "Start" button handler — arm a row's cyclic timer. @param w Widget. @param d Row index.
+ */
 static void txp_start_cyclic(GtkWidget *w, gpointer d)
 {
     (void)w;
@@ -1067,6 +1230,9 @@ static void txp_start_cyclic(GtkWidget *w, gpointer d)
     txp_set_status(row, "blue", "Cyclic running");
 }
 
+/**
+ * @brief "Stop" button handler — disarm a row's cyclic timer. @param w Widget. @param d Row index.
+ */
 static void txp_stop_cyclic(GtkWidget *w, gpointer d)
 {
     (void)w;
@@ -1074,18 +1240,27 @@ static void txp_stop_cyclic(GtkWidget *w, gpointer d)
     txp_stop_cyclic_row(row, "");
 }
 
+/**
+ * @brief DLC spin handler — refresh visible data fields. @param btn Spin. @param d Row index.
+ */
 static void txp_dlc_changed(GtkSpinButton *btn, gpointer d)
 {
     (void)btn;
     txp_update_data_fields(txp_row_from_data(d));
 }
 
+/**
+ * @brief RTR toggle handler — refresh visible data fields. @param btn Button. @param d Row index.
+ */
 static void txp_rtr_toggled(GtkToggleButton *btn, gpointer d)
 {
     (void)btn;
     txp_update_data_fields(txp_row_from_data(d));
 }
 
+/**
+ * @brief Create a centred transmit-panel header label. @param text Text. @return The label.
+ */
 static GtkWidget *txp_header_label(const char *text)
 {
     GtkWidget *label = gtk_label_new(text);
@@ -1095,6 +1270,9 @@ static GtkWidget *txp_header_label(const char *text)
     return label;
 }
 
+/**
+ * @brief Build the inline transmit panel (header + first row). @return The panel frame.
+ */
 static GtkWidget *create_transmit_panel(void)
 {
     GtkWidget *frame = gtk_frame_new("Transmit Messages");
@@ -1305,14 +1483,14 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
 void gui_show_about_dialog(GtkWidget *parent)
 {
     GtkAboutDialog *dlg = GTK_ABOUT_DIALOG(gtk_about_dialog_new());
-    gtk_about_dialog_set_program_name(dlg, "PCAN-View Linux");
-    gtk_about_dialog_set_version(dlg, "1.1.0");
+    gtk_about_dialog_set_program_name(dlg, PCAN_VIEW_APP_NAME);
+    gtk_about_dialog_set_version(dlg, PCAN_VIEW_VERSION);
     gtk_about_dialog_set_comments(dlg,
         "Open-source CAN bus monitor and analyser for Linux.\n"
         "Uses the Linux SocketCAN subsystem (PF_CAN).\n"
         "Inspired by PEAK-System PCAN-View.\n\n"
-        "Developed and maintained by Taksys.");
-    gtk_about_dialog_set_copyright(dlg, "Copyright \302\251 2026 Taksys");
+        "Developed and maintained by " PCAN_VIEW_VENDOR ".");
+    gtk_about_dialog_set_copyright(dlg, PCAN_VIEW_COPYRIGHT);
     gtk_about_dialog_set_license_type(dlg, GTK_LICENSE_APACHE_2_0);
     gtk_about_dialog_set_website(dlg, "https://taksys.in");
     gtk_about_dialog_set_website_label(dlg, "Taksys");
