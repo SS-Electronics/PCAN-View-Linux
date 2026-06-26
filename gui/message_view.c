@@ -259,6 +259,7 @@ GtkWidget *create_trace_view(void)
             GTK_TREE_VIEW_COLUMN_FIXED);
         gtk_tree_view_column_set_fixed_width(col, cols[i].width);
         gtk_tree_view_column_set_resizable(col, TRUE);
+        gtk_tree_view_column_set_expand(col, i == TCOL_DATA);
         gtk_tree_view_column_set_sort_column_id(
             col, cols[i].col == TCOL_ID ? TCOL_ID_RAW : cols[i].col);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col);
@@ -525,35 +526,52 @@ void gui_refresh_trace_display(void)
 
 void gui_update_stats(void)
 {
-    char buf[64];
+    char connection[64];
+    char bitrate[64];
+    char bus_load[32];
+    char rx_text[32];
+    char tx_text[32];
+    char err_text[32];
+    char summary[256];
 
     if (g_app.connected) {
-        gtk_label_set_text(GTK_LABEL(g_gui.lbl_connection), g_app.iface);
-        snprintf(buf, sizeof(buf), "%u bps", g_app.bitrate);
-        gtk_label_set_text(GTK_LABEL(g_gui.lbl_bitrate), buf);
+        snprintf(connection, sizeof(connection), "%s", g_app.iface);
+        snprintf(bitrate, sizeof(bitrate), "%u bps", g_app.bitrate);
     } else {
-        gtk_label_set_text(GTK_LABEL(g_gui.lbl_connection), "—");
-        gtk_label_set_text(GTK_LABEL(g_gui.lbl_bitrate), "—");
+        snprintf(connection, sizeof(connection), "—");
+        snprintf(bitrate, sizeof(bitrate), "—");
     }
 
     double load = g_app.bus_load;
-    snprintf(buf, sizeof(buf), "%.1f%%", load);
-    gtk_progress_bar_set_fraction(
-        GTK_PROGRESS_BAR(g_gui.progress_bus_load), load / 100.0);
-    gtk_progress_bar_set_text(
-        GTK_PROGRESS_BAR(g_gui.progress_bus_load), buf);
+    snprintf(bus_load, sizeof(bus_load), "%.1f%%", load);
 
-    snprintf(buf, sizeof(buf), "%llu",
+    snprintf(rx_text, sizeof(rx_text), "%llu",
              (unsigned long long)g_app.rx_count);
-    gtk_label_set_text(GTK_LABEL(g_gui.lbl_rx), buf);
-
-    snprintf(buf, sizeof(buf), "%llu",
+    snprintf(tx_text, sizeof(tx_text), "%llu",
              (unsigned long long)g_app.tx_count);
-    gtk_label_set_text(GTK_LABEL(g_gui.lbl_tx), buf);
-
-    snprintf(buf, sizeof(buf), "%llu",
+    snprintf(err_text, sizeof(err_text), "%llu",
              (unsigned long long)g_app.error_count);
-    gtk_label_set_text(GTK_LABEL(g_gui.lbl_err), buf);
+
+    if (g_gui.lbl_connection)
+        gtk_label_set_text(GTK_LABEL(g_gui.lbl_connection), connection);
+    if (g_gui.lbl_bitrate)
+        gtk_label_set_text(GTK_LABEL(g_gui.lbl_bitrate), bitrate);
+
+    if (g_gui.progress_bus_load) {
+        gtk_progress_bar_set_fraction(
+            GTK_PROGRESS_BAR(g_gui.progress_bus_load), load / 100.0);
+        gtk_progress_bar_set_text(
+            GTK_PROGRESS_BAR(g_gui.progress_bus_load), bus_load);
+    }
+    if (g_gui.lbl_bus_load)
+        gtk_label_set_text(GTK_LABEL(g_gui.lbl_bus_load), bus_load);
+
+    if (g_gui.lbl_rx)
+        gtk_label_set_text(GTK_LABEL(g_gui.lbl_rx), rx_text);
+    if (g_gui.lbl_tx)
+        gtk_label_set_text(GTK_LABEL(g_gui.lbl_tx), tx_text);
+    if (g_gui.lbl_err)
+        gtk_label_set_text(GTK_LABEL(g_gui.lbl_err), err_text);
 
     const char *state_str   = gui_bus_state_str(g_app.bus_state);
     const char *state_color = gui_bus_state_color(g_app.bus_state);
@@ -561,7 +579,15 @@ void gui_update_stats(void)
     snprintf(markup, sizeof(markup),
              "<span foreground=\"%s\">%s</span>",
              state_color, state_str);
-    gtk_label_set_markup(GTK_LABEL(g_gui.lbl_bus_state), markup);
+    if (g_gui.lbl_bus_state)
+        gtk_label_set_markup(GTK_LABEL(g_gui.lbl_bus_state), markup);
+
+    if (g_gui.lbl_stats_summary) {
+        snprintf(summary, sizeof(summary),
+                 "Statistics: %s | Rx %s | Tx %s | Err %s | Load %s",
+                 connection, rx_text, tx_text, err_text, bus_load);
+        gtk_label_set_text(GTK_LABEL(g_gui.lbl_stats_summary), summary);
+    }
 }
 
 /* ------------------------------------------------------------------ */

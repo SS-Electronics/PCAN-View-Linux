@@ -38,6 +38,8 @@ typedef struct {
     GtkListStore *trace_store;
     GtkWidget    *lbl_connection;
     GtkWidget    *lbl_bitrate;
+    GtkWidget    *lbl_stats_summary;
+    GtkWidget    *lbl_bus_load;
     GtkWidget    *lbl_rx;
     GtkWidget    *lbl_tx;
     GtkWidget    *lbl_err;

@@ -33,6 +33,7 @@ typedef struct {
     uint32_t      data_bitrate;
     int           fd_mode;
     int           listen_only;
+    can_bit_timing_t bit_timing;
 
     /* --- Statistics --- */
     volatile uint64_t rx_count;

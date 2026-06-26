@@ -182,12 +182,14 @@ void *thread_tx(void *arg)
     (void)arg;
 
     while (g_app.tx_running) {
-        /* Wait up to 100 ms for a message to appear.
-         * g_async_queue_timeout_pop() takes absolute monotonic end time. */
-        guint64 end_time = (guint64)g_get_monotonic_time()
-                         + 100 * G_TIME_SPAN_MILLISECOND;
+        /* Wait up to 100 ms for a message to appear.  g_async_queue_timeout_pop()
+         * takes a RELATIVE timeout in microseconds (not an absolute time); using
+         * an absolute monotonic time here made the thread block for ~uptime and
+         * never observe tx_running == 0, hanging app_do_disconnect's join (which
+         * froze the app on close/disconnect). */
         can_msg_t *msg = (can_msg_t *)
-            g_async_queue_timeout_pop(g_app.tx_queue, end_time);
+            g_async_queue_timeout_pop(g_app.tx_queue,
+                                      100 * G_TIME_SPAN_MILLISECOND);
 
         if (!msg) continue;
 
@@ -199,12 +201,7 @@ void *thread_tx(void *arg)
             clock_gettime(CLOCK_REALTIME, &msg->timestamp);
             __atomic_add_fetch(&g_app.tx_count, 1, __ATOMIC_SEQ_CST);
 
-            /* Echo TX frame to trace */
-            can_msg_t *copy = malloc(sizeof(can_msg_t));
-            if (copy) {
-                *copy = *msg;
-                gdk_threads_add_idle(idle_add_message, copy);
-            }
+            gdk_threads_add_idle(idle_update_stats, NULL);
             trace_write(msg);
         }
         free(msg);
@@ -263,7 +260,8 @@ void app_do_connect(void)
                            g_app.bitrate,
                            g_app.data_bitrate,
                            g_app.fd_mode,
-                           g_app.listen_only);
+                           g_app.listen_only,
+                           &g_app.bit_timing);
     if (ret != DRV_CAN_OK) {
         char msg[256];
         snprintf(msg, sizeof(msg),
@@ -293,9 +291,13 @@ void app_do_connect(void)
     pthread_create(&g_app.tx_thread,    NULL, thread_tx,    NULL);
     pthread_create(&g_app.stats_thread, NULL, thread_stats, NULL);
 
-    /* Update toolbar sensitivity */
+    /* Update toolbar sensitivity.
+     * NOTE: the Connect button stays enabled while connected so the user can
+     * re-open the connection dialog at any time (it prompts to disconnect
+     * first).  Disabling it here was the cause of "the connection window is
+     * not enabled again" after a connect. */
     if (g_gui.toolbar_connect)
-        gtk_widget_set_sensitive(g_gui.toolbar_connect, FALSE);
+        gtk_widget_set_sensitive(g_gui.toolbar_connect, TRUE);
     if (g_gui.toolbar_disconnect)
         gtk_widget_set_sensitive(g_gui.toolbar_disconnect, TRUE);
 
@@ -318,6 +320,11 @@ void app_do_disconnect(void)
     pthread_join(g_app.rx_thread,    NULL);
     pthread_join(g_app.tx_thread,    NULL);
     pthread_join(g_app.stats_thread, NULL);
+
+    /* Drain any pending GTK idle callbacks while widgets still exist. */
+    while (g_main_context_iteration(NULL, FALSE)) {
+        /* keep flushing */
+    }
 
     drv_can_deinit();
     g_app.connected     = 0;

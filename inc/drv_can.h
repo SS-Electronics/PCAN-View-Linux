@@ -31,9 +31,21 @@ typedef enum {
     CAN_FD_BAUD_10M = 10000000,
 } can_fd_baud_t;
 
+typedef struct {
+    int      enabled;
+    uint32_t brp;
+    uint32_t prop_seg;
+    uint32_t phase_seg1;
+    uint32_t phase_seg2;
+    uint32_t sjw;
+    uint32_t sample_point;
+} can_bit_timing_t;
+
 typedef struct can_driver {
     int         (*init)(const char *iface, uint32_t bitrate,
-                        uint32_t data_bitrate, int fd_mode, int listen_only);
+                        uint32_t data_bitrate, int fd_mode,
+                        int listen_only,
+                        const can_bit_timing_t *timing);
     int         (*deinit)(void);
     int         (*send)(const can_msg_t *msg);
     int         (*recv)(can_msg_t *msg, int timeout_ms);
@@ -47,7 +59,8 @@ typedef struct can_driver {
 struct can_driver *drv_can_get_socketcan(void);
 
 int drv_can_init(can_driver_t *drv, const char *iface, uint32_t bitrate,
-                 uint32_t data_bitrate, int fd_mode, int listen_only);
+                 uint32_t data_bitrate, int fd_mode, int listen_only,
+                 const can_bit_timing_t *timing);
 int drv_can_deinit(void);
 int drv_can_send(const can_msg_t *msg);
 int drv_can_recv(can_msg_t *msg, int timeout_ms);

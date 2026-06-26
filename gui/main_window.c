@@ -8,7 +8,7 @@
  *      ├─ GtkToolbar
  *      ├─ GtkPaned (vertical)
  *      │  ├─ trace view  (scrolled GtkTreeView)
- *      │  └─ stats panel (GtkFrame)
+ *      │  └─ transmit rows (scrolled GtkGrid)
  *      └─ GtkStatusbar
  */
 
@@ -26,26 +26,72 @@
 
 /* Declared in message_view.c */
 extern GtkWidget *create_trace_view(void);
-extern GtkWidget *create_stats_panel(void);
 
 /* Forward-declared here; defined in the transmit-panel section below */
 #define TX_PANEL_DATA_COLS 8
+#define TX_PANEL_MAX_ROWS   16
 #define TX_STD_ID_MAX      0x7FFu
 #define TX_EXT_ID_MAX      0x1FFFFFFFu
 #define TX_BYTE_MAX        0xFFu
 
-static struct {
+/* Grid column layout shared by the header row and every transmit row, so the
+ * fields stay aligned and resize by ratio with the window. */
+enum {
+    TXG_COL_NUM = 0,
+    TXG_COL_ID,
+    TXG_COL_EXT,
+    TXG_COL_RTR,
+    TXG_COL_DLC,
+    TXG_COL_DATA0,                                   /* 8 data byte columns */
+    TXG_COL_INTERVAL = TXG_COL_DATA0 + TX_PANEL_DATA_COLS,
+    TXG_COL_SEND,
+    TXG_COL_START,
+    TXG_COL_STOP,
+    TXG_COL_STATUS,
+};
+
+typedef struct {
+    GtkWidget *num_lbl;
     GtkWidget *id_entry;
     GtkWidget *ext_check;
     GtkWidget *rtr_check;
     GtkWidget *dlc_spin;
     GtkWidget *data_entry[TX_PANEL_DATA_COLS];
     GtkWidget *interval_spin;
+    GtkWidget *send_btn;
     GtkWidget *start_btn;
     GtkWidget *stop_btn;
     GtkWidget *status_lbl;
     guint      cyclic_id;
+} tx_panel_row_t;
+
+static struct {
+    tx_panel_row_t rows[TX_PANEL_MAX_ROWS];
+    int            count;
+    GtkWidget     *rows_box;
+    GtkWidget     *placeholder;
 } s_txp;
+
+static tx_panel_row_t *txp_row_from_data(gpointer data);
+static void txp_set_status(tx_panel_row_t *row,
+                           const char *color,
+                           const char *msg);
+static void txp_clear_row(tx_panel_row_t *row);
+static void txp_clear_all(void);
+static void txp_add_row(void);
+static void txp_remove_last_row(void);
+static void txp_set_error(tx_panel_row_t *row, const char *msg);
+static void txp_update_data_fields(tx_panel_row_t *row);
+static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg);
+static gboolean txp_queue_frame(int row_index, gboolean cyclic);
+static void txp_stop_cyclic_row(tx_panel_row_t *row, const char *status);
+static void txp_stop_all_cyclic(void);
+static gboolean txp_cyclic_tick(gpointer data);
+static void txp_send_once(GtkWidget *w, gpointer d);
+static void txp_start_cyclic(GtkWidget *w, gpointer d);
+static void txp_stop_cyclic(GtkWidget *w, gpointer d);
+static void txp_dlc_changed(GtkSpinButton *btn, gpointer d);
+static void txp_rtr_toggled(GtkToggleButton *btn, gpointer d);
 
 /* ------------------------------------------------------------------ */
 /* Toolbar / menu callbacks                                             */
@@ -55,7 +101,7 @@ static gboolean on_window_delete(GtkWidget *w, GdkEvent *e, gpointer d)
 {
     (void)w; (void)e; (void)d;
     /* Stop cyclic timer before disconnect to prevent callbacks on dead widgets */
-    if (s_txp.cyclic_id) { g_source_remove(s_txp.cyclic_id); s_txp.cyclic_id = 0; }
+    txp_stop_all_cyclic();
     app_do_disconnect();
     return FALSE; /* allow default window destruction */
 }
@@ -69,6 +115,7 @@ static void on_connect(GtkWidget *w, gpointer d)
 static void on_disconnect(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
+    txp_stop_all_cyclic();
     app_do_disconnect();
 }
 
@@ -168,6 +215,7 @@ static void on_about(GtkWidget *w, gpointer d)
 static void on_quit(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
+    txp_stop_all_cyclic();
     app_do_disconnect();
     gtk_widget_destroy(g_gui.window);
 }
@@ -216,6 +264,55 @@ static GtkWidget *menu_item(const char *label,
     GtkWidget *item = gtk_menu_item_new_with_mnemonic(label);
     if (cb) g_signal_connect(item, "activate", cb, data);
     return item;
+}
+
+static GtkWidget *stats_menu_row(const char *name, GtkWidget **value_out)
+{
+    GtkWidget *item = gtk_menu_item_new();
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
+    gtk_container_set_border_width(GTK_CONTAINER(box), 6);
+    gtk_container_add(GTK_CONTAINER(item), box);
+
+    GtkWidget *name_lbl = gtk_label_new(name);
+    gtk_label_set_xalign(GTK_LABEL(name_lbl), 0.0f);
+    gtk_widget_set_size_request(name_lbl, 96, -1);
+    gtk_box_pack_start(GTK_BOX(box), name_lbl, FALSE, FALSE, 0);
+
+    GtkWidget *value_lbl = gtk_label_new("—");
+    gtk_label_set_xalign(GTK_LABEL(value_lbl), 0.0f);
+    gtk_box_pack_start(GTK_BOX(box), value_lbl, TRUE, TRUE, 0);
+
+    if (value_out)
+        *value_out = value_lbl;
+    return item;
+}
+
+static GtkWidget *build_stats_menu_item(void)
+{
+    GtkWidget *stats_menu = gtk_menu_new();
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
+        stats_menu_row("Interface", &g_gui.lbl_connection));
+    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
+        stats_menu_row("Bitrate", &g_gui.lbl_bitrate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
+        stats_menu_row("Bus Load", &g_gui.lbl_bus_load));
+    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
+        stats_menu_row("Rx Frames", &g_gui.lbl_rx));
+    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
+        stats_menu_row("Tx Frames", &g_gui.lbl_tx));
+    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
+        stats_menu_row("Error Frames", &g_gui.lbl_err));
+    gtk_menu_shell_append(GTK_MENU_SHELL(stats_menu),
+        stats_menu_row("Bus State", &g_gui.lbl_bus_state));
+
+    GtkWidget *stats_item = gtk_menu_item_new();
+    g_gui.lbl_stats_summary = gtk_label_new(
+        "Statistics: — | Rx 0 | Tx 0 | Err 0 | Load 0.0%");
+    gtk_container_add(GTK_CONTAINER(stats_item), g_gui.lbl_stats_summary);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(stats_item), stats_menu);
+
+    return stats_item;
 }
 
 /* ------------------------------------------------------------------ */
@@ -328,6 +425,8 @@ static GtkWidget *build_menubar(void)
     GtkWidget *view_item = gtk_menu_item_new_with_mnemonic("_View");
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(bar), view_item);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(bar), build_stats_menu_item());
 
     /* --- Help --- */
     GtkWidget *help_menu = gtk_menu_new();
@@ -453,29 +552,193 @@ static int parse_hex_u32_strict(const char *s, uint32_t max, uint32_t *out)
     return 0;
 }
 
-static void txp_set_error(const char *msg)
+static tx_panel_row_t *txp_row_from_data(gpointer data)
 {
-    char markup[192];
-    snprintf(markup, sizeof(markup),
-             "<span color='red'>%s</span>", msg);
-    gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl), markup);
+    int row = GPOINTER_TO_INT(data);
+    if (row < 0 || row >= TX_PANEL_MAX_ROWS)
+        return NULL;
+    return &s_txp.rows[row];
 }
 
-static gboolean txp_build_frame(can_msg_t *msg)
+static void txp_set_status(tx_panel_row_t *row,
+                           const char *color,
+                           const char *msg)
 {
+    if (!row || !GTK_IS_LABEL(row->status_lbl))
+        return;
+
+    if (!color || !msg || msg[0] == '\0') {
+        gtk_label_set_text(GTK_LABEL(row->status_lbl), msg ? msg : "");
+        return;
+    }
+
+    char markup[192];
+    snprintf(markup, sizeof(markup),
+             "<span color='%s'>%s</span>", color, msg);
+    gtk_label_set_markup(GTK_LABEL(row->status_lbl), markup);
+}
+
+static void txp_clear_row(tx_panel_row_t *row)
+{
+    if (!row) return;
+
+    gtk_entry_set_text(GTK_ENTRY(row->id_entry), "001");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(row->ext_check), FALSE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(row->rtr_check), FALSE);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(row->dlc_spin), 8);
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
+        gtk_entry_set_text(GTK_ENTRY(row->data_entry[i]), "00");
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(row->interval_spin), 100);
+    txp_stop_cyclic_row(row, "Cleared");
+}
+
+static void txp_clear_all(void)
+{
+    for (int i = 0; i < s_txp.count; i++)
+        txp_clear_row(&s_txp.rows[i]);
+}
+
+static void txp_add_row(void)
+{
+    if (s_txp.count >= TX_PANEL_MAX_ROWS)
+        return;
+
+    int row_index = s_txp.count;
+    int grid_row  = row_index + 1;          /* grid row 0 holds the header */
+    GtkGrid *grid = GTK_GRID(s_txp.rows_box);
+    tx_panel_row_t *row = &s_txp.rows[row_index];
+
+    row->num_lbl = gtk_label_new(NULL);
+    char num[16];
+    snprintf(num, sizeof(num), "%d", row_index + 1);
+    gtk_label_set_text(GTK_LABEL(row->num_lbl), num);
+    gtk_grid_attach(grid, row->num_lbl, TXG_COL_NUM, grid_row, 1, 1);
+
+    row->id_entry = gtk_entry_new();
+    gtk_entry_set_max_length(GTK_ENTRY(row->id_entry), 8);
+    gtk_entry_set_text(GTK_ENTRY(row->id_entry), "001");
+    gtk_entry_set_width_chars(GTK_ENTRY(row->id_entry), 5);
+    gtk_widget_set_hexpand(row->id_entry, TRUE);
+    gtk_grid_attach(grid, row->id_entry, TXG_COL_ID, grid_row, 1, 1);
+
+    row->ext_check = gtk_check_button_new();
+    gtk_widget_set_tooltip_text(row->ext_check, "Extended ID");
+    gtk_widget_set_halign(row->ext_check, GTK_ALIGN_CENTER);
+    gtk_grid_attach(grid, row->ext_check, TXG_COL_EXT, grid_row, 1, 1);
+
+    row->rtr_check = gtk_check_button_new();
+    gtk_widget_set_tooltip_text(row->rtr_check, "Remote frame");
+    gtk_widget_set_halign(row->rtr_check, GTK_ALIGN_CENTER);
+    g_signal_connect(row->rtr_check, "toggled",
+                     G_CALLBACK(txp_rtr_toggled), GINT_TO_POINTER(row_index));
+    gtk_grid_attach(grid, row->rtr_check, TXG_COL_RTR, grid_row, 1, 1);
+
+    GtkAdjustment *dlc_adj = gtk_adjustment_new(8, 0, 8, 1, 1, 0);
+    row->dlc_spin = gtk_spin_button_new(dlc_adj, 1, 0);
+    g_signal_connect(row->dlc_spin, "value-changed",
+                     G_CALLBACK(txp_dlc_changed), GINT_TO_POINTER(row_index));
+    gtk_grid_attach(grid, row->dlc_spin, TXG_COL_DLC, grid_row, 1, 1);
+
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++) {
+        row->data_entry[i] = gtk_entry_new();
+        gtk_entry_set_max_length(GTK_ENTRY(row->data_entry[i]), 2);
+        gtk_entry_set_text(GTK_ENTRY(row->data_entry[i]), "00");
+        gtk_entry_set_width_chars(GTK_ENTRY(row->data_entry[i]), 2);
+        gtk_widget_set_hexpand(row->data_entry[i], TRUE);
+        gtk_grid_attach(grid, row->data_entry[i],
+                        TXG_COL_DATA0 + i, grid_row, 1, 1);
+    }
+
+    GtkAdjustment *int_adj = gtk_adjustment_new(100, 1, 60000, 10, 100, 0);
+    row->interval_spin = gtk_spin_button_new(int_adj, 10, 0);
+    gtk_grid_attach(grid, row->interval_spin, TXG_COL_INTERVAL, grid_row, 1, 1);
+
+    row->send_btn = gtk_button_new_with_label("Send");
+    g_signal_connect(row->send_btn, "clicked",
+                     G_CALLBACK(txp_send_once), GINT_TO_POINTER(row_index));
+    gtk_grid_attach(grid, row->send_btn, TXG_COL_SEND, grid_row, 1, 1);
+
+    row->start_btn = gtk_button_new_with_label("Start");
+    g_signal_connect(row->start_btn, "clicked",
+                     G_CALLBACK(txp_start_cyclic), GINT_TO_POINTER(row_index));
+    gtk_grid_attach(grid, row->start_btn, TXG_COL_START, grid_row, 1, 1);
+
+    row->stop_btn = gtk_button_new_with_label("Stop");
+    g_signal_connect(row->stop_btn, "clicked",
+                     G_CALLBACK(txp_stop_cyclic), GINT_TO_POINTER(row_index));
+    gtk_widget_set_sensitive(row->stop_btn, FALSE);
+    gtk_grid_attach(grid, row->stop_btn, TXG_COL_STOP, grid_row, 1, 1);
+
+    row->status_lbl = gtk_label_new("");
+    gtk_label_set_xalign(GTK_LABEL(row->status_lbl), 0.0f);
+    gtk_label_set_ellipsize(GTK_LABEL(row->status_lbl), PANGO_ELLIPSIZE_END);
+    gtk_widget_set_size_request(row->status_lbl, 80, -1);
+    gtk_grid_attach(grid, row->status_lbl, TXG_COL_STATUS, grid_row, 1, 1);
+
+    txp_update_data_fields(row);
+    s_txp.count++;
+    gtk_widget_show_all(s_txp.rows_box);
+}
+
+static void txp_remove_last_row(void)
+{
+    if (s_txp.count <= 0) return;
+    tx_panel_row_t *row = &s_txp.rows[s_txp.count - 1];
+    if (row->cyclic_id) {
+        g_source_remove(row->cyclic_id);
+        row->cyclic_id = 0;
+    }
+    /* Destroy every widget that makes up this grid row. */
+    GtkWidget *widgets[] = {
+        row->num_lbl, row->id_entry, row->ext_check, row->rtr_check,
+        row->dlc_spin, row->interval_spin, row->send_btn,
+        row->start_btn, row->stop_btn, row->status_lbl,
+    };
+    for (size_t i = 0; i < sizeof(widgets) / sizeof(widgets[0]); i++)
+        if (widgets[i]) gtk_widget_destroy(widgets[i]);
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
+        if (row->data_entry[i]) gtk_widget_destroy(row->data_entry[i]);
+    memset(row, 0, sizeof(*row));
+    s_txp.count--;
+}
+
+static void txp_set_error(tx_panel_row_t *row, const char *msg)
+{
+    txp_set_status(row, "red", msg);
+}
+
+static void txp_update_data_fields(tx_panel_row_t *row)
+{
+    if (!row || !GTK_IS_SPIN_BUTTON(row->dlc_spin))
+        return;
+
+    gboolean rtr = gtk_toggle_button_get_active(
+        GTK_TOGGLE_BUTTON(row->rtr_check));
+    int dlc = gtk_spin_button_get_value_as_int(
+        GTK_SPIN_BUTTON(row->dlc_spin));
+
+    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
+        gtk_widget_set_sensitive(row->data_entry[i], !rtr && i < dlc);
+}
+
+static gboolean txp_build_frame(tx_panel_row_t *row, can_msg_t *msg)
+{
+    if (!row || !msg)
+        return FALSE;
+
     memset(msg, 0, sizeof(*msg));
 
     msg->is_extended = gtk_toggle_button_get_active(
-        GTK_TOGGLE_BUTTON(s_txp.ext_check));
+        GTK_TOGGLE_BUTTON(row->ext_check));
     msg->is_remote = gtk_toggle_button_get_active(
-        GTK_TOGGLE_BUTTON(s_txp.rtr_check));
+        GTK_TOGGLE_BUTTON(row->rtr_check));
     msg->dlc = (uint8_t)gtk_spin_button_get_value_as_int(
-        GTK_SPIN_BUTTON(s_txp.dlc_spin));
+        GTK_SPIN_BUTTON(row->dlc_spin));
 
-    const char *ids = gtk_entry_get_text(GTK_ENTRY(s_txp.id_entry));
+    const char *ids = gtk_entry_get_text(GTK_ENTRY(row->id_entry));
     uint32_t id_max = msg->is_extended ? TX_EXT_ID_MAX : TX_STD_ID_MAX;
     if (parse_hex_u32_strict(ids, id_max, &msg->id) != 0) {
-        txp_set_error(msg->is_extended
+        txp_set_error(row, msg->is_extended
             ? "Invalid 29-bit ID"
             : "Invalid 11-bit ID");
         return FALSE;
@@ -484,12 +747,12 @@ static gboolean txp_build_frame(can_msg_t *msg)
     if (!msg->is_remote) {
         for (int i = 0; i < msg->dlc && i < TX_PANEL_DATA_COLS; i++) {
             const char *ds = gtk_entry_get_text(
-                GTK_ENTRY(s_txp.data_entry[i]));
+                GTK_ENTRY(row->data_entry[i]));
             uint32_t value = 0;
             if (parse_hex_u32_strict(ds, TX_BYTE_MAX, &value) != 0) {
                 char err[64];
                 snprintf(err, sizeof(err), "Invalid data byte [%d]", i);
-                txp_set_error(err);
+                txp_set_error(row, err);
                 return FALSE;
             }
             msg->data[i] = (uint8_t)value;
@@ -499,183 +762,223 @@ static gboolean txp_build_frame(can_msg_t *msg)
     return TRUE;
 }
 
-static gboolean txp_cyclic_tick(gpointer data)
+static gboolean txp_queue_frame(int row_index, gboolean cyclic)
 {
-    (void)data;
-    if (!g_app.connected || !s_txp.cyclic_id) return G_SOURCE_REMOVE;
+    tx_panel_row_t *row = txp_row_from_data(GINT_TO_POINTER(row_index));
+    if (!row)
+        return FALSE;
 
-    if (!GTK_IS_WIDGET(s_txp.id_entry)) { s_txp.cyclic_id = 0; return G_SOURCE_REMOVE; }
+    if (!g_app.connected) {
+        txp_set_error(row, "Not connected");
+        return FALSE;
+    }
 
     can_msg_t *msg = calloc(1, sizeof(can_msg_t));
-    if (!msg) return G_SOURCE_CONTINUE;
+    if (!msg) {
+        txp_set_error(row, "Out of memory");
+        return FALSE;
+    }
 
-    if (!txp_build_frame(msg)) {
+    if (!txp_build_frame(row, msg)) {
         free(msg);
-        return G_SOURCE_CONTINUE;
+        return FALSE;
     }
 
     g_async_queue_push(g_app.tx_queue, msg);
+    if (!cyclic)
+        txp_set_status(row, "green", "Queued");
+    return TRUE;
+}
+
+static void txp_stop_cyclic_row(tx_panel_row_t *row, const char *status)
+{
+    if (!row)
+        return;
+
+    if (row->cyclic_id) {
+        g_source_remove(row->cyclic_id);
+        row->cyclic_id = 0;
+    }
+    if (GTK_IS_WIDGET(row->start_btn))
+        gtk_widget_set_sensitive(row->start_btn, TRUE);
+    if (GTK_IS_WIDGET(row->stop_btn))
+        gtk_widget_set_sensitive(row->stop_btn, FALSE);
+    if (status)
+        txp_set_status(row, NULL, status);
+}
+
+static void txp_stop_all_cyclic(void)
+{
+    for (int i = 0; i < TX_PANEL_MAX_ROWS; i++)
+        txp_stop_cyclic_row(&s_txp.rows[i], "");
+}
+
+static gboolean txp_cyclic_tick(gpointer data)
+{
+    int row_index = GPOINTER_TO_INT(data);
+    tx_panel_row_t *row = txp_row_from_data(data);
+    if (!row || !row->cyclic_id)
+        return G_SOURCE_REMOVE;
+
+    if (!g_app.connected) {
+        txp_stop_cyclic_row(row, "Disconnected");
+        return G_SOURCE_REMOVE;
+    }
+
+    txp_queue_frame(row_index, TRUE);
     return G_SOURCE_CONTINUE;
 }
 
 static void txp_send_once(GtkWidget *w, gpointer d)
 {
-    (void)w; (void)d;
-    if (!g_app.connected) {
-        gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl),
-                             "<span color='red'>Not connected</span>");
-        return;
-    }
-    can_msg_t frame;
-    if (!txp_build_frame(&frame)) {
-        return;
-    }
-
-    can_msg_t *msg = malloc(sizeof(can_msg_t));
-    if (!msg) return;
-    *msg = frame;
-
-    g_async_queue_push(g_app.tx_queue, msg);
-    gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl),
-                         "<span color='green'>Queued</span>");
+    (void)w;
+    txp_queue_frame(GPOINTER_TO_INT(d), FALSE);
 }
 
 static void txp_start_cyclic(GtkWidget *w, gpointer d)
 {
-    (void)w; (void)d;
-    if (s_txp.cyclic_id) return;
+    (void)w;
+    int row_index = GPOINTER_TO_INT(d);
+    tx_panel_row_t *row = txp_row_from_data(d);
+    if (!row || row->cyclic_id)
+        return;
+
+    if (!g_app.connected) {
+        txp_set_error(row, "Not connected");
+        return;
+    }
+
+    can_msg_t frame;
+    if (!txp_build_frame(row, &frame))
+        return;
+
     guint ms = (guint)gtk_spin_button_get_value_as_int(
-                   GTK_SPIN_BUTTON(s_txp.interval_spin));
-    if (ms < 1) ms = 100;
-    s_txp.cyclic_id = g_timeout_add(ms, txp_cyclic_tick, NULL);
-    gtk_widget_set_sensitive(s_txp.start_btn, FALSE);
-    gtk_widget_set_sensitive(s_txp.stop_btn,  TRUE);
-    gtk_label_set_markup(GTK_LABEL(s_txp.status_lbl),
-                         "<span color='blue'>Cyclic running</span>");
+                   GTK_SPIN_BUTTON(row->interval_spin));
+    if (ms < 1)
+        ms = 100;
+
+    row->cyclic_id = g_timeout_add(ms, txp_cyclic_tick,
+                                   GINT_TO_POINTER(row_index));
+    gtk_widget_set_sensitive(row->start_btn, FALSE);
+    gtk_widget_set_sensitive(row->stop_btn, TRUE);
+    txp_queue_frame(row_index, TRUE);
+    txp_set_status(row, "blue", "Cyclic running");
 }
 
 static void txp_stop_cyclic(GtkWidget *w, gpointer d)
 {
-    (void)w; (void)d;
-    if (s_txp.cyclic_id) { g_source_remove(s_txp.cyclic_id); s_txp.cyclic_id = 0; }
-    gtk_widget_set_sensitive(s_txp.start_btn, TRUE);
-    gtk_widget_set_sensitive(s_txp.stop_btn,  FALSE);
-    gtk_label_set_text(GTK_LABEL(s_txp.status_lbl), "");
+    (void)w;
+    tx_panel_row_t *row = txp_row_from_data(d);
+    txp_stop_cyclic_row(row, "");
 }
 
 static void txp_dlc_changed(GtkSpinButton *btn, gpointer d)
 {
-    (void)d;
-    int dlc = gtk_spin_button_get_value_as_int(btn);
-    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
-        gtk_widget_set_sensitive(s_txp.data_entry[i], i < dlc);
+    (void)btn;
+    txp_update_data_fields(txp_row_from_data(d));
 }
 
 static void txp_rtr_toggled(GtkToggleButton *btn, gpointer d)
 {
-    (void)d;
-    gboolean rtr = gtk_toggle_button_get_active(btn);
-    for (int i = 0; i < TX_PANEL_DATA_COLS; i++)
-        gtk_widget_set_sensitive(s_txp.data_entry[i], !rtr);
+    (void)btn;
+    txp_update_data_fields(txp_row_from_data(d));
+}
+
+static GtkWidget *txp_header_label(const char *text)
+{
+    GtkWidget *label = gtk_label_new(text);
+    gtk_widget_set_margin_start(label, 3);
+    gtk_widget_set_margin_end(label, 3);
+    gtk_label_set_xalign(GTK_LABEL(label), 0.5f);
+    return label;
 }
 
 static GtkWidget *create_transmit_panel(void)
 {
+    GtkWidget *frame = gtk_frame_new("Transmit Messages");
+    gtk_widget_set_margin_start(frame, 4);
+    gtk_widget_set_margin_end(frame, 4);
+    gtk_widget_set_margin_top(frame, 4);
+    gtk_widget_set_margin_bottom(frame, 4);
+
     GtkWidget *outer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_widget_set_margin_start(outer, 8);
     gtk_widget_set_margin_end(outer, 8);
     gtk_widget_set_margin_top(outer, 6);
     gtk_widget_set_margin_bottom(outer, 6);
+    gtk_container_add(GTK_CONTAINER(frame), outer);
 
-    /* ---- Frame setup row ---- */
-    GtkWidget *row1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-    gtk_box_pack_start(GTK_BOX(outer), row1, FALSE, FALSE, 0);
+    GtkWidget *top = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_box_pack_start(GTK_BOX(outer), top, FALSE, FALSE, 0);
 
-    gtk_box_pack_start(GTK_BOX(row1), gtk_label_new("ID (hex):"),
-                       FALSE, FALSE, 0);
-    s_txp.id_entry = gtk_entry_new();
-    gtk_entry_set_max_length(GTK_ENTRY(s_txp.id_entry), 8);
-    gtk_entry_set_text(GTK_ENTRY(s_txp.id_entry), "001");
-    gtk_entry_set_width_chars(GTK_ENTRY(s_txp.id_entry), 9);
-    gtk_box_pack_start(GTK_BOX(row1), s_txp.id_entry, FALSE, FALSE, 0);
+    GtkWidget *control_btn_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    gtk_box_pack_start(GTK_BOX(top), control_btn_box, FALSE, FALSE, 0);
 
-    s_txp.ext_check = gtk_check_button_new_with_label("Ext (29-bit)");
-    gtk_box_pack_start(GTK_BOX(row1), s_txp.ext_check, FALSE, FALSE, 0);
+    GtkWidget *clear_btn = gtk_button_new_with_label("Clear Rows");
+    g_signal_connect(clear_btn, "clicked", G_CALLBACK(txp_clear_all), NULL);
+    gtk_box_pack_start(GTK_BOX(control_btn_box), clear_btn, FALSE, FALSE, 0);
 
-    s_txp.rtr_check = gtk_check_button_new_with_label("RTR");
-    g_signal_connect(s_txp.rtr_check, "toggled",
-                     G_CALLBACK(txp_rtr_toggled), NULL);
-    gtk_box_pack_start(GTK_BOX(row1), s_txp.rtr_check, FALSE, FALSE, 0);
+    GtkWidget *add_btn = gtk_button_new_with_label("Add Row");
+    g_signal_connect(add_btn, "clicked", G_CALLBACK(txp_add_row), NULL);
+    gtk_box_pack_start(GTK_BOX(control_btn_box), add_btn, FALSE, FALSE, 0);
 
-    gtk_box_pack_start(GTK_BOX(row1), gtk_label_new("DLC:"),
-                       FALSE, FALSE, 0);
-    GtkAdjustment *dlc_adj = gtk_adjustment_new(8, 0, 8, 1, 1, 0);
-    s_txp.dlc_spin = gtk_spin_button_new(dlc_adj, 1, 0);
-    gtk_widget_set_size_request(s_txp.dlc_spin, 55, -1);
-    g_signal_connect(s_txp.dlc_spin, "value-changed",
-                     G_CALLBACK(txp_dlc_changed), NULL);
-    gtk_box_pack_start(GTK_BOX(row1), s_txp.dlc_spin, FALSE, FALSE, 0);
+    GtkWidget *remove_btn = gtk_button_new_with_label("Remove Last");
+    g_signal_connect(remove_btn, "clicked", G_CALLBACK(txp_remove_last_row), NULL);
+    gtk_box_pack_start(GTK_BOX(control_btn_box), remove_btn, FALSE, FALSE, 0);
 
-    /* ---- Data bytes row ---- */
-    GtkWidget *row2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-    gtk_box_pack_start(GTK_BOX(outer), row2, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(row2), gtk_label_new("Data:"),
-                       FALSE, FALSE, 0);
+    GtkWidget *advanced_btn = gtk_button_new_with_label("Advanced TX...");
+    g_signal_connect(advanced_btn, "clicked", G_CALLBACK(on_transmit), NULL);
+    gtk_box_pack_end(GTK_BOX(top), advanced_btn, FALSE, FALSE, 0);
 
+    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+    /* Never scroll horizontally: the grid stretches to the panel width so the
+     * Send/Start/Stop buttons are always visible and the columns resize by
+     * ratio with the window.  Vertical scrolling kicks in only for many rows. */
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
+                                   GTK_POLICY_NEVER,
+                                   GTK_POLICY_AUTOMATIC);
+    gtk_widget_set_vexpand(scroll, TRUE);
+    gtk_widget_set_hexpand(scroll, TRUE);
+    gtk_box_pack_start(GTK_BOX(outer), scroll, TRUE, TRUE, 0);
+
+    s_txp.rows_box = gtk_grid_new();
+    gtk_grid_set_column_spacing(GTK_GRID(s_txp.rows_box), 6);
+    gtk_grid_set_row_spacing(GTK_GRID(s_txp.rows_box), 4);
+    gtk_widget_set_hexpand(s_txp.rows_box, TRUE);
+
+    /* Header row (grid row 0) – aligned with every transmit row below. */
+    struct { int col; const char *txt; gboolean expand; } hdr[] = {
+        { TXG_COL_NUM,      "#",          FALSE },
+        { TXG_COL_ID,       "CAN-ID",     TRUE  },
+        { TXG_COL_EXT,      "Ext",        FALSE },
+        { TXG_COL_RTR,      "RTR",        FALSE },
+        { TXG_COL_DLC,      "DLC",        FALSE },
+        { TXG_COL_INTERVAL, "Cycle (ms)", FALSE },
+        { TXG_COL_STATUS,   "Status",     FALSE },
+    };
+    for (size_t i = 0; i < sizeof(hdr) / sizeof(hdr[0]); i++) {
+        GtkWidget *h = txp_header_label(hdr[i].txt);
+        gtk_widget_set_hexpand(h, hdr[i].expand);
+        gtk_grid_attach(GTK_GRID(s_txp.rows_box), h, hdr[i].col, 0, 1, 1);
+    }
     for (int i = 0; i < TX_PANEL_DATA_COLS; i++) {
-        char lbuf[6];
-        snprintf(lbuf, sizeof(lbuf), "[%d]", i);
-        gtk_box_pack_start(GTK_BOX(row2), gtk_label_new(lbuf), FALSE, FALSE, 0);
-        s_txp.data_entry[i] = gtk_entry_new();
-        gtk_entry_set_max_length(GTK_ENTRY(s_txp.data_entry[i]), 2);
-        gtk_entry_set_text(GTK_ENTRY(s_txp.data_entry[i]), "00");
-        gtk_entry_set_width_chars(GTK_ENTRY(s_txp.data_entry[i]), 3);
-        gtk_box_pack_start(GTK_BOX(row2), s_txp.data_entry[i], FALSE, FALSE, 0);
+        char b[4];
+        snprintf(b, sizeof(b), "%d", i);
+        GtkWidget *h = txp_header_label(b);
+        gtk_widget_set_hexpand(h, TRUE);
+        gtk_grid_attach(GTK_GRID(s_txp.rows_box), h,
+                        TXG_COL_DATA0 + i, 0, 1, 1);
     }
 
-    /* ---- Actions row ---- */
-    GtkWidget *row3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-    gtk_box_pack_start(GTK_BOX(outer), row3, FALSE, FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(scroll), s_txp.rows_box);
 
-    GtkWidget *send_btn = gtk_button_new_with_label("Send Once");
-    g_signal_connect(send_btn, "clicked", G_CALLBACK(txp_send_once), NULL);
-    gtk_box_pack_start(GTK_BOX(row3), send_btn, FALSE, FALSE, 0);
+    /* Initialize with one default row */
+    s_txp.count = 0;
+    txp_add_row();
 
-    gtk_box_pack_start(GTK_BOX(row3),
-                       gtk_separator_new(GTK_ORIENTATION_VERTICAL),
-                       FALSE, FALSE, 4);
-
-    gtk_box_pack_start(GTK_BOX(row3),
-                       gtk_label_new("Interval (ms):"), FALSE, FALSE, 0);
-    GtkAdjustment *int_adj = gtk_adjustment_new(100, 1, 60000, 10, 100, 0);
-    s_txp.interval_spin = gtk_spin_button_new(int_adj, 10, 0);
-    gtk_widget_set_size_request(s_txp.interval_spin, 80, -1);
-    gtk_box_pack_start(GTK_BOX(row3), s_txp.interval_spin, FALSE, FALSE, 0);
-
-    s_txp.start_btn = gtk_button_new_with_label("Start Cyclic");
-    g_signal_connect(s_txp.start_btn, "clicked",
-                     G_CALLBACK(txp_start_cyclic), NULL);
-    gtk_box_pack_start(GTK_BOX(row3), s_txp.start_btn, FALSE, FALSE, 0);
-
-    s_txp.stop_btn = gtk_button_new_with_label("Stop Cyclic");
-    g_signal_connect(s_txp.stop_btn, "clicked",
-                     G_CALLBACK(txp_stop_cyclic), NULL);
-    gtk_widget_set_sensitive(s_txp.stop_btn, FALSE);
-    gtk_box_pack_start(GTK_BOX(row3), s_txp.stop_btn, FALSE, FALSE, 0);
-
-    gtk_box_pack_start(GTK_BOX(row3),
-                       gtk_separator_new(GTK_ORIENTATION_VERTICAL),
-                       FALSE, FALSE, 4);
-
-    GtkWidget *adv_btn = gtk_button_new_with_label("Advanced TX…");
-    g_signal_connect(adv_btn, "clicked", G_CALLBACK(on_transmit), NULL);
-    gtk_box_pack_start(GTK_BOX(row3), adv_btn, FALSE, FALSE, 0);
-
-    s_txp.status_lbl = gtk_label_new("");
-    gtk_box_pack_start(GTK_BOX(row3), s_txp.status_lbl, FALSE, FALSE, 0);
-
-    return outer;
+    return frame;
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Main window                                                          */
@@ -712,26 +1015,15 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
                        gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),
                        FALSE, FALSE, 0);
 
-    /* Paned: receive trace on top, notebook (stats + transmit) on bottom */
+    /* Paned: receive trace on top, transmit rows on bottom */
     GtkWidget *paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_start(GTK_BOX(vbox), paned, TRUE, TRUE, 0);
 
     GtkWidget *trace_scroll = create_trace_view();
-    gtk_widget_set_size_request(trace_scroll, -1, 380);
-    gtk_paned_pack1(GTK_PANED(paned), trace_scroll, TRUE, FALSE);
-
-    /* Bottom notebook: Statistics | Transmit */
-    GtkWidget *notebook = gtk_notebook_new();
-    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_TOP);
-    gtk_paned_pack2(GTK_PANED(paned), notebook, FALSE, FALSE);
-
-    GtkWidget *stats = create_stats_panel();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), stats,
-                             gtk_label_new("Statistics"));
+    gtk_paned_pack1(GTK_PANED(paned), trace_scroll, TRUE, TRUE);
 
     GtkWidget *tx_panel = create_transmit_panel();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), tx_panel,
-                             gtk_label_new("Transmit"));
+    gtk_paned_pack2(GTK_PANED(paned), tx_panel, TRUE, TRUE);
 
     /* Status bar */
     g_gui.statusbar    = gtk_statusbar_new();
@@ -761,11 +1053,12 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
         "Author: Subhajit Roy  |  "
         "<a href=\"mailto:subhajitroy005@gmail.com\">"
         "subhajitroy005@gmail.com</a>  |  "
-        "License: GPL 3.0</small>");
+        "License: Apache-2.0</small>");
     gtk_label_set_xalign(GTK_LABEL(footer_lbl), 0.5f);
     gtk_box_pack_start(GTK_BOX(footer), footer_lbl, TRUE, TRUE, 0);
 
     gtk_widget_show_all(window);
+    gui_update_stats();
     return window;
 }
 
@@ -782,7 +1075,7 @@ void gui_show_about_dialog(GtkWidget *parent)
         "Open-source CAN bus monitor and analyser for Linux.\n"
         "Uses the Linux SocketCAN subsystem (PF_CAN).\n"
         "Inspired by PEAK-System PCAN-View.");
-    gtk_about_dialog_set_license_type(dlg, GTK_LICENSE_GPL_3_0);
+    gtk_about_dialog_set_license_type(dlg, GTK_LICENSE_APACHE_2_0);
     gtk_about_dialog_set_website(dlg,
         "https://www.peak-system.com/fileadmin/media/linux/index.php");
     gtk_about_dialog_set_website_label(dlg, "PEAK-System Linux drivers");

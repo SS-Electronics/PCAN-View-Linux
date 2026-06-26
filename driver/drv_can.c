@@ -18,10 +18,11 @@
 static socketcan_ctx_t s_sck_ctx;
 
 static int sck_init(const char *iface, uint32_t bitrate,
-                    uint32_t data_bitrate, int fd_mode, int listen_only)
+                    uint32_t data_bitrate, int fd_mode, int listen_only,
+                    const can_bit_timing_t *timing)
 {
     return socketcan_open(&s_sck_ctx, iface, bitrate, data_bitrate,
-                          fd_mode, listen_only);
+                          fd_mode, listen_only, timing);
 }
 
 static int sck_deinit(void)
@@ -86,11 +87,13 @@ can_driver_t *drv_can_get_socketcan(void)
 static can_driver_t *s_active_drv = NULL;
 
 int drv_can_init(can_driver_t *drv, const char *iface, uint32_t bitrate,
-                 uint32_t data_bitrate, int fd_mode, int listen_only)
+                 uint32_t data_bitrate, int fd_mode, int listen_only,
+                 const can_bit_timing_t *timing)
 {
     if (!drv || !drv->init) return DRV_CAN_ERR_PARAM;
     s_active_drv = drv;
-    return drv->init(iface, bitrate, data_bitrate, fd_mode, listen_only);
+    return drv->init(iface, bitrate, data_bitrate, fd_mode, listen_only,
+                     timing);
 }
 
 int drv_can_deinit(void)

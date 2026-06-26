@@ -56,7 +56,35 @@ static int socketcan_iface_name_valid(const char *iface)
     return 1;
 }
 
-static int run_ip(const char *const argv[], int quiet_stderr)
+/* Return non-zero if the interface currently has IFF_UP set. */
+static int iface_is_up(const char *iface)
+{
+    char path[300];
+    snprintf(path, sizeof(path), "/sys/class/net/%s/flags", iface);
+    FILE *f = fopen(path, "r");
+    if (!f)
+        return 0;
+    unsigned int flags = 0;
+    int n = fscanf(f, "%x", &flags);
+    fclose(f);
+    return (n == 1) && (flags & 1u /* IFF_UP */);
+}
+
+/* Locate an absolute path to the "ip" tool (needed when launching it through
+ * pkexec, which will not search $PATH). */
+static const char *ip_tool_path(void)
+{
+    static const char *candidates[] = {
+        "/usr/sbin/ip", "/sbin/ip", "/usr/bin/ip", "/bin/ip", NULL
+    };
+    for (int i = 0; candidates[i]; i++)
+        if (access(candidates[i], X_OK) == 0)
+            return candidates[i];
+    return "ip";
+}
+
+/* Fork/exec argv[0] with argv, waiting for it to finish. */
+static int run_argv(const char *const argv[], int quiet_stderr)
 {
     pid_t pid = fork();
     if (pid < 0)
@@ -71,7 +99,7 @@ static int run_ip(const char *const argv[], int quiet_stderr)
             }
         }
 
-        execvp("ip", (char *const *)argv);
+        execvp(argv[0], (char *const *)argv);
         _exit(127);
     }
 
@@ -86,47 +114,126 @@ static int run_ip(const char *const argv[], int quiet_stderr)
     return -1;
 }
 
+/* Run an "ip …" command, transparently retrying through pkexec for a graphical
+ * polkit authentication when we lack CAP_NET_ADMIN.  This lets the user bring
+ * up vcan/CAN interfaces without typing sudo in a terminal. */
+static int run_ip_priv(const char *const ip_argv[], int quiet_stderr)
+{
+    /* Fast path: succeeds when already running with sufficient privileges. */
+    if (run_argv(ip_argv, 1) == 0)
+        return 0;
+
+    /* Elevated path: pkexec <abs ip> <args…> (skip the leading "ip"). */
+    const char *pk_argv[40];
+    size_t cap = sizeof(pk_argv) / sizeof(pk_argv[0]);
+    size_t n = 0;
+    pk_argv[n++] = "pkexec";
+    pk_argv[n++] = ip_tool_path();
+    for (size_t i = 1; ip_argv[i] != NULL && n < cap - 1; i++)
+        pk_argv[n++] = ip_argv[i];
+    pk_argv[n] = NULL;
+
+    return run_argv(pk_argv, quiet_stderr);
+}
+
 /* Bring interface down, configure bitrate, bring up */
 static int configure_interface(const char *iface, uint32_t bitrate,
                                 uint32_t data_bitrate, int fd_mode,
-                                int listen_only)
+                                int listen_only,
+                                const can_bit_timing_t *timing)
 {
     char bitrate_buf[16];
     char data_bitrate_buf[16];
+    char tq_buf[16];
+    char prop_seg_buf[16];
+    char phase_seg1_buf[16];
+    char phase_seg2_buf[16];
+    char sjw_buf[16];
+    char sample_point_buf[16];
+    char dtq_buf[16];
+    char dprop_seg_buf[16];
+    char dphase_seg1_buf[16];
+    char dphase_seg2_buf[16];
+    char dsjw_buf[16];
+    char dsample_point_buf[16];
 
     snprintf(bitrate_buf, sizeof(bitrate_buf), "%u", bitrate);
     snprintf(data_bitrate_buf, sizeof(data_bitrate_buf), "%u", data_bitrate);
+
+    if (timing && timing->enabled) {
+        snprintf(tq_buf, sizeof(tq_buf), "%u", timing->brp);
+        snprintf(prop_seg_buf, sizeof(prop_seg_buf), "%u", timing->prop_seg);
+        snprintf(phase_seg1_buf, sizeof(phase_seg1_buf), "%u", timing->phase_seg1);
+        snprintf(phase_seg2_buf, sizeof(phase_seg2_buf), "%u", timing->phase_seg2);
+        snprintf(sjw_buf, sizeof(sjw_buf), "%u", timing->sjw);
+        snprintf(sample_point_buf, sizeof(sample_point_buf), "%u", timing->sample_point);
+        snprintf(dtq_buf, sizeof(dtq_buf), "%u", timing->brp);
+        snprintf(dprop_seg_buf, sizeof(dprop_seg_buf), "%u", timing->prop_seg);
+        snprintf(dphase_seg1_buf, sizeof(dphase_seg1_buf), "%u", timing->phase_seg1);
+        snprintf(dphase_seg2_buf, sizeof(dphase_seg2_buf), "%u", timing->phase_seg2);
+        snprintf(dsjw_buf, sizeof(dsjw_buf), "%u", timing->sjw);
+        snprintf(dsample_point_buf, sizeof(dsample_point_buf), "%u", timing->sample_point);
+    }
 
     /* Bring down first (ignore error – may already be down) */
     const char *down_args[] = {
         "ip", "link", "set", iface, "down", NULL
     };
-    run_ip(down_args, 1);
+    run_ip_priv(down_args, 1);
+
+    const char *args[32];
+    int pos = 0;
+
+    args[pos++] = "ip";
+    args[pos++] = "link";
+    args[pos++] = "set";
+    args[pos++] = iface;
+    args[pos++] = "type";
+    args[pos++] = "can";
+    args[pos++] = "bitrate";
+    args[pos++] = bitrate_buf;
 
     if (fd_mode && data_bitrate > 0) {
-        const char *fd_args[] = {
-            "ip", "link", "set", iface, "type", "can",
-            "bitrate", bitrate_buf,
-            "dbitrate", data_bitrate_buf,
-            "fd", "on",
-            NULL
-        };
-        if (run_ip(fd_args, 0) != 0) {
-            fprintf(stderr, "socketcan: failed to set CAN FD bitrate on %s\n",
-                    iface);
-            return -1;
+        args[pos++] = "dbitrate";
+        args[pos++] = data_bitrate_buf;
+        args[pos++] = "fd";
+        args[pos++] = "on";
+    }
+
+    if (timing && timing->enabled) {
+        args[pos++] = "tq";
+        args[pos++] = tq_buf;
+        args[pos++] = "prop-seg";
+        args[pos++] = prop_seg_buf;
+        args[pos++] = "phase-seg1";
+        args[pos++] = phase_seg1_buf;
+        args[pos++] = "phase-seg2";
+        args[pos++] = phase_seg2_buf;
+        args[pos++] = "sjw";
+        args[pos++] = sjw_buf;
+        args[pos++] = "sample-point";
+        args[pos++] = sample_point_buf;
+        if (fd_mode && data_bitrate > 0) {
+            args[pos++] = "dtq";
+            args[pos++] = dtq_buf;
+            args[pos++] = "dprop-seg";
+            args[pos++] = dprop_seg_buf;
+            args[pos++] = "dphase-seg1";
+            args[pos++] = dphase_seg1_buf;
+            args[pos++] = "dphase-seg2";
+            args[pos++] = dphase_seg2_buf;
+            args[pos++] = "dsjw";
+            args[pos++] = dsjw_buf;
+            args[pos++] = "dsample-point";
+            args[pos++] = dsample_point_buf;
         }
-    } else {
-        const char *can_args[] = {
-            "ip", "link", "set", iface, "type", "can",
-            "bitrate", bitrate_buf,
-            NULL
-        };
-        if (run_ip(can_args, 0) != 0) {
-            fprintf(stderr, "socketcan: failed to set CAN bitrate on %s\n",
-                    iface);
-            return -1;
-        }
+    }
+
+    args[pos] = NULL;
+
+    if (run_ip_priv(args, 0) != 0) {
+        fprintf(stderr, "socketcan: failed to set CAN bitrate on %s\n", iface);
+        return -1;
     }
 
     if (listen_only) {
@@ -135,7 +242,7 @@ static int configure_interface(const char *iface, uint32_t bitrate,
             "listen-only", "on",
             NULL
         };
-        if (run_ip(listen_args, 0) != 0) {
+        if (run_ip_priv(listen_args, 0) != 0) {
             fprintf(stderr, "socketcan: failed to enable listen-only on %s\n",
                     iface);
             return -1;
@@ -145,7 +252,7 @@ static int configure_interface(const char *iface, uint32_t bitrate,
     const char *up_args[] = {
         "ip", "link", "set", iface, "up", NULL
     };
-    if (run_ip(up_args, 0) != 0) {
+    if (run_ip_priv(up_args, 0) != 0) {
         fprintf(stderr, "socketcan: failed to bring up %s\n", iface);
         return -1;
     }
@@ -158,7 +265,8 @@ static int configure_interface(const char *iface, uint32_t bitrate,
 
 int socketcan_open(socketcan_ctx_t *ctx, const char *iface,
                    uint32_t bitrate, uint32_t data_bitrate,
-                   int fd_mode, int listen_only)
+                   int fd_mode, int listen_only,
+                   const can_bit_timing_t *timing)
 {
     if (!ctx || !socketcan_iface_name_valid(iface))
         return DRV_CAN_ERR_PARAM;
@@ -169,19 +277,42 @@ int socketcan_open(socketcan_ctx_t *ctx, const char *iface,
     ctx->listen_only = listen_only;
     ctx->bitrate     = bitrate;
     ctx->data_bitrate = data_bitrate;
+    if (timing) {
+        ctx->timing = *timing;
+    } else {
+        ctx->timing.enabled = 0;
+    }
     memcpy(ctx->iface, iface, strlen(iface) + 1);
 
-    /* Configure interface bitrate (skip for vcan) */
+    /* Configure interface bitrate (skip initial vcan bitrate config) */
     if (strncmp(iface, "vcan", 4) != 0) {
         if (configure_interface(iface, bitrate, data_bitrate,
-                                fd_mode, listen_only) != 0)
+                                fd_mode, listen_only, timing) != 0)
             return DRV_CAN_ERR_INIT;
     } else {
-        /* vcan: just bring it up */
-        const char *up_args[] = {
-            "ip", "link", "set", iface, "up", NULL
-        };
-        run_ip(up_args, 1);
+        /* For vcan interfaces, reuse an existing one when available; otherwise
+         * create it.  Creation/bring-up needs CAP_NET_ADMIN, so run_ip_priv
+         * elevates through pkexec (graphical auth – no terminal sudo). */
+        if (if_nametoindex(iface) == 0) {
+            const char *add_args[] = {
+                "ip", "link", "add", "dev", iface,
+                "type", "vcan", NULL
+            };
+            if (run_ip_priv(add_args, 0) != 0 || if_nametoindex(iface) == 0) {
+                fprintf(stderr, "socketcan: failed to create %s\n", iface);
+                return DRV_CAN_ERR_INIT;
+            }
+        }
+
+        /* Ensure the interface is up (a freshly created vcan starts down, and
+         * a down interface neither transmits nor receives).  Skip when already
+         * up so we don't trigger an unnecessary pkexec authentication. */
+        if (!iface_is_up(iface)) {
+            const char *up_args[] = {
+                "ip", "link", "set", iface, "up", NULL
+            };
+            run_ip_priv(up_args, 1);
+        }
     }
 
     /* Create raw CAN socket */
@@ -195,6 +326,11 @@ int socketcan_open(socketcan_ctx_t *ctx, const char *iface,
     can_err_mask_t err_mask = CAN_ERR_MASK;
     setsockopt(ctx->sock_fd, SOL_CAN_RAW, CAN_RAW_ERR_FILTER,
                &err_mask, sizeof(err_mask));
+
+    /* Keep locally transmitted frames out of the receive path. */
+    int recv_own_msgs = 0;
+    setsockopt(ctx->sock_fd, SOL_CAN_RAW, CAN_RAW_RECV_OWN_MSGS,
+               &recv_own_msgs, sizeof(recv_own_msgs));
 
     /* Enable CAN FD if requested */
     if (fd_mode) {
@@ -240,11 +376,14 @@ int socketcan_close(socketcan_ctx_t *ctx)
         close(ctx->sock_fd);
         ctx->sock_fd = -1;
     }
-    if (strncmp(ctx->iface, "vcan", 4) != 0 && ctx->iface[0] != '\0') {
+    if (ctx->iface[0] != '\0' && strncmp(ctx->iface, "vcan", 4) != 0) {
+        /* Do not bring down vcan interfaces on close, since they can be
+         * created and managed outside the application and may be opened
+         * without root privileges. */
         const char *down_args[] = {
             "ip", "link", "set", ctx->iface, "down", NULL
         };
-        run_ip(down_args, 1);
+        run_ip_priv(down_args, 1);
     }
     return DRV_CAN_OK;
 }
@@ -388,8 +527,8 @@ int socketcan_reset(socketcan_ctx_t *ctx)
     const char *up_args[] = {
         "ip", "link", "set", ctx->iface, "up", NULL
     };
-    run_ip(down_args, 1);
-    run_ip(up_args, 1);
+    run_ip_priv(down_args, 1);
+    run_ip_priv(up_args, 1);
     return DRV_CAN_OK;
 }
 

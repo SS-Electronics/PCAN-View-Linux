@@ -14,11 +14,13 @@ typedef struct {
     char     iface[SOCKETCAN_MAX_IFACE];
     uint32_t bitrate;
     uint32_t data_bitrate;
+    can_bit_timing_t timing;
 } socketcan_ctx_t;
 
 int  socketcan_open(socketcan_ctx_t *ctx, const char *iface,
                     uint32_t bitrate, uint32_t data_bitrate,
-                    int fd_mode, int listen_only);
+                    int fd_mode, int listen_only,
+                    const can_bit_timing_t *timing);
 int  socketcan_close(socketcan_ctx_t *ctx);
 int  socketcan_send(socketcan_ctx_t *ctx, const can_msg_t *msg);
 int  socketcan_recv(socketcan_ctx_t *ctx, can_msg_t *msg, int timeout_ms);
