@@ -167,9 +167,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a6673bbd067bff8653b54fbd469c36137" id="r_a6673bbd067bff8653b54fbd469c36137"><td class="memItemLeft" align="right" valign="top">GtkWidget *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#a6673bbd067bff8653b54fbd469c36137">create_trace_view</a> (void)</td></tr>
 <tr class="memdesc:a6673bbd067bff8653b54fbd469c36137"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trace view factory implemented in <a class="el" href="message__view_8c.html" title="CAN trace GtkTreeView, value formatting, and statistics rendering.">message_view.c</a>.  <br /></td></tr>
 <tr class="separator:a6673bbd067bff8653b54fbd469c36137"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13048e238d3ea5897ae9b6fd3c59246a" id="r_a13048e238d3ea5897ae9b6fd3c59246a"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#a13048e238d3ea5897ae9b6fd3c59246a">find_asset_path</a> (const char *name)</td></tr>
-<tr class="memdesc:a13048e238d3ea5897ae9b6fd3c59246a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolve a bundled asset file across dev and installed layouts.  <br /></td></tr>
-<tr class="separator:a13048e238d3ea5897ae9b6fd3c59246a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac09dad686e9f822b8b78fc62bdaea213" id="r_ac09dad686e9f822b8b78fc62bdaea213"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#ac09dad686e9f822b8b78fc62bdaea213">gui_find_asset</a> (const char *name)</td></tr>
+<tr class="memdesc:ac09dad686e9f822b8b78fc62bdaea213"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolve a bundled asset file across dev and installed layouts.  <br /></td></tr>
+<tr class="separator:ac09dad686e9f822b8b78fc62bdaea213"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af23dc85dbdd017490fb00436e36b27d4" id="r_af23dc85dbdd017490fb00436e36b27d4"><td class="memItemLeft" align="right" valign="top">static GdkPixbuf *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#af23dc85dbdd017490fb00436e36b27d4">gui_load_logo</a> (int size)</td></tr>
 <tr class="memdesc:af23dc85dbdd017490fb00436e36b27d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the Taksys logo scaled into a square of <code>size</code> px.  <br /></td></tr>
 <tr class="separator:af23dc85dbdd017490fb00436e36b27d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -256,6 +256,15 @@ Functions</h2></td></tr>
 <tr class="memitem:aab05ea7fba28f95b8e81eee4716bf426" id="r_aab05ea7fba28f95b8e81eee4716bf426"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#aab05ea7fba28f95b8e81eee4716bf426">on_settings</a> (GtkWidget *w, gpointer d)</td></tr>
 <tr class="memdesc:aab05ea7fba28f95b8e81eee4716bf426"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open the connection-settings dialog.  <br /></td></tr>
 <tr class="separator:aab05ea7fba28f95b8e81eee4716bf426"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba02bcaca725455b4dccbe0bf9446dcd" id="r_aba02bcaca725455b4dccbe0bf9446dcd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#aba02bcaca725455b4dccbe0bf9446dcd">on_db_load</a> (GtkWidget *w, gpointer d)</td></tr>
+<tr class="memdesc:aba02bcaca725455b4dccbe0bf9446dcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Database &gt; Load — choose and load a DBC for signal analysis.  <br /></td></tr>
+<tr class="separator:aba02bcaca725455b4dccbe0bf9446dcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8e0ffea935d710e28afdd6ec0be1ea3" id="r_ab8e0ffea935d710e28afdd6ec0be1ea3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#ab8e0ffea935d710e28afdd6ec0be1ea3">on_db_demo</a> (GtkWidget *w, gpointer d)</td></tr>
+<tr class="memdesc:ab8e0ffea935d710e28afdd6ec0be1ea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Database &gt; Load Demo — load the bundled demo database.  <br /></td></tr>
+<tr class="separator:ab8e0ffea935d710e28afdd6ec0be1ea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4705396e6514c5b81a4a4e7ede4aec8" id="r_ac4705396e6514c5b81a4a4e7ede4aec8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#ac4705396e6514c5b81a4a4e7ede4aec8">on_db_clear</a> (GtkWidget *w, gpointer d)</td></tr>
+<tr class="memdesc:ac4705396e6514c5b81a4a4e7ede4aec8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Database &gt; Clear — unload the active database.  <br /></td></tr>
+<tr class="separator:ac4705396e6514c5b81a4a4e7ede4aec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c413c1669365263f8963bfbffa628fc" id="r_a4c413c1669365263f8963bfbffa628fc"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main__window_8c.html#a4c413c1669365263f8963bfbffa628fc">on_about</a> (GtkWidget *w, gpointer d)</td></tr>
 <tr class="memdesc:a4c413c1669365263f8963bfbffa628fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open the About dialog.  <br /></td></tr>
 <tr class="separator:a4c413c1669365263f8963bfbffa628fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -348,9 +357,10 @@ Variables</h2></td></tr>
 *      ├─ GtkMenuBar
 *      ├─ statistics bar  (GtkBox)
 *      ├─ GtkToolbar
-*      ├─ GtkPaned (vertical)
-*      │  ├─ trace view   (scrolled GtkTreeView)
-*      │  └─ transmit panel (scrolled GtkGrid + per-row GtkFlowBox)
+*      ├─ GtkNotebook
+*      │  ├─ "Receive / Transmit" page     (GtkPaned: trace + transmit panel)
+*      │  ├─ "Signal Analysis" page        (DBC-decoded signal table)
+*      │  └─ "Signal Analysis Viewer" page (multi-signal time graph)
 *      ├─ GtkStatusbar
 *      └─ footer  (Taksys logo + credits)
 * </pre><dl class="section author"><dt>Author</dt><dd>Subhajit Roy <a href="#" onclick="location.href='mai'+'lto:'+'sub'+'ha'+'jit'+'ro'+'y00'+'5@'+'gma'+'il'+'.co'+'m'; return false;">subha<span class="obfuscator">.nosp@m.</span>jitr<span class="obfuscator">.nosp@m.</span>oy005<span class="obfuscator">.nosp@m.</span>@gma<span class="obfuscator">.nosp@m.</span>il.co<span class="obfuscator">.nosp@m.</span>m</a> </dd></dl>
@@ -371,7 +381,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00124">124</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00125">125</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -387,7 +397,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00125">125</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00126">126</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -403,7 +413,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00126">126</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00127">127</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -419,7 +429,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00127">127</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00128">128</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -435,7 +445,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00128">128</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00129">129</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -465,7 +475,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="adf764cbdea00d65edcd07bb9953ad2b7a3743dd031938bad4663aaa75d3129a38" name="adf764cbdea00d65edcd07bb9953ad2b7a3743dd031938bad4663aaa75d3129a38"></a>TXG_COL_STATUS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00134">134</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00135">135</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -501,37 +511,30 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00242">242</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="gui_8h_source.html#l00039">TCOL_COUNT</a>, <a class="el" href="gui_8h_source.html#l00036">TCOL_DATA</a>, <a class="el" href="gui_8h_source.html#l00031">TCOL_DIR</a>, <a class="el" href="gui_8h_source.html#l00035">TCOL_DLC</a>, <a class="el" href="gui_8h_source.html#l00040">TCOL_FG</a>, <a class="el" href="gui_8h_source.html#l00038">TCOL_FREQ</a>, <a class="el" href="gui_8h_source.html#l00033">TCOL_ID</a>, <a class="el" href="gui_8h_source.html#l00041">TCOL_ID_RAW</a>, <a class="el" href="gui_8h_source.html#l00037">TCOL_INTERVAL</a>, <a class="el" href="gui_8h_source.html#l00046">TCOL_NUM</a>, <a class="el" href="gui_8h_source.html#l00030">TCOL_SEQ</a>, <a class="el" href="gui_8h_source.html#l00032">TCOL_TIME</a>, <a class="el" href="gui_8h_source.html#l00034">TCOL_TYPE</a>, <a class="el" href="gui_8h_source.html#l00060">gui_widgets_t::trace_store</a>, and <a class="el" href="gui_8h_source.html#l00059">gui_widgets_t::trace_view</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="gui_8h_source.html#l00040">TCOL_COUNT</a>, <a class="el" href="gui_8h_source.html#l00037">TCOL_DATA</a>, <a class="el" href="gui_8h_source.html#l00032">TCOL_DIR</a>, <a class="el" href="gui_8h_source.html#l00036">TCOL_DLC</a>, <a class="el" href="gui_8h_source.html#l00041">TCOL_FG</a>, <a class="el" href="gui_8h_source.html#l00039">TCOL_FREQ</a>, <a class="el" href="gui_8h_source.html#l00034">TCOL_ID</a>, <a class="el" href="gui_8h_source.html#l00042">TCOL_ID_RAW</a>, <a class="el" href="gui_8h_source.html#l00038">TCOL_INTERVAL</a>, <a class="el" href="gui_8h_source.html#l00047">TCOL_NUM</a>, <a class="el" href="gui_8h_source.html#l00031">TCOL_SEQ</a>, <a class="el" href="gui_8h_source.html#l00033">TCOL_TIME</a>, <a class="el" href="gui_8h_source.html#l00035">TCOL_TYPE</a>, <a class="el" href="gui_8h_source.html#l00061">gui_widgets_t::trace_store</a>, and <a class="el" href="gui_8h_source.html#l00060">gui_widgets_t::trace_view</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
 
 </div>
 </div>
-<a id="a13048e238d3ea5897ae9b6fd3c59246a" name="a13048e238d3ea5897ae9b6fd3c59246a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a13048e238d3ea5897ae9b6fd3c59246a">&#9670;&#160;</a></span>find_asset_path()</h2>
+<a id="ac09dad686e9f822b8b78fc62bdaea213" name="ac09dad686e9f822b8b78fc62bdaea213"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac09dad686e9f822b8b78fc62bdaea213">&#9670;&#160;</a></span>gui_find_asset()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static const char * find_asset_path </td>
+          <td class="memname">const char * gui_find_asset </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>name</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Resolve a bundled asset file across dev and installed layouts. </p>
+<p>Resolve a bundled asset path (defined in <a class="el" href="main__window_8c.html" title="Main GTK3 window: menu bar, statistics bar, toolbar, trace, TX panel.">main_window.c</a>).</p>
 <p>Searches, in order: <code>$PCAN_VIEW_ASSET_DIR</code>, paths relative to the executable (dev <code>assets/</code> and installed <code>../share/pcan-view</code>), and the system share dirs. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">name</td><td>Asset filename (e.g. "taksys_logo.png"). </td></tr>
@@ -540,9 +543,9 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Static path string valid until the next call, or NULL if not found. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00065">65</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00066">66</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00110">gui_load_logo()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00111">gui_load_logo()</a>, and <a class="el" href="signal__view_8c_source.html#l00188">gui_signal_load_default_dbc()</a>.</p>
 
 </div>
 </div>
@@ -579,11 +582,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new GdkPixbuf (caller unrefs) or NULL if unavailable. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00110">110</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00111">111</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00065">find_asset_path()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00066">gui_find_asset()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>, and <a class="el" href="main__window_8c_source.html#l01483">gui_show_about_dialog()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>, and <a class="el" href="main__window_8c_source.html#l01564">gui_show_about_dialog()</a>.</p>
 
 </div>
 </div>
@@ -620,11 +623,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Row pointer or NULL. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00817">817</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00880">880</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l00125">TX_PANEL_MAX_ROWS</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l00126">TX_PANEL_MAX_ROWS</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01175">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01246">txp_dlc_changed()</a>, <a class="el" href="main__window_8c_source.html#l01115">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l01255">txp_rtr_toggled()</a>, <a class="el" href="main__window_8c_source.html#l01203">txp_start_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01236">txp_stop_cyclic()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01238">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01309">txp_dlc_changed()</a>, <a class="el" href="main__window_8c_source.html#l01178">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l01318">txp_rtr_toggled()</a>, <a class="el" href="main__window_8c_source.html#l01266">txp_start_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01299">txp_stop_cyclic()</a>.</p>
 
 </div>
 </div>
@@ -668,11 +671,11 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00825">825</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00888">888</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00160">tx_panel_row_t::status_lbl</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00161">tx_panel_row_t::status_lbl</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01115">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l01007">txp_set_error()</a>, <a class="el" href="main__window_8c_source.html#l01203">txp_start_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01146">txp_stop_cyclic_row()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01178">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l01070">txp_set_error()</a>, <a class="el" href="main__window_8c_source.html#l01266">txp_start_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01209">txp_stop_cyclic_row()</a>.</p>
 
 </div>
 </div>
@@ -710,11 +713,11 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a CAN FD frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00846">846</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00909">909</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00155">tx_panel_row_t::data_entry</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::ext_check</a>, <a class="el" href="main__window_8c_source.html#l00150">tx_panel_row_t::id_entry</a>, <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c_source.html#l00124">TX_PANEL_DATA_COLS</a>, and <a class="el" href="main__window_8c_source.html#l01146">txp_stop_cyclic_row()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::data_entry</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::ext_check</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::id_entry</a>, <a class="el" href="main__window_8c_source.html#l00157">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c_source.html#l00125">TX_PANEL_DATA_COLS</a>, and <a class="el" href="main__window_8c_source.html#l01209">txp_stop_cyclic_row()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00864">txp_clear_all()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00927">txp_clear_all()</a>.</p>
 
 </div>
 </div>
@@ -744,11 +747,11 @@ Variables</h2></td></tr>
 
 <p>Reset every transmit row to defaults. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00864">864</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00927">927</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l00846">txp_clear_row()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l00909">txp_clear_row()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>.</p>
 
 </div>
 </div>
@@ -786,11 +789,11 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a CAN FD frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00873">873</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00936">936</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::data_box</a>, <a class="el" href="main__window_8c_source.html#l00155">tx_panel_row_t::data_entry</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::ext_check</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c_source.html#l00150">tx_panel_row_t::id_entry</a>, <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00149">tx_panel_row_t::num_lbl</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00157">tx_panel_row_t::send_btn</a>, <a class="el" href="main__window_8c_source.html#l00158">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00160">tx_panel_row_t::status_lbl</a>, <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::stop_btn</a>, <a class="el" href="main__window_8c_source.html#l00124">TX_PANEL_DATA_COLS</a>, <a class="el" href="main__window_8c_source.html#l00125">TX_PANEL_MAX_ROWS</a>, <a class="el" href="main__window_8c_source.html#l00140">TXG_COL_DATA</a>, <a class="el" href="main__window_8c_source.html#l00139">TXG_COL_DLC</a>, <a class="el" href="main__window_8c_source.html#l00137">TXG_COL_EXT</a>, <a class="el" href="main__window_8c_source.html#l00136">TXG_COL_ID</a>, <a class="el" href="main__window_8c_source.html#l00141">TXG_COL_INTERVAL</a>, <a class="el" href="main__window_8c_source.html#l00135">TXG_COL_NUM</a>, <a class="el" href="main__window_8c_source.html#l00138">TXG_COL_RTR</a>, <a class="el" href="main__window_8c_source.html#l00142">TXG_COL_SEND</a>, <a class="el" href="main__window_8c_source.html#l00143">TXG_COL_START</a>, <a class="el" href="main__window_8c_source.html#l00145">TXG_COL_STATUS</a>, <a class="el" href="main__window_8c_source.html#l00144">TXG_COL_STOP</a>, <a class="el" href="main__window_8c_source.html#l01246">txp_dlc_changed()</a>, <a class="el" href="main__window_8c_source.html#l01255">txp_rtr_toggled()</a>, <a class="el" href="main__window_8c_source.html#l01194">txp_send_once()</a>, <a class="el" href="main__window_8c_source.html#l01203">txp_start_cyclic()</a>, <a class="el" href="main__window_8c_source.html#l01236">txp_stop_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01015">txp_update_data_fields()</a>.</p>
+<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="main__window_8c_source.html#l00155">tx_panel_row_t::data_box</a>, <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::data_entry</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::ext_check</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::id_entry</a>, <a class="el" href="main__window_8c_source.html#l00157">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00150">tx_panel_row_t::num_lbl</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00158">tx_panel_row_t::send_btn</a>, <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00161">tx_panel_row_t::status_lbl</a>, <a class="el" href="main__window_8c_source.html#l00160">tx_panel_row_t::stop_btn</a>, <a class="el" href="main__window_8c_source.html#l00125">TX_PANEL_DATA_COLS</a>, <a class="el" href="main__window_8c_source.html#l00126">TX_PANEL_MAX_ROWS</a>, <a class="el" href="main__window_8c_source.html#l00141">TXG_COL_DATA</a>, <a class="el" href="main__window_8c_source.html#l00140">TXG_COL_DLC</a>, <a class="el" href="main__window_8c_source.html#l00138">TXG_COL_EXT</a>, <a class="el" href="main__window_8c_source.html#l00137">TXG_COL_ID</a>, <a class="el" href="main__window_8c_source.html#l00142">TXG_COL_INTERVAL</a>, <a class="el" href="main__window_8c_source.html#l00136">TXG_COL_NUM</a>, <a class="el" href="main__window_8c_source.html#l00139">TXG_COL_RTR</a>, <a class="el" href="main__window_8c_source.html#l00143">TXG_COL_SEND</a>, <a class="el" href="main__window_8c_source.html#l00144">TXG_COL_START</a>, <a class="el" href="main__window_8c_source.html#l00146">TXG_COL_STATUS</a>, <a class="el" href="main__window_8c_source.html#l00145">TXG_COL_STOP</a>, <a class="el" href="main__window_8c_source.html#l01309">txp_dlc_changed()</a>, <a class="el" href="main__window_8c_source.html#l01318">txp_rtr_toggled()</a>, <a class="el" href="main__window_8c_source.html#l01257">txp_send_once()</a>, <a class="el" href="main__window_8c_source.html#l01266">txp_start_cyclic()</a>, <a class="el" href="main__window_8c_source.html#l01299">txp_stop_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01078">txp_update_data_fields()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>.</p>
 
 </div>
 </div>
@@ -820,11 +823,11 @@ Variables</h2></td></tr>
 
 <p>Remove and destroy the last transmit row. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00983">983</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01046">1046</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00161">tx_panel_row_t::cyclic_id</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::data_box</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::ext_check</a>, <a class="el" href="main__window_8c_source.html#l00150">tx_panel_row_t::id_entry</a>, <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00149">tx_panel_row_t::num_lbl</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00157">tx_panel_row_t::send_btn</a>, <a class="el" href="main__window_8c_source.html#l00158">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00160">tx_panel_row_t::status_lbl</a>, and <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::stop_btn</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00162">tx_panel_row_t::cyclic_id</a>, <a class="el" href="main__window_8c_source.html#l00155">tx_panel_row_t::data_box</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::ext_check</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::id_entry</a>, <a class="el" href="main__window_8c_source.html#l00157">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00150">tx_panel_row_t::num_lbl</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00158">tx_panel_row_t::send_btn</a>, <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00161">tx_panel_row_t::status_lbl</a>, and <a class="el" href="main__window_8c_source.html#l00160">tx_panel_row_t::stop_btn</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>.</p>
 
 </div>
 </div>
@@ -871,11 +874,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01007">1007</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01070">1070</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00825">txp_set_status()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00888">txp_set_status()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01060">txp_build_frame()</a>, <a class="el" href="main__window_8c_source.html#l01115">txp_queue_frame()</a>, and <a class="el" href="main__window_8c_source.html#l01203">txp_start_cyclic()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01123">txp_build_frame()</a>, <a class="el" href="main__window_8c_source.html#l01178">txp_queue_frame()</a>, and <a class="el" href="main__window_8c_source.html#l01266">txp_start_cyclic()</a>.</p>
 
 </div>
 </div>
@@ -913,11 +916,11 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a CAN FD frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01015">1015</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01078">1078</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00155">tx_panel_row_t::data_entry</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::rtr_check</a>, and <a class="el" href="main__window_8c_source.html#l00124">TX_PANEL_DATA_COLS</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::data_entry</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::rtr_check</a>, and <a class="el" href="main__window_8c_source.html#l00125">TX_PANEL_DATA_COLS</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01358">gui_tx_panel_update_fd()</a>, <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>, <a class="el" href="main__window_8c_source.html#l01246">txp_dlc_changed()</a>, and <a class="el" href="main__window_8c_source.html#l01255">txp_rtr_toggled()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01421">gui_tx_panel_update_fd()</a>, <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>, <a class="el" href="main__window_8c_source.html#l01309">txp_dlc_changed()</a>, and <a class="el" href="main__window_8c_source.html#l01318">txp_rtr_toggled()</a>.</p>
 
 </div>
 </div>
@@ -971,11 +974,11 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a CAN FD frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01060">1060</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01123">1123</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="main__window_8c_source.html#l01045">canfd_round_len()</a>, <a class="el" href="can__message_8h_source.html#l00043">can_msg_t::data</a>, <a class="el" href="main__window_8c_source.html#l00155">tx_panel_row_t::data_entry</a>, <a class="el" href="can__message_8h_source.html#l00042">can_msg_t::dlc</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::ext_check</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="can__message_8h_source.html#l00041">can_msg_t::id</a>, <a class="el" href="main__window_8c_source.html#l00150">tx_panel_row_t::id_entry</a>, <a class="el" href="can__message_8h_source.html#l00049">can_msg_t::is_brs</a>, <a class="el" href="can__message_8h_source.html#l00045">can_msg_t::is_extended</a>, <a class="el" href="can__message_8h_source.html#l00048">can_msg_t::is_fd</a>, <a class="el" href="can__message_8h_source.html#l00046">can_msg_t::is_remote</a>, <a class="el" href="main__window_8c_source.html#l00794">parse_hex_u32_strict()</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c_source.html#l00128">TX_BYTE_MAX</a>, <a class="el" href="main__window_8c_source.html#l00127">TX_EXT_ID_MAX</a>, <a class="el" href="main__window_8c_source.html#l00124">TX_PANEL_DATA_COLS</a>, <a class="el" href="main__window_8c_source.html#l00126">TX_STD_ID_MAX</a>, <a class="el" href="main__window_8c_source.html#l01007">txp_set_error()</a>, and <a class="el" href="settings__dialog_8c_source.html#l00079">value</a>.</p>
+<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="main__window_8c_source.html#l01108">canfd_round_len()</a>, <a class="el" href="can__message_8h_source.html#l00043">can_msg_t::data</a>, <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::data_entry</a>, <a class="el" href="can__message_8h_source.html#l00042">can_msg_t::dlc</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::dlc_spin</a>, <a class="el" href="main__window_8c_source.html#l00152">tx_panel_row_t::ext_check</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="can__message_8h_source.html#l00041">can_msg_t::id</a>, <a class="el" href="main__window_8c_source.html#l00151">tx_panel_row_t::id_entry</a>, <a class="el" href="can__message_8h_source.html#l00049">can_msg_t::is_brs</a>, <a class="el" href="can__message_8h_source.html#l00045">can_msg_t::is_extended</a>, <a class="el" href="can__message_8h_source.html#l00048">can_msg_t::is_fd</a>, <a class="el" href="can__message_8h_source.html#l00046">can_msg_t::is_remote</a>, <a class="el" href="main__window_8c_source.html#l00857">parse_hex_u32_strict()</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::rtr_check</a>, <a class="el" href="main__window_8c_source.html#l00129">TX_BYTE_MAX</a>, <a class="el" href="main__window_8c_source.html#l00128">TX_EXT_ID_MAX</a>, <a class="el" href="main__window_8c_source.html#l00125">TX_PANEL_DATA_COLS</a>, <a class="el" href="main__window_8c_source.html#l00127">TX_STD_ID_MAX</a>, <a class="el" href="main__window_8c_source.html#l01070">txp_set_error()</a>, and <a class="el" href="settings__dialog_8c_source.html#l00079">value</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01115">txp_queue_frame()</a>, and <a class="el" href="main__window_8c_source.html#l01203">txp_start_cyclic()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01178">txp_queue_frame()</a>, and <a class="el" href="main__window_8c_source.html#l01266">txp_start_cyclic()</a>.</p>
 
 </div>
 </div>
@@ -1023,11 +1026,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>TRUE on success. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01115">1115</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01178">1178</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="app__state_8h_source.html#l00085">app_state_t::tx_queue</a>, <a class="el" href="main__window_8c_source.html#l01060">txp_build_frame()</a>, <a class="el" href="main__window_8c_source.html#l00817">txp_row_from_data()</a>, <a class="el" href="main__window_8c_source.html#l01007">txp_set_error()</a>, and <a class="el" href="main__window_8c_source.html#l00825">txp_set_status()</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="app__state_8h_source.html#l00085">app_state_t::tx_queue</a>, <a class="el" href="main__window_8c_source.html#l01123">txp_build_frame()</a>, <a class="el" href="main__window_8c_source.html#l00880">txp_row_from_data()</a>, <a class="el" href="main__window_8c_source.html#l01070">txp_set_error()</a>, and <a class="el" href="main__window_8c_source.html#l00888">txp_set_status()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01175">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01194">txp_send_once()</a>, and <a class="el" href="main__window_8c_source.html#l01203">txp_start_cyclic()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01238">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01257">txp_send_once()</a>, and <a class="el" href="main__window_8c_source.html#l01266">txp_start_cyclic()</a>.</p>
 
 </div>
 </div>
@@ -1074,11 +1077,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01146">1146</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01209">1209</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00161">tx_panel_row_t::cyclic_id</a>, <a class="el" href="main__window_8c_source.html#l00158">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::stop_btn</a>, and <a class="el" href="main__window_8c_source.html#l00825">txp_set_status()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00162">tx_panel_row_t::cyclic_id</a>, <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00160">tx_panel_row_t::stop_btn</a>, and <a class="el" href="main__window_8c_source.html#l00888">txp_set_status()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00846">txp_clear_row()</a>, <a class="el" href="main__window_8c_source.html#l01175">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01166">txp_stop_all_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01236">txp_stop_cyclic()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00909">txp_clear_row()</a>, <a class="el" href="main__window_8c_source.html#l01238">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01229">txp_stop_all_cyclic()</a>, and <a class="el" href="main__window_8c_source.html#l01299">txp_stop_cyclic()</a>.</p>
 
 </div>
 </div>
@@ -1108,11 +1111,11 @@ Variables</h2></td></tr>
 
 <p>Stop cyclic transmission on every row. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01166">1166</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01229">1229</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00125">TX_PANEL_MAX_ROWS</a>, and <a class="el" href="main__window_8c_source.html#l01146">txp_stop_cyclic_row()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00126">TX_PANEL_MAX_ROWS</a>, and <a class="el" href="main__window_8c_source.html#l01209">txp_stop_cyclic_row()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00221">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00404">on_quit()</a>, and <a class="el" href="main__window_8c_source.html#l00200">on_window_delete()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00222">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00452">on_quit()</a>, and <a class="el" href="main__window_8c_source.html#l00201">on_window_delete()</a>.</p>
 
 </div>
 </div>
@@ -1149,11 +1152,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Continue/remove. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01175">1175</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01238">1238</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="main__window_8c_source.html#l00161">tx_panel_row_t::cyclic_id</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c_source.html#l01115">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l00817">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01146">txp_stop_cyclic_row()</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="main__window_8c_source.html#l00162">tx_panel_row_t::cyclic_id</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c_source.html#l01178">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l00880">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01209">txp_stop_cyclic_row()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01203">txp_start_cyclic()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01266">txp_start_cyclic()</a>.</p>
 
 </div>
 </div>
@@ -1200,11 +1203,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01194">1194</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01257">1257</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l01115">txp_queue_frame()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l01178">txp_queue_frame()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>.</p>
 
 </div>
 </div>
@@ -1251,11 +1254,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01203">1203</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01266">1266</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="main__window_8c_source.html#l00161">tx_panel_row_t::cyclic_id</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c_source.html#l00156">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00158">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::stop_btn</a>, <a class="el" href="main__window_8c_source.html#l01060">txp_build_frame()</a>, <a class="el" href="main__window_8c_source.html#l01175">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01115">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l00817">txp_row_from_data()</a>, <a class="el" href="main__window_8c_source.html#l01007">txp_set_error()</a>, and <a class="el" href="main__window_8c_source.html#l00825">txp_set_status()</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="main__window_8c_source.html#l00162">tx_panel_row_t::cyclic_id</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c_source.html#l00157">tx_panel_row_t::interval_spin</a>, <a class="el" href="main__window_8c_source.html#l00159">tx_panel_row_t::start_btn</a>, <a class="el" href="main__window_8c_source.html#l00160">tx_panel_row_t::stop_btn</a>, <a class="el" href="main__window_8c_source.html#l01123">txp_build_frame()</a>, <a class="el" href="main__window_8c_source.html#l01238">txp_cyclic_tick()</a>, <a class="el" href="main__window_8c_source.html#l01178">txp_queue_frame()</a>, <a class="el" href="main__window_8c_source.html#l00880">txp_row_from_data()</a>, <a class="el" href="main__window_8c_source.html#l01070">txp_set_error()</a>, and <a class="el" href="main__window_8c_source.html#l00888">txp_set_status()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>.</p>
 
 </div>
 </div>
@@ -1302,11 +1305,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01236">1236</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01299">1299</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00817">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01146">txp_stop_cyclic_row()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00880">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01209">txp_stop_cyclic_row()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>.</p>
 
 </div>
 </div>
@@ -1353,11 +1356,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01246">1246</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01309">1309</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00817">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01015">txp_update_data_fields()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00880">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01078">txp_update_data_fields()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>.</p>
 
 </div>
 </div>
@@ -1404,11 +1407,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01255">1255</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01318">1318</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00817">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01015">txp_update_data_fields()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00880">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01078">txp_update_data_fields()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>.</p>
 
 </div>
 </div>
@@ -1463,11 +1466,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>FALSE (allow destroy). </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00200">200</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00201">201</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, and <a class="el" href="main__window_8c_source.html#l01166">txp_stop_all_cyclic()</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, and <a class="el" href="main__window_8c_source.html#l01229">txp_stop_all_cyclic()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
 
 </div>
 </div>
@@ -1507,11 +1510,11 @@ Variables</h2></td></tr>
 
 <p>Connect action — open the settings/connect dialog. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00212">212</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00213">213</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="settings__dialog_8c_source.html#l00117">gui_show_settings_dialog()</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="settings__dialog_8c_source.html#l00117">gui_show_settings_dialog()</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l00769">on_key_press()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l00832">on_key_press()</a>.</p>
 
 </div>
 </div>
@@ -1551,11 +1554,11 @@ Variables</h2></td></tr>
 
 <p>Disconnect action — stop cyclic TX and disconnect. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00221">221</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00222">222</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, and <a class="el" href="main__window_8c_source.html#l01166">txp_stop_all_cyclic()</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, and <a class="el" href="main__window_8c_source.html#l01229">txp_stop_all_cyclic()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l00769">on_key_press()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l00832">on_key_press()</a>.</p>
 
 </div>
 </div>
@@ -1595,11 +1598,11 @@ Variables</h2></td></tr>
 
 <p>Clear-trace action. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00231">231</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00232">232</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="message__view_8c_source.html#l00513">gui_clear_trace()</a>, and <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>.</p>
+<p class="reference">References <a class="el" href="message__view_8c_source.html#l00516">gui_clear_trace()</a>, and <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l00769">on_key_press()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l00832">on_key_press()</a>.</p>
 
 </div>
 </div>
@@ -1640,11 +1643,11 @@ Variables</h2></td></tr>
 <p>Trace &gt; Start — begin capturing every Rx/Tx frame in memory. </p>
 <p><a class="el" href="main__window_8c.html#ab8984858b4faad7e70a0e882f4c74d2b">on_trace_stop</a> halts capture (the buffer is retained); <a class="el" href="main__window_8c.html#aff45c227f578d49b515313356d1e525f">on_trace_save</a> writes the captured frames to a CSV file. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00244">244</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00245">245</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00653">gui_show_error()</a>, <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>, <a class="el" href="gui_8h_source.html#l00057">gui_widgets_t::toolbar_trace_start</a>, <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_stop</a>, <a class="el" href="app__state_8h_source.html#l00095">app_state_t::trace_len</a>, <a class="el" href="app__state_8h_source.html#l00093">app_state_t::trace_mutex</a>, <a class="el" href="app__state_8h_source.html#l00090">app_state_t::tracing</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00656">gui_show_error()</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_start</a>, <a class="el" href="gui_8h_source.html#l00059">gui_widgets_t::toolbar_trace_stop</a>, <a class="el" href="app__state_8h_source.html#l00095">app_state_t::trace_len</a>, <a class="el" href="app__state_8h_source.html#l00093">app_state_t::trace_mutex</a>, <a class="el" href="app__state_8h_source.html#l00090">app_state_t::tracing</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, and <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, and <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>.</p>
 
 </div>
 </div>
@@ -1684,11 +1687,11 @@ Variables</h2></td></tr>
 
 <p>Trace &gt; Stop — halt capture (buffer retained for export). </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00267">267</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00268">268</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>, <a class="el" href="gui_8h_source.html#l00057">gui_widgets_t::toolbar_trace_start</a>, <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_stop</a>, <a class="el" href="app__state_8h_source.html#l00095">app_state_t::trace_len</a>, and <a class="el" href="app__state_8h_source.html#l00090">app_state_t::tracing</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_start</a>, <a class="el" href="gui_8h_source.html#l00059">gui_widgets_t::toolbar_trace_stop</a>, <a class="el" href="app__state_8h_source.html#l00095">app_state_t::trace_len</a>, and <a class="el" href="app__state_8h_source.html#l00090">app_state_t::tracing</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, and <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, and <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>.</p>
 
 </div>
 </div>
@@ -1741,11 +1744,11 @@ Variables</h2></td></tr>
 <p>&lt; Frame direction: transmitted. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00285">285</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00286">286</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 <p class="reference">References <a class="el" href="can__message_8h_source.html#l00027">CAN_DIR_TX</a>, <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="can__message_8h_source.html#l00043">can_msg_t::data</a>, <a class="el" href="can__message_8h_source.html#l00051">can_msg_t::direction</a>, <a class="el" href="can__message_8h_source.html#l00042">can_msg_t::dlc</a>, <a class="el" href="message__view_8c_source.html#l00197">gui_msg_type_str()</a>, <a class="el" href="can__message_8h_source.html#l00041">can_msg_t::id</a>, <a class="el" href="can__message_8h_source.html#l00045">can_msg_t::is_extended</a>, <a class="el" href="can__message_8h_source.html#l00052">can_msg_t::seq</a>, and <a class="el" href="can__message_8h_source.html#l00044">can_msg_t::timestamp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00322">on_trace_save()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00323">on_trace_save()</a>.</p>
 
 </div>
 </div>
@@ -1789,11 +1792,11 @@ Variables</h2></td></tr>
 <p>&lt; Max trace-file path length. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00322">322</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00323">323</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00030">APP_TRACE_FILE_LEN</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00653">gui_show_error()</a>, <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>, <a class="el" href="app__state_8h_source.html#l00094">app_state_t::trace_buf</a>, <a class="el" href="main__window_8c_source.html#l00285">trace_csv_write_row()</a>, <a class="el" href="app__state_8h_source.html#l00092">app_state_t::trace_filename</a>, <a class="el" href="app__state_8h_source.html#l00095">app_state_t::trace_len</a>, <a class="el" href="app__state_8h_source.html#l00093">app_state_t::trace_mutex</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00030">APP_TRACE_FILE_LEN</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00656">gui_show_error()</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="app__state_8h_source.html#l00094">app_state_t::trace_buf</a>, <a class="el" href="main__window_8c_source.html#l00286">trace_csv_write_row()</a>, <a class="el" href="app__state_8h_source.html#l00092">app_state_t::trace_filename</a>, <a class="el" href="app__state_8h_source.html#l00095">app_state_t::trace_len</a>, <a class="el" href="app__state_8h_source.html#l00093">app_state_t::trace_mutex</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -1833,11 +1836,11 @@ Variables</h2></td></tr>
 
 <p>Open the advanced transmit window. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00377">377</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00378">378</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 <p class="reference">References <a class="el" href="transmit__dialog_8c_source.html#l00284">gui_show_transmit_window()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>, and <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>.</p>
 
 </div>
 </div>
@@ -1877,11 +1880,143 @@ Variables</h2></td></tr>
 
 <p>Open the connection-settings dialog. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00386">386</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00387">387</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="settings__dialog_8c_source.html#l00117">gui_show_settings_dialog()</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="settings__dialog_8c_source.html#l00117">gui_show_settings_dialog()</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, and <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, and <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>.</p>
+
+</div>
+</div>
+<a id="aba02bcaca725455b4dccbe0bf9446dcd" name="aba02bcaca725455b4dccbe0bf9446dcd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba02bcaca725455b4dccbe0bf9446dcd">&#9670;&#160;</a></span>on_db_load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void on_db_load </td>
+          <td>(</td>
+          <td class="paramtype">GtkWidget *&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">gpointer&#160;</td>
+          <td class="paramname"><em>d</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Database &gt; Load — choose and load a DBC for signal analysis. </p>
+
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00396">396</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="signal__view_8c_source.html#l00152">gui_signal_load_dbc()</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
+
+</div>
+</div>
+<a id="ab8e0ffea935d710e28afdd6ec0be1ea3" name="ab8e0ffea935d710e28afdd6ec0be1ea3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8e0ffea935d710e28afdd6ec0be1ea3">&#9670;&#160;</a></span>on_db_demo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void on_db_demo </td>
+          <td>(</td>
+          <td class="paramtype">GtkWidget *&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">gpointer&#160;</td>
+          <td class="paramname"><em>d</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Database &gt; Load Demo — load the bundled demo database. </p>
+
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00425">425</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+
+<p class="reference">References <a class="el" href="signal__view_8c_source.html#l00188">gui_signal_load_default_dbc()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
+
+</div>
+</div>
+<a id="ac4705396e6514c5b81a4a4e7ede4aec8" name="ac4705396e6514c5b81a4a4e7ede4aec8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4705396e6514c5b81a4a4e7ede4aec8">&#9670;&#160;</a></span>on_db_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void on_db_clear </td>
+          <td>(</td>
+          <td class="paramtype">GtkWidget *&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">gpointer&#160;</td>
+          <td class="paramname"><em>d</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Database &gt; Clear — unload the active database. </p>
+
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00434">434</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+
+<p class="reference">References <a class="el" href="signal__view_8c_source.html#l00176">gui_signal_clear_dbc()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -1921,11 +2056,11 @@ Variables</h2></td></tr>
 
 <p>Open the About dialog. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00395">395</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00443">443</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l01483">gui_show_about_dialog()</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l01564">gui_show_about_dialog()</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -1965,11 +2100,11 @@ Variables</h2></td></tr>
 
 <p>Quit action — tear down and destroy the main window. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00404">404</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00452">452</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l01166">txp_stop_all_cyclic()</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l01229">txp_stop_all_cyclic()</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -2009,11 +2144,11 @@ Variables</h2></td></tr>
 
 <p>View &gt; Roll Up Tx — toggle TX deduplication. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00415">415</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00463">463</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00101">app_state_t::dedup_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="message__view_8c_source.html#l00513">gui_clear_trace()</a>, and <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00101">app_state_t::dedup_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="message__view_8c_source.html#l00516">gui_clear_trace()</a>, and <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -2053,11 +2188,11 @@ Variables</h2></td></tr>
 
 <p>View &gt; ID Format — switch ID display radix. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00427">427</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00475">475</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00035">APP_ID_FORMAT_DEC</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="message__view_8c_source.html#l00519">gui_refresh_trace_display()</a>, <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>, and <a class="el" href="app__state_8h_source.html#l00102">app_state_t::id_format</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00035">APP_ID_FORMAT_DEC</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="message__view_8c_source.html#l00522">gui_refresh_trace_display()</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, and <a class="el" href="app__state_8h_source.html#l00102">app_state_t::id_format</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -2097,11 +2232,11 @@ Variables</h2></td></tr>
 
 <p>View &gt; Data Format — switch payload display format. </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00442">442</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00490">490</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00042">APP_DATA_FORMAT_ASCII</a>, <a class="el" href="app__state_8h_source.html#l00041">APP_DATA_FORMAT_DEC</a>, <a class="el" href="app__state_8h_source.html#l00103">app_state_t::data_format</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="message__view_8c_source.html#l00519">gui_refresh_trace_display()</a>, and <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00042">APP_DATA_FORMAT_ASCII</a>, <a class="el" href="app__state_8h_source.html#l00041">APP_DATA_FORMAT_DEC</a>, <a class="el" href="app__state_8h_source.html#l00103">app_state_t::data_format</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="message__view_8c_source.html#l00522">gui_refresh_trace_display()</a>, and <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -2156,11 +2291,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The menu item. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00464">464</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00512">512</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 <p class="reference">References <a class="el" href="settings__dialog_8c_source.html#l00078">label</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>.</p>
 
 </div>
 </div>
@@ -2215,9 +2350,9 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The value label, so <a class="el" href="gui_8h.html#a19b4a20390bcbb7ffee7342a830c982f">gui_update_stats</a> can refresh it. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00479">479</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00527">527</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00514">build_stats_bar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00562">build_stats_bar()</a>.</p>
 
 </div>
 </div>
@@ -2253,9 +2388,9 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00503">503</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00551">551</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00514">build_stats_bar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00562">build_stats_bar()</a>.</p>
 
 </div>
 </div>
@@ -2286,11 +2421,11 @@ Variables</h2></td></tr>
 <p>Build the statistics bar shown directly below the menu bar. </p>
 <dl class="section return"><dt>Returns</dt><dd>The populated bar widget. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00514">514</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00562">562</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="gui_8h_source.html#l00062">gui_widgets_t::lbl_bitrate</a>, <a class="el" href="gui_8h_source.html#l00068">gui_widgets_t::lbl_bus_state</a>, <a class="el" href="gui_8h_source.html#l00061">gui_widgets_t::lbl_connection</a>, <a class="el" href="gui_8h_source.html#l00067">gui_widgets_t::lbl_err</a>, <a class="el" href="gui_8h_source.html#l00065">gui_widgets_t::lbl_rx</a>, <a class="el" href="gui_8h_source.html#l00066">gui_widgets_t::lbl_tx</a>, <a class="el" href="gui_8h_source.html#l00069">gui_widgets_t::progress_bus_load</a>, <a class="el" href="main__window_8c_source.html#l00479">stats_bar_field()</a>, and <a class="el" href="main__window_8c_source.html#l00503">stats_bar_separator()</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="gui_8h_source.html#l00063">gui_widgets_t::lbl_bitrate</a>, <a class="el" href="gui_8h_source.html#l00069">gui_widgets_t::lbl_bus_state</a>, <a class="el" href="gui_8h_source.html#l00062">gui_widgets_t::lbl_connection</a>, <a class="el" href="gui_8h_source.html#l00068">gui_widgets_t::lbl_err</a>, <a class="el" href="gui_8h_source.html#l00066">gui_widgets_t::lbl_rx</a>, <a class="el" href="gui_8h_source.html#l00067">gui_widgets_t::lbl_tx</a>, <a class="el" href="gui_8h_source.html#l00070">gui_widgets_t::progress_bus_load</a>, <a class="el" href="main__window_8c_source.html#l00527">stats_bar_field()</a>, and <a class="el" href="main__window_8c_source.html#l00551">stats_bar_separator()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
 
 </div>
 </div>
@@ -2321,11 +2456,11 @@ Variables</h2></td></tr>
 <p>Build the application menu bar. </p>
 <dl class="section return"><dt>Returns</dt><dd>The menu bar widget. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00557">557</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00605">605</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00042">APP_DATA_FORMAT_ASCII</a>, <a class="el" href="app__state_8h_source.html#l00041">APP_DATA_FORMAT_DEC</a>, <a class="el" href="app__state_8h_source.html#l00040">APP_DATA_FORMAT_HEX</a>, <a class="el" href="app__state_8h_source.html#l00035">APP_ID_FORMAT_DEC</a>, <a class="el" href="app__state_8h_source.html#l00034">APP_ID_FORMAT_HEX</a>, <a class="el" href="app__state_8h_source.html#l00103">app_state_t::data_format</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="app__state_8h_source.html#l00102">app_state_t::id_format</a>, <a class="el" href="main__window_8c_source.html#l00464">menu_item()</a>, <a class="el" href="main__window_8c_source.html#l00395">on_about()</a>, <a class="el" href="main__window_8c_source.html#l00231">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00212">on_connect()</a>, <a class="el" href="main__window_8c_source.html#l00442">on_data_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00415">on_dedup_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00221">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00427">on_id_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00404">on_quit()</a>, <a class="el" href="main__window_8c_source.html#l00386">on_settings()</a>, <a class="el" href="main__window_8c_source.html#l00322">on_trace_save()</a>, <a class="el" href="main__window_8c_source.html#l00244">on_trace_start()</a>, <a class="el" href="main__window_8c_source.html#l00267">on_trace_stop()</a>, and <a class="el" href="main__window_8c_source.html#l00377">on_transmit()</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00042">APP_DATA_FORMAT_ASCII</a>, <a class="el" href="app__state_8h_source.html#l00041">APP_DATA_FORMAT_DEC</a>, <a class="el" href="app__state_8h_source.html#l00040">APP_DATA_FORMAT_HEX</a>, <a class="el" href="app__state_8h_source.html#l00035">APP_ID_FORMAT_DEC</a>, <a class="el" href="app__state_8h_source.html#l00034">APP_ID_FORMAT_HEX</a>, <a class="el" href="app__state_8h_source.html#l00103">app_state_t::data_format</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="app__state_8h_source.html#l00102">app_state_t::id_format</a>, <a class="el" href="main__window_8c_source.html#l00512">menu_item()</a>, <a class="el" href="main__window_8c_source.html#l00443">on_about()</a>, <a class="el" href="main__window_8c_source.html#l00232">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00213">on_connect()</a>, <a class="el" href="main__window_8c_source.html#l00490">on_data_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00434">on_db_clear()</a>, <a class="el" href="main__window_8c_source.html#l00425">on_db_demo()</a>, <a class="el" href="main__window_8c_source.html#l00396">on_db_load()</a>, <a class="el" href="main__window_8c_source.html#l00463">on_dedup_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00222">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00475">on_id_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00452">on_quit()</a>, <a class="el" href="main__window_8c_source.html#l00387">on_settings()</a>, <a class="el" href="main__window_8c_source.html#l00323">on_trace_save()</a>, <a class="el" href="main__window_8c_source.html#l00245">on_trace_start()</a>, <a class="el" href="main__window_8c_source.html#l00268">on_trace_stop()</a>, and <a class="el" href="main__window_8c_source.html#l00378">on_transmit()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
 
 </div>
 </div>
@@ -2380,9 +2515,9 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The tool item as a widget. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00694">694</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00757">757</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>.</p>
 
 </div>
 </div>
@@ -2413,11 +2548,11 @@ Variables</h2></td></tr>
 <p>Build the main toolbar. </p>
 <dl class="section return"><dt>Returns</dt><dd>The toolbar widget. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00708">708</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00771">771</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l00694">make_toolbtn()</a>, <a class="el" href="main__window_8c_source.html#l00231">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00212">on_connect()</a>, <a class="el" href="main__window_8c_source.html#l00221">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00386">on_settings()</a>, <a class="el" href="main__window_8c_source.html#l00244">on_trace_start()</a>, <a class="el" href="main__window_8c_source.html#l00267">on_trace_stop()</a>, <a class="el" href="main__window_8c_source.html#l00377">on_transmit()</a>, <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::toolbar_connect</a>, <a class="el" href="gui_8h_source.html#l00055">gui_widgets_t::toolbar_disconnect</a>, <a class="el" href="gui_8h_source.html#l00057">gui_widgets_t::toolbar_trace_start</a>, and <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_stop</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l00757">make_toolbtn()</a>, <a class="el" href="main__window_8c_source.html#l00232">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00213">on_connect()</a>, <a class="el" href="main__window_8c_source.html#l00222">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00387">on_settings()</a>, <a class="el" href="main__window_8c_source.html#l00245">on_trace_start()</a>, <a class="el" href="main__window_8c_source.html#l00268">on_trace_stop()</a>, <a class="el" href="main__window_8c_source.html#l00378">on_transmit()</a>, <a class="el" href="gui_8h_source.html#l00055">gui_widgets_t::toolbar_connect</a>, <a class="el" href="gui_8h_source.html#l00056">gui_widgets_t::toolbar_disconnect</a>, <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_start</a>, and <a class="el" href="gui_8h_source.html#l00059">gui_widgets_t::toolbar_trace_stop</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
 
 </div>
 </div>
@@ -2472,11 +2607,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>TRUE if handled. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00769">769</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00832">832</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00231">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00212">on_connect()</a>, and <a class="el" href="main__window_8c_source.html#l00221">on_disconnect()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00232">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00213">on_connect()</a>, and <a class="el" href="main__window_8c_source.html#l00222">on_disconnect()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
 
 </div>
 </div>
@@ -2531,9 +2666,9 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 ok, -1 error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00794">794</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00857">857</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01060">txp_build_frame()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01123">txp_build_frame()</a>.</p>
 
 </div>
 </div>
@@ -2572,11 +2707,11 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a CAN FD frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01045">1045</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01108">1108</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 <p class="reference">References <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01060">txp_build_frame()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01123">txp_build_frame()</a>.</p>
 
 </div>
 </div>
@@ -2613,11 +2748,11 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The label. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01264">1264</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01327">1327</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 <p class="reference">References <a class="el" href="settings__dialog_8c_source.html#l00078">label</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>.</p>
 
 </div>
 </div>
@@ -2648,11 +2783,11 @@ Variables</h2></td></tr>
 <p>Build the inline transmit panel (header + first row). </p>
 <dl class="section return"><dt>Returns</dt><dd>The panel frame. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01276">1276</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01339">1339</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l01358">gui_tx_panel_update_fd()</a>, <a class="el" href="main__window_8c_source.html#l00377">on_transmit()</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00140">TXG_COL_DATA</a>, <a class="el" href="main__window_8c_source.html#l00139">TXG_COL_DLC</a>, <a class="el" href="main__window_8c_source.html#l00137">TXG_COL_EXT</a>, <a class="el" href="main__window_8c_source.html#l00136">TXG_COL_ID</a>, <a class="el" href="main__window_8c_source.html#l00141">TXG_COL_INTERVAL</a>, <a class="el" href="main__window_8c_source.html#l00135">TXG_COL_NUM</a>, <a class="el" href="main__window_8c_source.html#l00138">TXG_COL_RTR</a>, <a class="el" href="main__window_8c_source.html#l00145">TXG_COL_STATUS</a>, <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>, <a class="el" href="main__window_8c_source.html#l00864">txp_clear_all()</a>, <a class="el" href="main__window_8c_source.html#l01264">txp_header_label()</a>, and <a class="el" href="main__window_8c_source.html#l00983">txp_remove_last_row()</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l01421">gui_tx_panel_update_fd()</a>, <a class="el" href="main__window_8c_source.html#l00378">on_transmit()</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, <a class="el" href="main__window_8c_source.html#l00141">TXG_COL_DATA</a>, <a class="el" href="main__window_8c_source.html#l00140">TXG_COL_DLC</a>, <a class="el" href="main__window_8c_source.html#l00138">TXG_COL_EXT</a>, <a class="el" href="main__window_8c_source.html#l00137">TXG_COL_ID</a>, <a class="el" href="main__window_8c_source.html#l00142">TXG_COL_INTERVAL</a>, <a class="el" href="main__window_8c_source.html#l00136">TXG_COL_NUM</a>, <a class="el" href="main__window_8c_source.html#l00139">TXG_COL_RTR</a>, <a class="el" href="main__window_8c_source.html#l00146">TXG_COL_STATUS</a>, <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>, <a class="el" href="main__window_8c_source.html#l00927">txp_clear_all()</a>, <a class="el" href="main__window_8c_source.html#l01327">txp_header_label()</a>, and <a class="el" href="main__window_8c_source.html#l01046">txp_remove_last_row()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
 
 </div>
 </div>
@@ -2679,11 +2814,11 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a classic CAN frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01358">1358</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01421">1421</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::dlc_spin</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l01015">txp_update_data_fields()</a>.</p>
+<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::dlc_spin</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l01078">txp_update_data_fields()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, and <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, and <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>.</p>
 
 </div>
 </div>
@@ -2712,9 +2847,9 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The newly created top-level window. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01379">1379</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01442">1442</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00514">build_stats_bar()</a>, <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>, <a class="el" href="message__view_8c_source.html#l00242">create_trace_view()</a>, <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l00110">gui_load_logo()</a>, <a class="el" href="message__view_8c_source.html#l00565">gui_update_stats()</a>, <a class="el" href="main__window_8c_source.html#l00769">on_key_press()</a>, <a class="el" href="main__window_8c_source.html#l00200">on_window_delete()</a>, <a class="el" href="gui_8h_source.html#l00070">gui_widgets_t::statusbar</a>, <a class="el" href="gui_8h_source.html#l00071">gui_widgets_t::statusbar_ctx</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00562">build_stats_bar()</a>, <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>, <a class="el" href="message__view_8c_source.html#l00242">create_trace_view()</a>, <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="signal__plot_8c_source.html#l00453">gui_create_signal_plot()</a>, <a class="el" href="signal__view_8c_source.html#l00312">gui_create_signal_view()</a>, <a class="el" href="main__window_8c_source.html#l00111">gui_load_logo()</a>, <a class="el" href="signal__view_8c_source.html#l00188">gui_signal_load_default_dbc()</a>, <a class="el" href="message__view_8c_source.html#l00568">gui_update_stats()</a>, <a class="el" href="main__window_8c_source.html#l00832">on_key_press()</a>, <a class="el" href="main__window_8c_source.html#l00201">on_window_delete()</a>, <a class="el" href="gui_8h_source.html#l00071">gui_widgets_t::statusbar</a>, <a class="el" href="gui_8h_source.html#l00072">gui_widgets_t::statusbar_ctx</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="main_8c_source.html#l00049">on_app_activate()</a>.</p>
 
@@ -2744,11 +2879,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01483">1483</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01564">1564</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00110">gui_load_logo()</a>, <a class="el" href="version_8h_source.html#l00019">PCAN_VIEW_APP_NAME</a>, <a class="el" href="version_8h_source.html#l00034">PCAN_VIEW_COPYRIGHT</a>, <a class="el" href="version_8h_source.html#l00025">PCAN_VIEW_VENDOR</a>, and <a class="el" href="version_8h_source.html#l00022">PCAN_VIEW_VERSION</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00111">gui_load_logo()</a>, <a class="el" href="version_8h_source.html#l00019">PCAN_VIEW_APP_NAME</a>, <a class="el" href="version_8h_source.html#l00034">PCAN_VIEW_COPYRIGHT</a>, <a class="el" href="version_8h_source.html#l00025">PCAN_VIEW_VENDOR</a>, and <a class="el" href="version_8h_source.html#l00022">PCAN_VIEW_VERSION</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00395">on_about()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00443">on_about()</a>.</p>
 
 </div>
 </div>
@@ -2765,7 +2900,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00165">165</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00166">166</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -2781,7 +2916,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00166">166</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00167">167</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00118">parse_raw_data()</a>, and <a class="el" href="socketcan_8c_source.html#l00574">socketcan_list_interfaces()</a>.</p>
 
@@ -2799,7 +2934,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00167">167</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00168">168</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -2815,7 +2950,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00168">168</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l00169">169</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
 </div>
 </div>
@@ -2831,7 +2966,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>, <a class="el" href="main__window_8c_source.html#l01358">gui_tx_panel_update_fd()</a>, <a class="el" href="main__window_8c_source.html#l00873">txp_add_row()</a>, <a class="el" href="main__window_8c_source.html#l00864">txp_clear_all()</a>, <a class="el" href="main__window_8c_source.html#l00983">txp_remove_last_row()</a>, <a class="el" href="main__window_8c_source.html#l00817">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01166">txp_stop_all_cyclic()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>, <a class="el" href="main__window_8c_source.html#l01421">gui_tx_panel_update_fd()</a>, <a class="el" href="main__window_8c_source.html#l00936">txp_add_row()</a>, <a class="el" href="main__window_8c_source.html#l00927">txp_clear_all()</a>, <a class="el" href="main__window_8c_source.html#l01046">txp_remove_last_row()</a>, <a class="el" href="main__window_8c_source.html#l00880">txp_row_from_data()</a>, and <a class="el" href="main__window_8c_source.html#l01229">txp_stop_all_cyclic()</a>.</p>
 
 </div>
 </div>

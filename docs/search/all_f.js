@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['id_0',['id',['../structcan__msg__t.html#abf7282212c45aae7d2e8c1638020e983',1,'can_msg_t']]],
+  ['id_0',['id',['../structdbc__message__t.html#a429c922c0cf42d00a56c9493acc8db9f',1,'dbc_message_t::id'],['../structcan__msg__t.html#abf7282212c45aae7d2e8c1638020e983',1,'can_msg_t::id'],['../structplot__series__t.html#afd38b6ac715b39dc0002c33ac993b4a4',1,'plot_series_t::id']]],
   ['id_5fentry_1',['id_entry',['../structtx__panel__row__t.html#ab56e65cd15af12ae02f26e12141376a9',1,'tx_panel_row_t::id_entry'],['../structtx__win__t.html#a1822377b02b7637deac0616bce7497eb',1,'tx_win_t::id_entry']]],
   ['id_5fformat_2',['id_format',['../structapp__state__t.html#ae2a3fcab95e4f205d16ef8379d3411fe',1,'app_state_t']]],
   ['id_5ftext_5fmax_3',['ID_TEXT_MAX',['../message__view_8c.html#adb372abcab781532a2bbea2e595c7a56',1,'message_view.c']]],
@@ -9,19 +9,20 @@ var searchData=
   ['iface_6',['iface',['../structsocketcan__ctx__t.html#a29c6f2ddd75768ec6698f9f7fcbb251a',1,'socketcan_ctx_t::iface'],['../structapp__state__t.html#a68cc3ade8fe874f9415f4dbfa5628188',1,'app_state_t::iface']]],
   ['iface_5fis_5fup_7',['iface_is_up',['../socketcan_8c.html#ab58d2d7a8b06b2f6567146a07c7bae81',1,'socketcan.c']]],
   ['init_8',['init',['../structcan__driver.html#aa2bacd71c4496ee6887cc4cf92bfb132',1,'can_driver']]],
-  ['install_20dependencies_9',['1. Install dependencies',['../index.html#autotoc_md22',1,'']]],
-  ['install_20from_20a_20tt_20deb_20tt_20package_10',['Install from a &lt;tt&gt;.deb&lt;/tt&gt; package',['../index.html#autotoc_md18',1,'']]],
-  ['install_20from_20the_20ubuntu_20ppa_11',['Install from the Ubuntu PPA',['../index.html#autotoc_md19',1,'']]],
-  ['install_20prerequisites_12',['1. Install prerequisites',['../index.html#autotoc_md30',1,'']]],
-  ['install_20recommended_13',['Install (recommended)',['../index.html#autotoc_md17',1,'']]],
-  ['integration_14',['Continuous Integration',['../index.html#autotoc_md39',1,'']]],
+  ['install_20dependencies_9',['1. Install dependencies',['../index.html#autotoc_md25',1,'']]],
+  ['install_20from_20a_20tt_20deb_20tt_20package_10',['Install from a &lt;tt&gt;.deb&lt;/tt&gt; package',['../index.html#autotoc_md21',1,'']]],
+  ['install_20from_20the_20ubuntu_20ppa_11',['Install from the Ubuntu PPA',['../index.html#autotoc_md22',1,'']]],
+  ['install_20prerequisites_12',['1. Install prerequisites',['../index.html#autotoc_md33',1,'']]],
+  ['install_20recommended_13',['Install (recommended)',['../index.html#autotoc_md20',1,'']]],
+  ['integration_14',['Continuous Integration',['../index.html#autotoc_md42',1,'']]],
   ['interval_5fspin_15',['interval_spin',['../structtx__win__t.html#a6127321b9af167a779bc639a6c3745b8',1,'tx_win_t::interval_spin'],['../structtx__panel__row__t.html#a0a703325889666aaa4521c74e56d9704',1,'tx_panel_row_t::interval_spin']]],
   ['interval_5ftext_5fmax_16',['INTERVAL_TEXT_MAX',['../message__view_8c.html#ae113eb5a66142f4a1e583d0490864ed3',1,'message_view.c']]],
   ['ip_5ftool_5fpath_17',['ip_tool_path',['../socketcan_8c.html#a76affd399a94b769227cf35d1b4e1f72',1,'socketcan.c']]],
   ['is_5fbrs_18',['is_brs',['../structcan__msg__t.html#a0bab7f357b0db28819639186d88c45af',1,'can_msg_t']]],
   ['is_5ferror_19',['is_error',['../structcan__msg__t.html#a1cb655ea08f78b510a3bda955f516fa8',1,'can_msg_t']]],
   ['is_5fesi_20',['is_esi',['../structcan__msg__t.html#a6a56b9ecb74c465eac8c3b458d9c8a93',1,'can_msg_t']]],
-  ['is_5fextended_21',['is_extended',['../structcan__msg__t.html#a7e05840100e2ee77a8b760940b63bcd1',1,'can_msg_t']]],
+  ['is_5fextended_21',['is_extended',['../structdbc__message__t.html#ad891e6e8ee67f7bdb89bd6140278e912',1,'dbc_message_t::is_extended'],['../structcan__msg__t.html#a7e05840100e2ee77a8b760940b63bcd1',1,'can_msg_t::is_extended']]],
   ['is_5ffd_22',['is_fd',['../structcan__msg__t.html#aaca96a384eab5d5219c7e7d941e0c30e',1,'can_msg_t']]],
-  ['is_5fremote_23',['is_remote',['../structcan__msg__t.html#a28e8bbf7f92116e57baba4c2964d3d1f',1,'can_msg_t']]]
+  ['is_5fremote_23',['is_remote',['../structcan__msg__t.html#a28e8bbf7f92116e57baba4c2964d3d1f',1,'can_msg_t']]],
+  ['is_5fsigned_24',['is_signed',['../structdbc__signal__t.html#a5762a4b648539ef1caee0db1904c8bfe',1,'dbc_signal_t']]]
 ];

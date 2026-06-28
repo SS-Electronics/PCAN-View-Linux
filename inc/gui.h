@@ -19,6 +19,7 @@
 #include <gtk/gtk.h>
 #include "can_message.h"
 #include "app_state.h"
+#include "dbc.h"
 
 /**
  * @brief Column indices of the trace `GtkListStore`.
@@ -69,6 +70,9 @@ typedef struct {
     GtkWidget    *progress_bus_load;   /**< Stats bar: bus-load progress bar.*/
     GtkWidget    *statusbar;           /**< Bottom status bar.               */
     guint         statusbar_ctx;       /**< Status-bar context id.           */
+    GtkWidget    *sig_view;            /**< Signal Analysis `GtkTreeView`.   */
+    GtkListStore *sig_store;           /**< Signal Analysis backing model.   */
+    GtkWidget    *lbl_dbc;             /**< Signal tab: loaded-database label.*/
 } gui_widgets_t;
 
 /** @brief The process-wide GUI widget registry (defined in threads.c). */
@@ -101,6 +105,57 @@ void gui_clear_trace(void);
 
 /** @brief Re-render existing trace rows after a display-format change. */
 void gui_refresh_trace_display(void);
+
+/* ---- Signal Analysis (DBC-decoded) ---------------------------------------- */
+
+/**
+ * @brief Build the Signal Analysis tab (live DBC-decoded signal table).
+ * @return A container widget for use as a notebook page.
+ */
+GtkWidget *gui_create_signal_view(void);
+
+/**
+ * @brief Load (or replace) the active CAN database for signal decoding.
+ * @param path  Path to a `.dbc` file.
+ * @return TRUE on success; on failure a status message is shown and the
+ *         previous database (if any) is kept.
+ */
+gboolean gui_signal_load_dbc(const char *path);
+
+/** @brief Auto-load the bundled demo database if one is found. */
+void gui_signal_load_default_dbc(void);
+
+/** @brief Forget the active database and clear the signal table. */
+void gui_signal_clear_dbc(void);
+
+/**
+ * @brief Decode one frame against the active database and update the signal rows.
+ * @param msg  Frame (RX or TX); ignored when no database is loaded.
+ */
+void gui_signal_decode_message(const can_msg_t *msg);
+
+/* ---- Signal Analysis Viewer (signal-vs-time graph) ------------------------ */
+
+/**
+ * @brief Build the Signal Analysis Viewer tab (multi-signal time graph).
+ * @return A container widget for use as a notebook page.
+ */
+GtkWidget *gui_create_signal_plot(void);
+
+/**
+ * @brief Rebuild the plot's series list from a database (or clear it).
+ * @param db  Active database, or NULL to remove all series.
+ */
+void gui_plot_set_database(const dbc_db_t *db);
+
+/**
+ * @brief Append a decoded sample to a plot series (timestamped "now").
+ * @param id       Raw CAN identifier.
+ * @param is_ext   Non-zero for an extended-ID message.
+ * @param sig_idx  Signal index within its message.
+ * @param value    Physical value.
+ */
+void gui_plot_add_sample(uint32_t id, int is_ext, int sig_idx, double value);
 
 /** @brief Refresh the statistics bar from @ref g_app counters. */
 void gui_update_stats(void);

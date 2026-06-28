@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['a_20test_20frame_20another_20terminal_0',['4. Send a test frame (another terminal)',['../index.html#autotoc_md25',1,'']]],
-  ['a_20tt_20deb_20tt_20package_1',['Install from a &lt;tt&gt;.deb&lt;/tt&gt; package',['../index.html#autotoc_md18',1,'']]],
+  ['a_20test_20frame_20another_20terminal_0',['4. Send a test frame (another terminal)',['../index.html#autotoc_md28',1,'']]],
+  ['a_20tt_20deb_20tt_20package_1',['Install from a &lt;tt&gt;.deb&lt;/tt&gt; package',['../index.html#autotoc_md21',1,'']]],
   ['add_5frow_2',['ADD_ROW',['../message__view_8c.html#a10b6e46c4eff38c389688aaddd0bffb1',1,'message_view.c']]],
-  ['another_20terminal_3',['4. Send a test frame (another terminal)',['../index.html#autotoc_md25',1,'']]],
-  ['api_20documentation_4',['API Documentation',['../index.html#autotoc_md37',1,'']]],
+  ['another_20terminal_3',['4. Send a test frame (another terminal)',['../index.html#autotoc_md28',1,'']]],
+  ['api_20documentation_4',['API Documentation',['../index.html#autotoc_md40',1,'']]],
   ['app_5fdata_5fformat_5fascii_5',['APP_DATA_FORMAT_ASCII',['../app__state_8h.html#ae51a88a1d8d281e9a111c531df6a7797a64099304947565d43c95e52d90611f1d',1,'app_state.h']]],
   ['app_5fdata_5fformat_5fdec_6',['APP_DATA_FORMAT_DEC',['../app__state_8h.html#ae51a88a1d8d281e9a111c531df6a7797afffe71ed5469e2ddc5a8575c93d81ad0',1,'app_state.h']]],
   ['app_5fdata_5fformat_5fhex_7',['APP_DATA_FORMAT_HEX',['../app__state_8h.html#ae51a88a1d8d281e9a111c531df6a7797a66620696eaa544f45122248c818dc0d2',1,'app_state.h']]],
@@ -16,9 +16,10 @@ var searchData=
   ['app_5fid_5fformat_5ft_13',['app_id_format_t',['../app__state_8h.html#ae2bb8e9549f0928b6414ff6453a69572',1,'app_state.h']]],
   ['app_5fmax_5fiface_5flen_14',['APP_MAX_IFACE_LEN',['../app__state_8h.html#aafc8c2e9b0e278a7f7d397f531ffd8cc',1,'app_state.h']]],
   ['app_5fstate_2eh_15',['app_state.h',['../app__state_8h.html',1,'']]],
-  ['app_5fstate_5fcleanup_16',['app_state_cleanup',['../app__state_8h.html#a2f8f2e8b64a6eefb43fa34827037b92c',1,'app_state_cleanup(void):&#160;threads.c'],['../threads_8c.html#a2f8f2e8b64a6eefb43fa34827037b92c',1,'app_state_cleanup(void):&#160;threads.c']]],
+  ['app_5fstate_5fcleanup_16',['app_state_cleanup',['../threads_8c.html#a2f8f2e8b64a6eefb43fa34827037b92c',1,'app_state_cleanup(void):&#160;threads.c'],['../app__state_8h.html#a2f8f2e8b64a6eefb43fa34827037b92c',1,'app_state_cleanup(void):&#160;threads.c']]],
   ['app_5fstate_5finit_17',['app_state_init',['../app__state_8h.html#a47f5487683990de8747e03d3c78b763b',1,'app_state_init(void):&#160;threads.c'],['../threads_8c.html#a47f5487683990de8747e03d3c78b763b',1,'app_state_init(void):&#160;threads.c']]],
   ['app_5fstate_5ft_18',['app_state_t',['../structapp__state__t.html',1,'']]],
   ['app_5ftrace_5ffile_5flen_19',['APP_TRACE_FILE_LEN',['../app__state_8h.html#a4b50811a4535223fb9c44cc7f3075857',1,'app_state.h']]],
-  ['architecture_20',['Driver Architecture',['../index.html#autotoc_md9',1,'']]]
+  ['architecture_20',['Driver Architecture',['../index.html#autotoc_md12',1,'']]],
+  ['area_21',['area',['../signal__plot_8c.html#a790d57ae229197048b24b1b0fdacc701',1,'signal_plot.c']]]
 ];

@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['period_5fbits_0',['period_bits',['../structapp__state__t.html#aff7d0a8b6417e4f40426e96f3ae897d2',1,'app_state_t']]],
-  ['phase_5fseg1_1',['phase_seg1',['../structcan__bit__timing__t.html#a5b4b635dddfc29e0c8e866f3354f5cff',1,'can_bit_timing_t']]],
-  ['phase_5fseg2_2',['phase_seg2',['../structcan__bit__timing__t.html#a44d936cdd89bee855adf1ca968810925',1,'can_bit_timing_t']]],
-  ['placeholder_3',['placeholder',['../main__window_8c.html#a58861202ad73895638c74ab40e4d7141',1,'main_window.c']]],
-  ['progress_5fbus_5fload_4',['progress_bus_load',['../structgui__widgets__t.html#a2ac208b013a2c2d79e8f1f961433212d',1,'gui_widgets_t']]],
-  ['prop_5fseg_5',['prop_seg',['../structcan__bit__timing__t.html#aa272047cdf3c24a418af47ac2f11fdc8',1,'can_bit_timing_t']]]
+  ['max_0',['max',['../structdbc__signal__t.html#aff201e36e252f4ade8830575645caaf9',1,'dbc_signal_t']]],
+  ['message_5fcap_1',['message_cap',['../structdbc__db__t.html#a17abe0ac4135213156e8fbf79ec4f74a',1,'dbc_db_t']]],
+  ['message_5fcount_2',['message_count',['../structdbc__db__t.html#a05197c4a1412cef0f55f7a246635241d',1,'dbc_db_t']]],
+  ['messages_3',['messages',['../structdbc__db__t.html#a874da177055a0198a8c7215fbe770131',1,'dbc_db_t']]],
+  ['min_4',['min',['../structdbc__signal__t.html#ac8726d209954c565035c88d2ec40592c',1,'dbc_signal_t']]],
+  ['msg_5fseq_5',['msg_seq',['../structapp__state__t.html#a4aa0fa6a3364e49d59fabbc4a3b5d478',1,'app_state_t']]]
 ];

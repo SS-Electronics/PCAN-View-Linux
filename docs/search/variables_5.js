@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['g_5fapp_0',['g_app',['../app__state_8h.html#ae6d2c1ebbabc2451fb1b3e94d787e5f4',1,'g_app:&#160;threads.c'],['../threads_8c.html#ae6d2c1ebbabc2451fb1b3e94d787e5f4',1,'g_app:&#160;threads.c']]],
-  ['g_5fgui_1',['g_gui',['../gui_8h.html#a8cd58408b531091252c6f1b8ab91fb65',1,'g_gui:&#160;threads.c'],['../threads_8c.html#a8cd58408b531091252c6f1b8ab91fb65',1,'g_gui:&#160;threads.c']]],
-  ['get_5fstats_2',['get_stats',['../structcan__driver.html#a8fe47af47d4d5de8cb8bbedf0f4e8ea5',1,'can_driver']]]
+  ['factor_0',['factor',['../structdbc__signal__t.html#ad55c925273b874d119043634f301a179',1,'dbc_signal_t']]],
+  ['fd_5fcheck_1',['fd_check',['../structtx__win__t.html#ae06e19850595f42afb17c1f565819cd4',1,'tx_win_t']]],
+  ['fd_5fenabled_2',['fd_enabled',['../structsocketcan__ctx__t.html#a9732fc40ef10d2aed670c34b2e29303e',1,'socketcan_ctx_t']]],
+  ['fd_5fmode_3',['fd_mode',['../structapp__state__t.html#a0ba012357ef23c0f567eb6d02264f35e',1,'app_state_t']]]
 ];

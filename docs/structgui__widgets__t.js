@@ -18,5 +18,8 @@ var structgui__widgets__t =
     [ "lbl_bus_state", "structgui__widgets__t.html#aa217a529b28765ab375c0f05d2e99609", null ],
     [ "progress_bus_load", "structgui__widgets__t.html#a2ac208b013a2c2d79e8f1f961433212d", null ],
     [ "statusbar", "structgui__widgets__t.html#a98e6fb2ed394e58d41c08d3348297434", null ],
-    [ "statusbar_ctx", "structgui__widgets__t.html#ad46c0c78360c3ab0cd12d9cea88746ea", null ]
+    [ "statusbar_ctx", "structgui__widgets__t.html#ad46c0c78360c3ab0cd12d9cea88746ea", null ],
+    [ "sig_view", "structgui__widgets__t.html#a3d2a822ba610ce57eab29a240ce79823", null ],
+    [ "sig_store", "structgui__widgets__t.html#a5c9d8cd1dcc0f60315652d08fce258ce", null ],
+    [ "lbl_dbc", "structgui__widgets__t.html#ac96a9ce602e336d1d2cab1980b05eac2", null ]
 ];

@@ -105,12 +105,13 @@ $(document).ready(function(){initNavTree('gui_8h.html',''); initResizable(); });
 <div class="textblock"><code>#include &lt;gtk/gtk.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="can__message_8h_source.html">can_message.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="app__state_8h_source.html">app_state.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="dbc_8h_source.html">dbc.h</a>&quot;</code><br />
 </div><div class="textblock"><div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Include dependency graph for gui.h:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" frameborder="0" src="gui_8h__incl.svg" width="356" height="330"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="gui_8h__incl.svg" width="100%" height="547"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div></div>
 </div>
 </div><div class="textblock"><div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-1-trigger" src="closed.png" alt="+"/> This graph shows which files directly or indirectly include this file:</div>
@@ -174,6 +175,30 @@ Functions</h2></td></tr>
 <tr class="memitem:ad7ba8594cb31bf6e447db32eb226492f" id="r_ad7ba8594cb31bf6e447db32eb226492f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#ad7ba8594cb31bf6e447db32eb226492f">gui_refresh_trace_display</a> (void)</td></tr>
 <tr class="memdesc:ad7ba8594cb31bf6e447db32eb226492f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-render existing trace rows after a display-format change.  <br /></td></tr>
 <tr class="separator:ad7ba8594cb31bf6e447db32eb226492f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2470735564cdc71264ffbfa11e2d4b50" id="r_a2470735564cdc71264ffbfa11e2d4b50"><td class="memItemLeft" align="right" valign="top">GtkWidget *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#a2470735564cdc71264ffbfa11e2d4b50">gui_create_signal_view</a> (void)</td></tr>
+<tr class="memdesc:a2470735564cdc71264ffbfa11e2d4b50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the Signal Analysis tab (live DBC-decoded signal table).  <br /></td></tr>
+<tr class="separator:a2470735564cdc71264ffbfa11e2d4b50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabbac3d54f413e0af413abb0d3c2ce0b" id="r_aabbac3d54f413e0af413abb0d3c2ce0b"><td class="memItemLeft" align="right" valign="top">gboolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#aabbac3d54f413e0af413abb0d3c2ce0b">gui_signal_load_dbc</a> (const char *path)</td></tr>
+<tr class="memdesc:aabbac3d54f413e0af413abb0d3c2ce0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load (or replace) the active CAN database for signal decoding.  <br /></td></tr>
+<tr class="separator:aabbac3d54f413e0af413abb0d3c2ce0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4439d43f60767c729a0e0ec821776d4" id="r_ae4439d43f60767c729a0e0ec821776d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#ae4439d43f60767c729a0e0ec821776d4">gui_signal_load_default_dbc</a> (void)</td></tr>
+<tr class="memdesc:ae4439d43f60767c729a0e0ec821776d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Auto-load the bundled demo database if one is found.  <br /></td></tr>
+<tr class="separator:ae4439d43f60767c729a0e0ec821776d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a552703f86cc8dcc98073b46b0f52930b" id="r_a552703f86cc8dcc98073b46b0f52930b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#a552703f86cc8dcc98073b46b0f52930b">gui_signal_clear_dbc</a> (void)</td></tr>
+<tr class="memdesc:a552703f86cc8dcc98073b46b0f52930b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forget the active database and clear the signal table.  <br /></td></tr>
+<tr class="separator:a552703f86cc8dcc98073b46b0f52930b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65189c7978d4c7db22f8bcd630d09ac0" id="r_a65189c7978d4c7db22f8bcd630d09ac0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#a65189c7978d4c7db22f8bcd630d09ac0">gui_signal_decode_message</a> (const <a class="el" href="structcan__msg__t.html">can_msg_t</a> *msg)</td></tr>
+<tr class="memdesc:a65189c7978d4c7db22f8bcd630d09ac0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode one frame against the active database and update the signal rows.  <br /></td></tr>
+<tr class="separator:a65189c7978d4c7db22f8bcd630d09ac0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc48170d8c18be2b806224451e4311a0" id="r_afc48170d8c18be2b806224451e4311a0"><td class="memItemLeft" align="right" valign="top">GtkWidget *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#afc48170d8c18be2b806224451e4311a0">gui_create_signal_plot</a> (void)</td></tr>
+<tr class="memdesc:afc48170d8c18be2b806224451e4311a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the Signal Analysis Viewer tab (multi-signal time graph).  <br /></td></tr>
+<tr class="separator:afc48170d8c18be2b806224451e4311a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd40563928dc881a572989310242e1cc" id="r_afd40563928dc881a572989310242e1cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#afd40563928dc881a572989310242e1cc">gui_plot_set_database</a> (const <a class="el" href="structdbc__db__t.html">dbc_db_t</a> *db)</td></tr>
+<tr class="memdesc:afd40563928dc881a572989310242e1cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rebuild the plot's series list from a database (or clear it).  <br /></td></tr>
+<tr class="separator:afd40563928dc881a572989310242e1cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a5d549f2e38a939979dee530168365d" id="r_a4a5d549f2e38a939979dee530168365d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#a4a5d549f2e38a939979dee530168365d">gui_plot_add_sample</a> (uint32_t id, int is_ext, int sig_idx, double <a class="el" href="settings__dialog_8c.html#ae7f66047e6e39ba2bb6af8b95f00d1dd">value</a>)</td></tr>
+<tr class="memdesc:a4a5d549f2e38a939979dee530168365d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append a decoded sample to a plot series (timestamped "now").  <br /></td></tr>
+<tr class="separator:a4a5d549f2e38a939979dee530168365d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a19b4a20390bcbb7ffee7342a830c982f" id="r_a19b4a20390bcbb7ffee7342a830c982f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gui_8h.html#a19b4a20390bcbb7ffee7342a830c982f">gui_update_stats</a> (void)</td></tr>
 <tr class="memdesc:a19b4a20390bcbb7ffee7342a830c982f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refresh the statistics bar from <a class="el" href="app__state_8h.html#ae6d2c1ebbabc2451fb1b3e94d787e5f4">g_app</a> counters.  <br /></td></tr>
 <tr class="separator:a19b4a20390bcbb7ffee7342a830c982f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -323,7 +348,7 @@ Variables</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="gui_8h_source.html#l00029">29</a> of file <a class="el" href="gui_8h_source.html">gui.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="gui_8h_source.html#l00030">30</a> of file <a class="el" href="gui_8h_source.html">gui.h</a>.</p>
 
 </div>
 </div>
@@ -353,9 +378,9 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The newly created top-level window. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01379">1379</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01442">1442</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00557">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00514">build_stats_bar()</a>, <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>, <a class="el" href="message__view_8c_source.html#l00242">create_trace_view()</a>, <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="main__window_8c_source.html#l00110">gui_load_logo()</a>, <a class="el" href="message__view_8c_source.html#l00565">gui_update_stats()</a>, <a class="el" href="main__window_8c_source.html#l00769">on_key_press()</a>, <a class="el" href="main__window_8c_source.html#l00200">on_window_delete()</a>, <a class="el" href="gui_8h_source.html#l00070">gui_widgets_t::statusbar</a>, <a class="el" href="gui_8h_source.html#l00071">gui_widgets_t::statusbar_ctx</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00605">build_menubar()</a>, <a class="el" href="main__window_8c_source.html#l00562">build_stats_bar()</a>, <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>, <a class="el" href="message__view_8c_source.html#l00242">create_trace_view()</a>, <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="signal__plot_8c_source.html#l00453">gui_create_signal_plot()</a>, <a class="el" href="signal__view_8c_source.html#l00312">gui_create_signal_view()</a>, <a class="el" href="main__window_8c_source.html#l00111">gui_load_logo()</a>, <a class="el" href="signal__view_8c_source.html#l00188">gui_signal_load_default_dbc()</a>, <a class="el" href="message__view_8c_source.html#l00568">gui_update_stats()</a>, <a class="el" href="main__window_8c_source.html#l00832">on_key_press()</a>, <a class="el" href="main__window_8c_source.html#l00201">on_window_delete()</a>, <a class="el" href="gui_8h_source.html#l00071">gui_widgets_t::statusbar</a>, <a class="el" href="gui_8h_source.html#l00072">gui_widgets_t::statusbar_ctx</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="main_8c_source.html#l00049">on_app_activate()</a>.</p>
 
@@ -384,11 +409,11 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a classic CAN frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01358">1358</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01421">1421</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="main__window_8c_source.html#l00153">tx_panel_row_t::dlc_spin</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l01015">txp_update_data_fields()</a>.</p>
+<p class="reference">References <a class="el" href="can__message_8h_source.html#l00023">CAN_MAX_DLC</a>, <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="main__window_8c_source.html#l00154">tx_panel_row_t::dlc_spin</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c">s_txp</a>, and <a class="el" href="main__window_8c_source.html#l01078">txp_update_data_fields()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, and <a class="el" href="main__window_8c_source.html#l01276">create_transmit_panel()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, and <a class="el" href="main__window_8c_source.html#l01339">create_transmit_panel()</a>.</p>
 
 </div>
 </div>
@@ -424,7 +449,7 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00383">383</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
 
-<p class="reference">References <a class="el" href="can__message_8h_source.html#l00027">CAN_DIR_TX</a>, <a class="el" href="can__message_8h_source.html#l00043">can_msg_t::data</a>, <a class="el" href="message__view_8c_source.html#l00033">DATA_TEXT_MAX</a>, <a class="el" href="can__message_8h_source.html#l00051">can_msg_t::direction</a>, <a class="el" href="can__message_8h_source.html#l00042">can_msg_t::dlc</a>, <a class="el" href="message__view_8c_source.html#l00170">format_frequency()</a>, <a class="el" href="message__view_8c_source.html#l00158">format_interval()</a>, <a class="el" href="message__view_8c_source.html#l00092">format_raw_data()</a>, <a class="el" href="message__view_8c_source.html#l00141">format_timestamp()</a>, <a class="el" href="message__view_8c_source.html#l00038">FREQ_TEXT_MAX</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00057">gui_format_data()</a>, <a class="el" href="message__view_8c_source.html#l00044">gui_format_id()</a>, <a class="el" href="message__view_8c_source.html#l00197">gui_msg_type_str()</a>, <a class="el" href="can__message_8h_source.html#l00041">can_msg_t::id</a>, <a class="el" href="message__view_8c_source.html#l00035">ID_TEXT_MAX</a>, <a class="el" href="message__view_8c_source.html#l00037">INTERVAL_TEXT_MAX</a>, <a class="el" href="can__message_8h_source.html#l00045">can_msg_t::is_extended</a>, <a class="el" href="message__view_8c_source.html#l00031">MAX_TRACE_ROWS</a>, <a class="el" href="message__view_8c_source.html#l00034">RAW_DATA_MAX</a>, <a class="el" href="message__view_8c_source.html#l00227">row_fg()</a>, <a class="el" href="can__message_8h_source.html#l00052">can_msg_t::seq</a>, <a class="el" href="message__view_8c_source.html#l00189">should_rollup_message()</a>, <a class="el" href="gui_8h_source.html#l00039">TCOL_COUNT</a>, <a class="el" href="gui_8h_source.html#l00036">TCOL_DATA</a>, <a class="el" href="gui_8h_source.html#l00044">TCOL_DATA_RAW</a>, <a class="el" href="gui_8h_source.html#l00031">TCOL_DIR</a>, <a class="el" href="gui_8h_source.html#l00043">TCOL_DIR_RAW</a>, <a class="el" href="gui_8h_source.html#l00035">TCOL_DLC</a>, <a class="el" href="gui_8h_source.html#l00042">TCOL_EXT_RAW</a>, <a class="el" href="gui_8h_source.html#l00040">TCOL_FG</a>, <a class="el" href="gui_8h_source.html#l00038">TCOL_FREQ</a>, <a class="el" href="gui_8h_source.html#l00033">TCOL_ID</a>, <a class="el" href="gui_8h_source.html#l00041">TCOL_ID_RAW</a>, <a class="el" href="gui_8h_source.html#l00037">TCOL_INTERVAL</a>, <a class="el" href="gui_8h_source.html#l00030">TCOL_SEQ</a>, <a class="el" href="gui_8h_source.html#l00032">TCOL_TIME</a>, <a class="el" href="gui_8h_source.html#l00045">TCOL_TS_NS</a>, <a class="el" href="gui_8h_source.html#l00034">TCOL_TYPE</a>, <a class="el" href="message__view_8c_source.html#l00036">TIME_TEXT_MAX</a>, <a class="el" href="message__view_8c_source.html#l00135">timespec_to_ns()</a>, <a class="el" href="can__message_8h_source.html#l00044">can_msg_t::timestamp</a>, <a class="el" href="gui_8h_source.html#l00060">gui_widgets_t::trace_store</a>, and <a class="el" href="gui_8h_source.html#l00059">gui_widgets_t::trace_view</a>.</p>
+<p class="reference">References <a class="el" href="can__message_8h_source.html#l00027">CAN_DIR_TX</a>, <a class="el" href="can__message_8h_source.html#l00043">can_msg_t::data</a>, <a class="el" href="message__view_8c_source.html#l00033">DATA_TEXT_MAX</a>, <a class="el" href="can__message_8h_source.html#l00051">can_msg_t::direction</a>, <a class="el" href="can__message_8h_source.html#l00042">can_msg_t::dlc</a>, <a class="el" href="message__view_8c_source.html#l00170">format_frequency()</a>, <a class="el" href="message__view_8c_source.html#l00158">format_interval()</a>, <a class="el" href="message__view_8c_source.html#l00092">format_raw_data()</a>, <a class="el" href="message__view_8c_source.html#l00141">format_timestamp()</a>, <a class="el" href="message__view_8c_source.html#l00038">FREQ_TEXT_MAX</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00057">gui_format_data()</a>, <a class="el" href="message__view_8c_source.html#l00044">gui_format_id()</a>, <a class="el" href="message__view_8c_source.html#l00197">gui_msg_type_str()</a>, <a class="el" href="signal__view_8c_source.html#l00201">gui_signal_decode_message()</a>, <a class="el" href="can__message_8h_source.html#l00041">can_msg_t::id</a>, <a class="el" href="message__view_8c_source.html#l00035">ID_TEXT_MAX</a>, <a class="el" href="message__view_8c_source.html#l00037">INTERVAL_TEXT_MAX</a>, <a class="el" href="can__message_8h_source.html#l00045">can_msg_t::is_extended</a>, <a class="el" href="message__view_8c_source.html#l00031">MAX_TRACE_ROWS</a>, <a class="el" href="message__view_8c_source.html#l00034">RAW_DATA_MAX</a>, <a class="el" href="message__view_8c_source.html#l00227">row_fg()</a>, <a class="el" href="can__message_8h_source.html#l00052">can_msg_t::seq</a>, <a class="el" href="message__view_8c_source.html#l00189">should_rollup_message()</a>, <a class="el" href="gui_8h_source.html#l00040">TCOL_COUNT</a>, <a class="el" href="gui_8h_source.html#l00037">TCOL_DATA</a>, <a class="el" href="gui_8h_source.html#l00045">TCOL_DATA_RAW</a>, <a class="el" href="gui_8h_source.html#l00032">TCOL_DIR</a>, <a class="el" href="gui_8h_source.html#l00044">TCOL_DIR_RAW</a>, <a class="el" href="gui_8h_source.html#l00036">TCOL_DLC</a>, <a class="el" href="gui_8h_source.html#l00043">TCOL_EXT_RAW</a>, <a class="el" href="gui_8h_source.html#l00041">TCOL_FG</a>, <a class="el" href="gui_8h_source.html#l00039">TCOL_FREQ</a>, <a class="el" href="gui_8h_source.html#l00034">TCOL_ID</a>, <a class="el" href="gui_8h_source.html#l00042">TCOL_ID_RAW</a>, <a class="el" href="gui_8h_source.html#l00038">TCOL_INTERVAL</a>, <a class="el" href="gui_8h_source.html#l00031">TCOL_SEQ</a>, <a class="el" href="gui_8h_source.html#l00033">TCOL_TIME</a>, <a class="el" href="gui_8h_source.html#l00046">TCOL_TS_NS</a>, <a class="el" href="gui_8h_source.html#l00035">TCOL_TYPE</a>, <a class="el" href="message__view_8c_source.html#l00036">TIME_TEXT_MAX</a>, <a class="el" href="message__view_8c_source.html#l00135">timespec_to_ns()</a>, <a class="el" href="can__message_8h_source.html#l00044">can_msg_t::timestamp</a>, <a class="el" href="gui_8h_source.html#l00061">gui_widgets_t::trace_store</a>, and <a class="el" href="gui_8h_source.html#l00060">gui_widgets_t::trace_view</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00101">idle_add_message()</a>.</p>
 
@@ -448,11 +473,11 @@ Variables</h2></td></tr>
 
 <p>Remove every row from the trace view. </p>
 
-<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00513">513</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00516">516</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, and <a class="el" href="gui_8h_source.html#l00060">gui_widgets_t::trace_store</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, and <a class="el" href="gui_8h_source.html#l00061">gui_widgets_t::trace_store</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00231">on_clear()</a>, and <a class="el" href="main__window_8c_source.html#l00415">on_dedup_toggle()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00232">on_clear()</a>, and <a class="el" href="main__window_8c_source.html#l00463">on_dedup_toggle()</a>.</p>
 
 </div>
 </div>
@@ -480,11 +505,281 @@ Variables</h2></td></tr>
 <p>&lt; Maximum payload of a CAN FD frame. <br  />
 </p>
 
-<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00519">519</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00522">522</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
 
-<p class="reference">References <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="message__view_8c_source.html#l00033">DATA_TEXT_MAX</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00057">gui_format_data()</a>, <a class="el" href="message__view_8c_source.html#l00044">gui_format_id()</a>, <a class="el" href="message__view_8c_source.html#l00035">ID_TEXT_MAX</a>, <a class="el" href="message__view_8c_source.html#l00118">parse_raw_data()</a>, <a class="el" href="gui_8h_source.html#l00036">TCOL_DATA</a>, <a class="el" href="gui_8h_source.html#l00044">TCOL_DATA_RAW</a>, <a class="el" href="gui_8h_source.html#l00035">TCOL_DLC</a>, <a class="el" href="gui_8h_source.html#l00042">TCOL_EXT_RAW</a>, <a class="el" href="gui_8h_source.html#l00033">TCOL_ID</a>, <a class="el" href="gui_8h_source.html#l00041">TCOL_ID_RAW</a>, and <a class="el" href="gui_8h_source.html#l00060">gui_widgets_t::trace_store</a>.</p>
+<p class="reference">References <a class="el" href="can__message_8h_source.html#l00024">CANFD_DATA_MAX</a>, <a class="el" href="message__view_8c_source.html#l00033">DATA_TEXT_MAX</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00057">gui_format_data()</a>, <a class="el" href="message__view_8c_source.html#l00044">gui_format_id()</a>, <a class="el" href="message__view_8c_source.html#l00035">ID_TEXT_MAX</a>, <a class="el" href="message__view_8c_source.html#l00118">parse_raw_data()</a>, <a class="el" href="gui_8h_source.html#l00037">TCOL_DATA</a>, <a class="el" href="gui_8h_source.html#l00045">TCOL_DATA_RAW</a>, <a class="el" href="gui_8h_source.html#l00036">TCOL_DLC</a>, <a class="el" href="gui_8h_source.html#l00043">TCOL_EXT_RAW</a>, <a class="el" href="gui_8h_source.html#l00034">TCOL_ID</a>, <a class="el" href="gui_8h_source.html#l00042">TCOL_ID_RAW</a>, and <a class="el" href="gui_8h_source.html#l00061">gui_widgets_t::trace_store</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00442">on_data_format_toggle()</a>, and <a class="el" href="main__window_8c_source.html#l00427">on_id_format_toggle()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00490">on_data_format_toggle()</a>, and <a class="el" href="main__window_8c_source.html#l00475">on_id_format_toggle()</a>.</p>
+
+</div>
+</div>
+<a id="a2470735564cdc71264ffbfa11e2d4b50" name="a2470735564cdc71264ffbfa11e2d4b50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2470735564cdc71264ffbfa11e2d4b50">&#9670;&#160;</a></span>gui_create_signal_view()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GtkWidget * gui_create_signal_view </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build the Signal Analysis tab (live DBC-decoded signal table). </p>
+<dl class="section return"><dt>Returns</dt><dd>A container widget for use as a notebook page. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="signal__view_8c_source.html#l00312">312</a> of file <a class="el" href="signal__view_8c_source.html">signal_view.c</a>.</p>
+
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="gui_8h_source.html#l00075">gui_widgets_t::lbl_dbc</a>, <a class="el" href="signal__view_8c_source.html#l00302">on_clear_dbc()</a>, <a class="el" href="signal__view_8c_source.html#l00257">on_load_dbc()</a>, <a class="el" href="signal__view_8c_source.html#l00286">on_reload_dbc()</a>, <a class="el" href="signal__view_8c_source.html#l00053">SCOL_COUNT</a>, <a class="el" href="signal__view_8c_source.html#l00054">SCOL_FG</a>, <a class="el" href="signal__view_8c_source.html#l00047">SCOL_ID</a>, <a class="el" href="signal__view_8c_source.html#l00046">SCOL_MSG</a>, <a class="el" href="signal__view_8c_source.html#l00058">SCOL_NUM</a>, <a class="el" href="signal__view_8c_source.html#l00052">SCOL_RANGE</a>, <a class="el" href="signal__view_8c_source.html#l00049">SCOL_RAW</a>, <a class="el" href="signal__view_8c_source.html#l00048">SCOL_SIGNAL</a>, <a class="el" href="signal__view_8c_source.html#l00051">SCOL_UNIT</a>, <a class="el" href="signal__view_8c_source.html#l00050">SCOL_VALUE</a>, <a class="el" href="gui_8h_source.html#l00074">gui_widgets_t::sig_store</a>, <a class="el" href="signal__view_8c_source.html#l00134">sig_update_dbc_label()</a>, and <a class="el" href="gui_8h_source.html#l00073">gui_widgets_t::sig_view</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
+
+</div>
+</div>
+<a id="aabbac3d54f413e0af413abb0d3c2ce0b" name="aabbac3d54f413e0af413abb0d3c2ce0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aabbac3d54f413e0af413abb0d3c2ce0b">&#9670;&#160;</a></span>gui_signal_load_dbc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">gboolean gui_signal_load_dbc </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Load (or replace) the active CAN database for signal decoding. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to a <code>.dbc</code> file. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>TRUE on success; on failure a status message is shown and the previous database (if any) is kept. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="signal__view_8c_source.html#l00152">152</a> of file <a class="el" href="signal__view_8c_source.html">signal_view.c</a>.</p>
+
+<p class="reference">References <a class="el" href="dbc_8c_source.html#l00181">dbc_free()</a>, <a class="el" href="dbc_8c_source.html#l00135">dbc_load_file()</a>, <a class="el" href="signal__plot_8c_source.html#l00121">gui_plot_set_database()</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="dbc_8h_source.html#l00070">dbc_db_t::message_count</a>, <a class="el" href="dbc_8h_source.html#l00073">dbc_db_t::path</a>, <a class="el" href="signal__view_8c_source.html#l00040">s_db</a>, <a class="el" href="signal__view_8c_source.html#l00086">sig_table_rebuild()</a>, <a class="el" href="signal__view_8c_source.html#l00134">sig_update_dbc_label()</a>, and <a class="el" href="dbc_8h_source.html#l00072">dbc_db_t::signal_count</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="signal__view_8c_source.html#l00188">gui_signal_load_default_dbc()</a>, <a class="el" href="main__window_8c_source.html#l00396">on_db_load()</a>, <a class="el" href="signal__view_8c_source.html#l00257">on_load_dbc()</a>, and <a class="el" href="signal__view_8c_source.html#l00286">on_reload_dbc()</a>.</p>
+
+</div>
+</div>
+<a id="ae4439d43f60767c729a0e0ec821776d4" name="ae4439d43f60767c729a0e0ec821776d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4439d43f60767c729a0e0ec821776d4">&#9670;&#160;</a></span>gui_signal_load_default_dbc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void gui_signal_load_default_dbc </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Auto-load the bundled demo database if one is found. </p>
+
+<p class="definition">Definition at line <a class="el" href="signal__view_8c_source.html#l00188">188</a> of file <a class="el" href="signal__view_8c_source.html">signal_view.c</a>.</p>
+
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00066">gui_find_asset()</a>, <a class="el" href="signal__view_8c_source.html#l00152">gui_signal_load_dbc()</a>, and <a class="el" href="signal__view_8c_source.html#l00134">sig_update_dbc_label()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>, <a class="el" href="main__window_8c_source.html#l00425">on_db_demo()</a>, and <a class="el" href="signal__view_8c_source.html#l00286">on_reload_dbc()</a>.</p>
+
+</div>
+</div>
+<a id="a552703f86cc8dcc98073b46b0f52930b" name="a552703f86cc8dcc98073b46b0f52930b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a552703f86cc8dcc98073b46b0f52930b">&#9670;&#160;</a></span>gui_signal_clear_dbc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void gui_signal_clear_dbc </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Forget the active database and clear the signal table. </p>
+
+<p class="definition">Definition at line <a class="el" href="signal__view_8c_source.html#l00176">176</a> of file <a class="el" href="signal__view_8c_source.html">signal_view.c</a>.</p>
+
+<p class="reference">References <a class="el" href="dbc_8c_source.html#l00181">dbc_free()</a>, <a class="el" href="signal__plot_8c_source.html#l00121">gui_plot_set_database()</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="signal__view_8c_source.html#l00040">s_db</a>, <a class="el" href="signal__view_8c_source.html#l00086">sig_table_rebuild()</a>, and <a class="el" href="signal__view_8c_source.html#l00134">sig_update_dbc_label()</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="signal__view_8c_source.html#l00302">on_clear_dbc()</a>, and <a class="el" href="main__window_8c_source.html#l00434">on_db_clear()</a>.</p>
+
+</div>
+</div>
+<a id="a65189c7978d4c7db22f8bcd630d09ac0" name="a65189c7978d4c7db22f8bcd630d09ac0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65189c7978d4c7db22f8bcd630d09ac0">&#9670;&#160;</a></span>gui_signal_decode_message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void gui_signal_decode_message </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structcan__msg__t.html">can_msg_t</a> *&#160;</td>
+          <td class="paramname"><em>msg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decode one frame against the active database and update the signal rows. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msg</td><td>Frame (RX or TX); ignored when no database is loaded. </td></tr>
+  </table>
+  </dd>
+</dl>
+<p>&lt; Frame direction: transmitted. <br  />
+</p>
+
+<p class="definition">Definition at line <a class="el" href="signal__view_8c_source.html#l00201">201</a> of file <a class="el" href="signal__view_8c_source.html">signal_view.c</a>.</p>
+
+<p class="reference">References <a class="el" href="can__message_8h_source.html#l00027">CAN_DIR_TX</a>, <a class="el" href="can__message_8h_source.html#l00043">can_msg_t::data</a>, <a class="el" href="dbc_8c_source.html#l00238">dbc_decode_physical()</a>, <a class="el" href="dbc_8c_source.html#l00202">dbc_extract_raw()</a>, <a class="el" href="dbc_8c_source.html#l00189">dbc_find_message()</a>, <a class="el" href="can__message_8h_source.html#l00051">can_msg_t::direction</a>, <a class="el" href="can__message_8h_source.html#l00042">can_msg_t::dlc</a>, <a class="el" href="signal__view_8c_source.html#l00065">fmt_double()</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="signal__plot_8c_source.html#l00185">gui_plot_add_sample()</a>, <a class="el" href="can__message_8h_source.html#l00041">can_msg_t::id</a>, <a class="el" href="dbc_8h_source.html#l00057">dbc_message_t::id</a>, <a class="el" href="can__message_8h_source.html#l00047">can_msg_t::is_error</a>, <a class="el" href="can__message_8h_source.html#l00045">can_msg_t::is_extended</a>, <a class="el" href="dbc_8h_source.html#l00058">dbc_message_t::is_extended</a>, <a class="el" href="signal__view_8c_source.html#l00040">s_db</a>, <a class="el" href="signal__view_8c_source.html#l00053">SCOL_COUNT</a>, <a class="el" href="signal__view_8c_source.html#l00056">SCOL_EXT</a>, <a class="el" href="signal__view_8c_source.html#l00054">SCOL_FG</a>, <a class="el" href="signal__view_8c_source.html#l00055">SCOL_MSGID</a>, <a class="el" href="signal__view_8c_source.html#l00049">SCOL_RAW</a>, <a class="el" href="signal__view_8c_source.html#l00057">SCOL_SIGIDX</a>, <a class="el" href="signal__view_8c_source.html#l00050">SCOL_VALUE</a>, <a class="el" href="gui_8h_source.html#l00074">gui_widgets_t::sig_store</a>, <a class="el" href="dbc_8h_source.html#l00062">dbc_message_t::signal_count</a>, and <a class="el" href="dbc_8h_source.html#l00061">dbc_message_t::signals</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>.</p>
+
+</div>
+</div>
+<a id="afc48170d8c18be2b806224451e4311a0" name="afc48170d8c18be2b806224451e4311a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc48170d8c18be2b806224451e4311a0">&#9670;&#160;</a></span>gui_create_signal_plot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GtkWidget * gui_create_signal_plot </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build the Signal Analysis Viewer tab (multi-signal time graph). </p>
+<dl class="section return"><dt>Returns</dt><dd>A container widget for use as a notebook page. </dd></dl>
+<p>&lt; Redraw period (~30 fps) while mapped. <br  />
+</p>
+
+<p class="definition">Definition at line <a class="el" href="signal__plot_8c_source.html#l00453">453</a> of file <a class="el" href="signal__plot_8c_source.html">signal_plot.c</a>.</p>
+
+<p class="reference">References <a class="el" href="signal__plot_8c_source.html#l00440">on_destroy()</a>, <a class="el" href="signal__plot_8c_source.html#l00224">on_draw()</a>, <a class="el" href="signal__plot_8c_source.html#l00426">on_pause()</a>, <a class="el" href="signal__plot_8c_source.html#l00413">on_reset()</a>, <a class="el" href="signal__plot_8c_source.html#l00395">on_select_all()</a>, <a class="el" href="signal__plot_8c_source.html#l00404">on_select_none()</a>, <a class="el" href="signal__plot_8c_source.html#l00433">on_window_changed()</a>, <a class="el" href="signal__plot_8c_source.html#l00036">PLOT_REDRAW_MS</a>, <a class="el" href="signal__plot_8c_source.html#l00378">plot_tick()</a>, and <a class="el" href="signal__plot_8c.html#a02600439cf5e84bf04b4c7f586147491">s_plot</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>.</p>
+
+</div>
+</div>
+<a id="afd40563928dc881a572989310242e1cc" name="afd40563928dc881a572989310242e1cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd40563928dc881a572989310242e1cc">&#9670;&#160;</a></span>gui_plot_set_database()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void gui_plot_set_database </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structdbc__db__t.html">dbc_db_t</a> *&#160;</td>
+          <td class="paramname"><em>db</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Rebuild the plot's series list from a database (or clear it). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">db</td><td>Active database, or NULL to remove all series. </td></tr>
+  </table>
+  </dd>
+</dl>
+<p>&lt; Max message/signal name length. <br  />
+</p>
+
+<p class="definition">Definition at line <a class="el" href="signal__plot_8c_source.html#l00121">121</a> of file <a class="el" href="signal__plot_8c_source.html">signal_plot.c</a>.</p>
+
+<p class="reference">References <a class="el" href="signal__plot_8c_source.html#l00067">plot_series_t::check</a>, <a class="el" href="signal__plot_8c_source.html#l00058">plot_series_t::col</a>, <a class="el" href="dbc_8h_source.html#l00028">DBC_NAME_MAX</a>, <a class="el" href="signal__plot_8c_source.html#l00056">plot_series_t::dmax</a>, <a class="el" href="signal__plot_8c_source.html#l00056">plot_series_t::dmin</a>, <a class="el" href="signal__plot_8c_source.html#l00057">plot_series_t::enabled</a>, <a class="el" href="signal__plot_8c_source.html#l00054">plot_series_t::ext</a>, <a class="el" href="signal__plot_8c_source.html#l00053">plot_series_t::id</a>, <a class="el" href="dbc_8h_source.html#l00057">dbc_message_t::id</a>, <a class="el" href="dbc_8h_source.html#l00058">dbc_message_t::is_extended</a>, <a class="el" href="signal__plot_8c_source.html#l00051">plot_series_t::label</a>, <a class="el" href="dbc_8h_source.html#l00049">dbc_signal_t::max</a>, <a class="el" href="dbc_8h_source.html#l00070">dbc_db_t::message_count</a>, <a class="el" href="dbc_8h_source.html#l00069">dbc_db_t::messages</a>, <a class="el" href="dbc_8h_source.html#l00048">dbc_signal_t::min</a>, <a class="el" href="dbc_8h_source.html#l00041">dbc_signal_t::name</a>, <a class="el" href="dbc_8h_source.html#l00060">dbc_message_t::name</a>, <a class="el" href="signal__plot_8c_source.html#l00111">on_series_toggled()</a>, <a class="el" href="signal__plot_8c_source.html#l00039">PALETTE</a>, <a class="el" href="signal__plot_8c_source.html#l00045">PALETTE_N</a>, <a class="el" href="signal__plot_8c_source.html#l00095">plot_free_series()</a>, <a class="el" href="signal__plot_8c.html#a02600439cf5e84bf04b4c7f586147491">s_plot</a>, <a class="el" href="signal__plot_8c_source.html#l00055">plot_series_t::sig_idx</a>, <a class="el" href="dbc_8h_source.html#l00062">dbc_message_t::signal_count</a>, <a class="el" href="dbc_8h_source.html#l00072">dbc_db_t::signal_count</a>, <a class="el" href="dbc_8h_source.html#l00061">dbc_message_t::signals</a>, <a class="el" href="signal__plot_8c_source.html#l00052">plot_series_t::unit</a>, and <a class="el" href="dbc_8h_source.html#l00050">dbc_signal_t::unit</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="signal__view_8c_source.html#l00176">gui_signal_clear_dbc()</a>, and <a class="el" href="signal__view_8c_source.html#l00152">gui_signal_load_dbc()</a>.</p>
+
+</div>
+</div>
+<a id="a4a5d549f2e38a939979dee530168365d" name="a4a5d549f2e38a939979dee530168365d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a5d549f2e38a939979dee530168365d">&#9670;&#160;</a></span>gui_plot_add_sample()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void gui_plot_add_sample </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>is_ext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>sig_idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Append a decoded sample to a plot series (timestamped "now"). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>Raw CAN identifier. </td></tr>
+    <tr><td class="paramname">is_ext</td><td>Non-zero for an extended-ID message. </td></tr>
+    <tr><td class="paramname">sig_idx</td><td>Signal index within its message. </td></tr>
+    <tr><td class="paramname">value</td><td>Physical value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<p>&lt; Samples kept per series (~30 s @ 1 kHz). <br  />
+</p>
+<p>&lt; Samples kept per series (~30 s @ 1 kHz). <br  />
+</p>
+
+<p class="definition">Definition at line <a class="el" href="signal__plot_8c_source.html#l00185">185</a> of file <a class="el" href="signal__plot_8c_source.html">signal_plot.c</a>.</p>
+
+<p class="reference">References <a class="el" href="signal__plot_8c_source.html#l00063">plot_series_t::count</a>, <a class="el" href="signal__plot_8c_source.html#l00054">plot_series_t::ext</a>, <a class="el" href="signal__plot_8c_source.html#l00065">plot_series_t::has_last</a>, <a class="el" href="signal__plot_8c_source.html#l00062">plot_series_t::head</a>, <a class="el" href="signal__plot_8c_source.html#l00053">plot_series_t::id</a>, <a class="el" href="signal__plot_8c_source.html#l00064">plot_series_t::last</a>, <a class="el" href="signal__plot_8c_source.html#l00083">plot_now()</a>, <a class="el" href="signal__plot_8c_source.html#l00035">PLOT_RING</a>, <a class="el" href="signal__plot_8c.html#a02600439cf5e84bf04b4c7f586147491">s_plot</a>, <a class="el" href="signal__plot_8c_source.html#l00055">plot_series_t::sig_idx</a>, <a class="el" href="signal__plot_8c_source.html#l00060">plot_series_t::t</a>, <a class="el" href="signal__plot_8c_source.html#l00061">plot_series_t::v</a>, and <a class="el" href="settings__dialog_8c_source.html#l00079">value</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="signal__view_8c_source.html#l00201">gui_signal_decode_message()</a>.</p>
 
 </div>
 </div>
@@ -506,11 +801,11 @@ Variables</h2></td></tr>
 
 <p>Refresh the statistics bar from <a class="el" href="app__state_8h.html#ae6d2c1ebbabc2451fb1b3e94d787e5f4">g_app</a> counters. </p>
 
-<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00565">565</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00568">568</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00053">app_state_t::bitrate</a>, <a class="el" href="app__state_8h_source.html#l00065">app_state_t::bus_load</a>, <a class="el" href="app__state_8h_source.html#l00066">app_state_t::bus_state</a>, <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="app__state_8h_source.html#l00064">app_state_t::error_count</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00215">gui_bus_state_color()</a>, <a class="el" href="message__view_8c_source.html#l00205">gui_bus_state_str()</a>, <a class="el" href="app__state_8h_source.html#l00052">app_state_t::iface</a>, <a class="el" href="gui_8h_source.html#l00062">gui_widgets_t::lbl_bitrate</a>, <a class="el" href="gui_8h_source.html#l00064">gui_widgets_t::lbl_bus_load</a>, <a class="el" href="gui_8h_source.html#l00068">gui_widgets_t::lbl_bus_state</a>, <a class="el" href="gui_8h_source.html#l00061">gui_widgets_t::lbl_connection</a>, <a class="el" href="gui_8h_source.html#l00067">gui_widgets_t::lbl_err</a>, <a class="el" href="gui_8h_source.html#l00065">gui_widgets_t::lbl_rx</a>, <a class="el" href="gui_8h_source.html#l00063">gui_widgets_t::lbl_stats_summary</a>, <a class="el" href="gui_8h_source.html#l00066">gui_widgets_t::lbl_tx</a>, <a class="el" href="gui_8h_source.html#l00069">gui_widgets_t::progress_bus_load</a>, <a class="el" href="app__state_8h_source.html#l00062">app_state_t::rx_count</a>, and <a class="el" href="app__state_8h_source.html#l00063">app_state_t::tx_count</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00053">app_state_t::bitrate</a>, <a class="el" href="app__state_8h_source.html#l00065">app_state_t::bus_load</a>, <a class="el" href="app__state_8h_source.html#l00066">app_state_t::bus_state</a>, <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="app__state_8h_source.html#l00064">app_state_t::error_count</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00215">gui_bus_state_color()</a>, <a class="el" href="message__view_8c_source.html#l00205">gui_bus_state_str()</a>, <a class="el" href="app__state_8h_source.html#l00052">app_state_t::iface</a>, <a class="el" href="gui_8h_source.html#l00063">gui_widgets_t::lbl_bitrate</a>, <a class="el" href="gui_8h_source.html#l00065">gui_widgets_t::lbl_bus_load</a>, <a class="el" href="gui_8h_source.html#l00069">gui_widgets_t::lbl_bus_state</a>, <a class="el" href="gui_8h_source.html#l00062">gui_widgets_t::lbl_connection</a>, <a class="el" href="gui_8h_source.html#l00068">gui_widgets_t::lbl_err</a>, <a class="el" href="gui_8h_source.html#l00066">gui_widgets_t::lbl_rx</a>, <a class="el" href="gui_8h_source.html#l00064">gui_widgets_t::lbl_stats_summary</a>, <a class="el" href="gui_8h_source.html#l00067">gui_widgets_t::lbl_tx</a>, <a class="el" href="gui_8h_source.html#l00070">gui_widgets_t::progress_bus_load</a>, <a class="el" href="app__state_8h_source.html#l00062">app_state_t::rx_count</a>, and <a class="el" href="app__state_8h_source.html#l00063">app_state_t::tx_count</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>, and <a class="el" href="threads_8c_source.html#l00115">idle_update_stats()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>, and <a class="el" href="threads_8c_source.html#l00115">idle_update_stats()</a>.</p>
 
 </div>
 </div>
@@ -549,11 +844,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00635">635</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00638">638</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
 
-<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="gui_8h_source.html#l00070">gui_widgets_t::statusbar</a>, and <a class="el" href="gui_8h_source.html#l00071">gui_widgets_t::statusbar_ctx</a>.</p>
+<p class="reference">References <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="gui_8h_source.html#l00071">gui_widgets_t::statusbar</a>, and <a class="el" href="gui_8h_source.html#l00072">gui_widgets_t::statusbar_ctx</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00231">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00442">on_data_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00415">on_dedup_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00427">on_id_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00322">on_trace_save()</a>, <a class="el" href="main__window_8c_source.html#l00244">on_trace_start()</a>, and <a class="el" href="main__window_8c_source.html#l00267">on_trace_stop()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="signal__view_8c_source.html#l00176">gui_signal_clear_dbc()</a>, <a class="el" href="signal__view_8c_source.html#l00152">gui_signal_load_dbc()</a>, <a class="el" href="main__window_8c_source.html#l00232">on_clear()</a>, <a class="el" href="main__window_8c_source.html#l00490">on_data_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00463">on_dedup_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00475">on_id_format_toggle()</a>, <a class="el" href="main__window_8c_source.html#l00323">on_trace_save()</a>, <a class="el" href="main__window_8c_source.html#l00245">on_trace_start()</a>, and <a class="el" href="main__window_8c_source.html#l00268">on_trace_stop()</a>.</p>
 
 </div>
 </div>
@@ -587,7 +882,7 @@ Variables</h2></td></tr>
 
 <p class="reference">References <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="app__state_8h_source.html#l00029">APP_MAX_IFACE_LEN</a>, <a class="el" href="app__state_8h_source.html#l00053">app_state_t::bitrate</a>, <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="app__state_8h_source.html#l00054">app_state_t::data_bitrate</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="settings__dialog_8c.html#a98509b8c744f5ff850bd80db3a2f1942">GRID_LABEL</a>, <a class="el" href="app__state_8h_source.html#l00052">app_state_t::iface</a>, <a class="el" href="settings__dialog_8c_source.html#l00078">label</a>, <a class="el" href="app__state_8h_source.html#l00056">app_state_t::listen_only</a>, <a class="el" href="settings__dialog_8c_source.html#l00110">on_fd_toggled()</a>, <a class="el" href="settings__dialog_8c_source.html#l00040">populate_interfaces()</a>, <a class="el" href="settings__dialog_8c.html#a11f964ceef9045c8ddfc61721f8a4bd3">s_bitrates</a>, <a class="el" href="settings__dialog_8c.html#af6a7bc90c87d6bcc09ed43da1e94a486">s_fd_bitrates</a>, and <a class="el" href="settings__dialog_8c_source.html#l00079">value</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00212">on_connect()</a>, and <a class="el" href="main__window_8c_source.html#l00386">on_settings()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00213">on_connect()</a>, and <a class="el" href="main__window_8c_source.html#l00387">on_settings()</a>.</p>
 
 </div>
 </div>
@@ -611,9 +906,9 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="transmit__dialog_8c_source.html#l00284">284</a> of file <a class="el" href="transmit__dialog_8c_source.html">transmit_dialog.c</a>.</p>
 
-<p class="reference">References <a class="el" href="transmit__dialog_8c_source.html#l00045">tx_win_t::brs_check</a>, <a class="el" href="transmit__dialog_8c_source.html#l00050">tx_win_t::cyclic_btn_start</a>, <a class="el" href="transmit__dialog_8c_source.html#l00051">tx_win_t::cyclic_btn_stop</a>, <a class="el" href="transmit__dialog_8c_source.html#l00047">tx_win_t::data_entry</a>, <a class="el" href="transmit__dialog_8c_source.html#l00048">tx_win_t::data_grid</a>, <a class="el" href="transmit__dialog_8c_source.html#l00046">tx_win_t::dlc_spin</a>, <a class="el" href="transmit__dialog_8c_source.html#l00042">tx_win_t::ext_check</a>, <a class="el" href="transmit__dialog_8c_source.html#l00044">tx_win_t::fd_check</a>, <a class="el" href="transmit__dialog_8c.html#aa503a51f40b0b4a847f7d62cfbf73a0a">FLABEL</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="transmit__dialog_8c_source.html#l00041">tx_win_t::id_entry</a>, <a class="el" href="transmit__dialog_8c_source.html#l00049">tx_win_t::interval_spin</a>, <a class="el" href="transmit__dialog_8c_source.html#l00033">MAX_DATA_ENTRIES</a>, <a class="el" href="transmit__dialog_8c_source.html#l00186">on_cyclic_start()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00201">on_cyclic_stop()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00249">on_dlc_changed()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00242">on_fd_toggled()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00256">on_rtr_toggled()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00267">on_send_once()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00274">on_tx_win_destroy()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00043">tx_win_t::rtr_check</a>, <a class="el" href="transmit__dialog_8c_source.html#l00057">s_tx</a>, <a class="el" href="transmit__dialog_8c_source.html#l00052">tx_win_t::status_label</a>, <a class="el" href="transmit__dialog_8c_source.html#l00040">tx_win_t::window</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="transmit__dialog_8c_source.html#l00045">tx_win_t::brs_check</a>, <a class="el" href="transmit__dialog_8c_source.html#l00050">tx_win_t::cyclic_btn_start</a>, <a class="el" href="transmit__dialog_8c_source.html#l00051">tx_win_t::cyclic_btn_stop</a>, <a class="el" href="transmit__dialog_8c_source.html#l00047">tx_win_t::data_entry</a>, <a class="el" href="transmit__dialog_8c_source.html#l00048">tx_win_t::data_grid</a>, <a class="el" href="transmit__dialog_8c_source.html#l00046">tx_win_t::dlc_spin</a>, <a class="el" href="transmit__dialog_8c_source.html#l00042">tx_win_t::ext_check</a>, <a class="el" href="transmit__dialog_8c_source.html#l00044">tx_win_t::fd_check</a>, <a class="el" href="transmit__dialog_8c.html#aa503a51f40b0b4a847f7d62cfbf73a0a">FLABEL</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="transmit__dialog_8c_source.html#l00041">tx_win_t::id_entry</a>, <a class="el" href="transmit__dialog_8c_source.html#l00049">tx_win_t::interval_spin</a>, <a class="el" href="transmit__dialog_8c_source.html#l00033">MAX_DATA_ENTRIES</a>, <a class="el" href="transmit__dialog_8c_source.html#l00186">on_cyclic_start()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00201">on_cyclic_stop()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00249">on_dlc_changed()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00242">on_fd_toggled()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00256">on_rtr_toggled()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00267">on_send_once()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00274">on_tx_win_destroy()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00043">tx_win_t::rtr_check</a>, <a class="el" href="transmit__dialog_8c_source.html#l00057">s_tx</a>, <a class="el" href="transmit__dialog_8c_source.html#l00052">tx_win_t::status_label</a>, <a class="el" href="transmit__dialog_8c_source.html#l00040">tx_win_t::window</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00377">on_transmit()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00378">on_transmit()</a>.</p>
 
 </div>
 </div>
@@ -641,11 +936,11 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01483">1483</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main__window_8c_source.html#l01564">1564</a> of file <a class="el" href="main__window_8c_source.html">main_window.c</a>.</p>
 
-<p class="reference">References <a class="el" href="main__window_8c_source.html#l00110">gui_load_logo()</a>, <a class="el" href="version_8h_source.html#l00019">PCAN_VIEW_APP_NAME</a>, <a class="el" href="version_8h_source.html#l00034">PCAN_VIEW_COPYRIGHT</a>, <a class="el" href="version_8h_source.html#l00025">PCAN_VIEW_VENDOR</a>, and <a class="el" href="version_8h_source.html#l00022">PCAN_VIEW_VERSION</a>.</p>
+<p class="reference">References <a class="el" href="main__window_8c_source.html#l00111">gui_load_logo()</a>, <a class="el" href="version_8h_source.html#l00019">PCAN_VIEW_APP_NAME</a>, <a class="el" href="version_8h_source.html#l00034">PCAN_VIEW_COPYRIGHT</a>, <a class="el" href="version_8h_source.html#l00025">PCAN_VIEW_VENDOR</a>, and <a class="el" href="version_8h_source.html#l00022">PCAN_VIEW_VERSION</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00395">on_about()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="main__window_8c_source.html#l00443">on_about()</a>.</p>
 
 </div>
 </div>
@@ -691,9 +986,9 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00653">653</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="message__view_8c_source.html#l00656">656</a> of file <a class="el" href="message__view_8c_source.html">message_view.c</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, <a class="el" href="main__window_8c_source.html#l00322">on_trace_save()</a>, and <a class="el" href="main__window_8c_source.html#l00244">on_trace_start()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, <a class="el" href="main__window_8c_source.html#l00323">on_trace_save()</a>, and <a class="el" href="main__window_8c_source.html#l00245">on_trace_start()</a>.</p>
 
 </div>
 </div>
@@ -750,7 +1045,7 @@ Variables</h2></td></tr>
 
 <p class="reference">References <a class="el" href="app__state_8h_source.html#l00035">APP_ID_FORMAT_DEC</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, and <a class="el" href="app__state_8h_source.html#l00102">app_state_t::id_format</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, and <a class="el" href="message__view_8c_source.html#l00519">gui_refresh_trace_display()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, <a class="el" href="message__view_8c_source.html#l00522">gui_refresh_trace_display()</a>, and <a class="el" href="signal__view_8c_source.html#l00086">sig_table_rebuild()</a>.</p>
 
 </div>
 </div>
@@ -807,7 +1102,7 @@ Variables</h2></td></tr>
 
 <p class="reference">References <a class="el" href="app__state_8h_source.html#l00042">APP_DATA_FORMAT_ASCII</a>, <a class="el" href="app__state_8h_source.html#l00041">APP_DATA_FORMAT_DEC</a>, <a class="el" href="app__state_8h_source.html#l00103">app_state_t::data_format</a>, and <a class="el" href="threads_8c_source.html#l00037">g_app</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, and <a class="el" href="message__view_8c_source.html#l00519">gui_refresh_trace_display()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, and <a class="el" href="message__view_8c_source.html#l00522">gui_refresh_trace_display()</a>.</p>
 
 </div>
 </div>
@@ -840,7 +1135,7 @@ Variables</h2></td></tr>
 
 <p class="reference">References <a class="el" href="can__message_8h_source.html#l00049">can_msg_t::is_brs</a>, <a class="el" href="can__message_8h_source.html#l00047">can_msg_t::is_error</a>, <a class="el" href="can__message_8h_source.html#l00045">can_msg_t::is_extended</a>, <a class="el" href="can__message_8h_source.html#l00048">can_msg_t::is_fd</a>, and <a class="el" href="can__message_8h_source.html#l00046">can_msg_t::is_remote</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, and <a class="el" href="main__window_8c_source.html#l00285">trace_csv_write_row()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, and <a class="el" href="main__window_8c_source.html#l00286">trace_csv_write_row()</a>.</p>
 
 </div>
 </div>
@@ -879,7 +1174,7 @@ Variables</h2></td></tr>
 
 <p class="reference">References <a class="el" href="can__message_8h_source.html#l00032">CAN_BUS_OFF</a>, <a class="el" href="can__message_8h_source.html#l00031">CAN_BUS_PASSIVE</a>, and <a class="el" href="can__message_8h_source.html#l00030">CAN_BUS_WARNING</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00565">gui_update_stats()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00568">gui_update_stats()</a>.</p>
 
 </div>
 </div>
@@ -918,7 +1213,7 @@ Variables</h2></td></tr>
 
 <p class="reference">References <a class="el" href="can__message_8h_source.html#l00032">CAN_BUS_OFF</a>, <a class="el" href="can__message_8h_source.html#l00031">CAN_BUS_PASSIVE</a>, and <a class="el" href="can__message_8h_source.html#l00030">CAN_BUS_WARNING</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00565">gui_update_stats()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="message__view_8c_source.html#l00568">gui_update_stats()</a>.</p>
 
 </div>
 </div>
@@ -1053,7 +1348,7 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="threads_8c_source.html#l00274">274</a> of file <a class="el" href="threads_8c_source.html">threads.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00057">app_state_t::bit_timing</a>, <a class="el" href="app__state_8h_source.html#l00053">app_state_t::bitrate</a>, <a class="el" href="app__state_8h_source.html#l00065">app_state_t::bus_load</a>, <a class="el" href="app__state_8h_source.html#l00066">app_state_t::bus_state</a>, <a class="el" href="can__message_8h_source.html#l00029">CAN_BUS_ACTIVE</a>, <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="app__state_8h_source.html#l00054">app_state_t::data_bitrate</a>, <a class="el" href="drv__can_8c_source.html#l00155">drv_can_error_string()</a>, <a class="el" href="drv__can_8c_source.html#l00093">drv_can_get_socketcan()</a>, <a class="el" href="drv__can_8c_source.html#l00101">drv_can_init()</a>, <a class="el" href="drv__can_8h_source.html#l00023">DRV_CAN_OK</a>, <a class="el" href="app__state_8h_source.html#l00064">app_state_t::error_count</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00653">gui_show_error()</a>, <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>, <a class="el" href="main__window_8c_source.html#l01358">gui_tx_panel_update_fd()</a>, <a class="el" href="app__state_8h_source.html#l00052">app_state_t::iface</a>, <a class="el" href="app__state_8h_source.html#l00056">app_state_t::listen_only</a>, <a class="el" href="app__state_8h_source.html#l00067">app_state_t::msg_seq</a>, <a class="el" href="app__state_8h_source.html#l00068">app_state_t::period_bits</a>, <a class="el" href="app__state_8h_source.html#l00062">app_state_t::rx_count</a>, <a class="el" href="app__state_8h_source.html#l00076">app_state_t::rx_running</a>, <a class="el" href="app__state_8h_source.html#l00073">app_state_t::rx_thread</a>, <a class="el" href="app__state_8h_source.html#l00078">app_state_t::stats_running</a>, <a class="el" href="app__state_8h_source.html#l00075">app_state_t::stats_thread</a>, <a class="el" href="threads_8c_source.html#l00163">thread_rx()</a>, <a class="el" href="threads_8c_source.html#l00240">thread_stats()</a>, <a class="el" href="threads_8c_source.html#l00204">thread_tx()</a>, <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::toolbar_connect</a>, <a class="el" href="gui_8h_source.html#l00055">gui_widgets_t::toolbar_disconnect</a>, <a class="el" href="app__state_8h_source.html#l00063">app_state_t::tx_count</a>, <a class="el" href="app__state_8h_source.html#l00077">app_state_t::tx_running</a>, <a class="el" href="app__state_8h_source.html#l00074">app_state_t::tx_thread</a>, and <a class="el" href="gui_8h_source.html#l00053">gui_widgets_t::window</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00057">app_state_t::bit_timing</a>, <a class="el" href="app__state_8h_source.html#l00053">app_state_t::bitrate</a>, <a class="el" href="app__state_8h_source.html#l00065">app_state_t::bus_load</a>, <a class="el" href="app__state_8h_source.html#l00066">app_state_t::bus_state</a>, <a class="el" href="can__message_8h_source.html#l00029">CAN_BUS_ACTIVE</a>, <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="app__state_8h_source.html#l00054">app_state_t::data_bitrate</a>, <a class="el" href="drv__can_8c_source.html#l00155">drv_can_error_string()</a>, <a class="el" href="drv__can_8c_source.html#l00093">drv_can_get_socketcan()</a>, <a class="el" href="drv__can_8c_source.html#l00101">drv_can_init()</a>, <a class="el" href="drv__can_8h_source.html#l00023">DRV_CAN_OK</a>, <a class="el" href="app__state_8h_source.html#l00064">app_state_t::error_count</a>, <a class="el" href="app__state_8h_source.html#l00055">app_state_t::fd_mode</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00656">gui_show_error()</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="main__window_8c_source.html#l01421">gui_tx_panel_update_fd()</a>, <a class="el" href="app__state_8h_source.html#l00052">app_state_t::iface</a>, <a class="el" href="app__state_8h_source.html#l00056">app_state_t::listen_only</a>, <a class="el" href="app__state_8h_source.html#l00067">app_state_t::msg_seq</a>, <a class="el" href="app__state_8h_source.html#l00068">app_state_t::period_bits</a>, <a class="el" href="app__state_8h_source.html#l00062">app_state_t::rx_count</a>, <a class="el" href="app__state_8h_source.html#l00076">app_state_t::rx_running</a>, <a class="el" href="app__state_8h_source.html#l00073">app_state_t::rx_thread</a>, <a class="el" href="app__state_8h_source.html#l00078">app_state_t::stats_running</a>, <a class="el" href="app__state_8h_source.html#l00075">app_state_t::stats_thread</a>, <a class="el" href="threads_8c_source.html#l00163">thread_rx()</a>, <a class="el" href="threads_8c_source.html#l00240">thread_stats()</a>, <a class="el" href="threads_8c_source.html#l00204">thread_tx()</a>, <a class="el" href="gui_8h_source.html#l00055">gui_widgets_t::toolbar_connect</a>, <a class="el" href="gui_8h_source.html#l00056">gui_widgets_t::toolbar_disconnect</a>, <a class="el" href="app__state_8h_source.html#l00063">app_state_t::tx_count</a>, <a class="el" href="app__state_8h_source.html#l00077">app_state_t::tx_running</a>, <a class="el" href="app__state_8h_source.html#l00074">app_state_t::tx_thread</a>, and <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::window</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="settings__dialog_8c_source.html#l00117">gui_show_settings_dialog()</a>.</p>
 
@@ -1079,9 +1374,9 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="threads_8c_source.html#l00337">337</a> of file <a class="el" href="threads_8c_source.html">threads.c</a>.</p>
 
-<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="drv__can_8c_source.html#l00111">drv_can_deinit()</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>, <a class="el" href="message__view_8c_source.html#l00565">gui_update_stats()</a>, <a class="el" href="app__state_8h_source.html#l00052">app_state_t::iface</a>, <a class="el" href="app__state_8h_source.html#l00076">app_state_t::rx_running</a>, <a class="el" href="app__state_8h_source.html#l00073">app_state_t::rx_thread</a>, <a class="el" href="app__state_8h_source.html#l00079">app_state_t::shutting_down</a>, <a class="el" href="app__state_8h_source.html#l00078">app_state_t::stats_running</a>, <a class="el" href="app__state_8h_source.html#l00075">app_state_t::stats_thread</a>, <a class="el" href="gui_8h_source.html#l00054">gui_widgets_t::toolbar_connect</a>, <a class="el" href="gui_8h_source.html#l00055">gui_widgets_t::toolbar_disconnect</a>, <a class="el" href="gui_8h_source.html#l00057">gui_widgets_t::toolbar_trace_start</a>, <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_stop</a>, <a class="el" href="app__state_8h_source.html#l00090">app_state_t::tracing</a>, <a class="el" href="app__state_8h_source.html#l00077">app_state_t::tx_running</a>, and <a class="el" href="app__state_8h_source.html#l00074">app_state_t::tx_thread</a>.</p>
+<p class="reference">References <a class="el" href="app__state_8h_source.html#l00051">app_state_t::connected</a>, <a class="el" href="drv__can_8c_source.html#l00111">drv_can_deinit()</a>, <a class="el" href="threads_8c_source.html#l00037">g_app</a>, <a class="el" href="threads_8c_source.html#l00038">g_gui</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="message__view_8c_source.html#l00568">gui_update_stats()</a>, <a class="el" href="app__state_8h_source.html#l00052">app_state_t::iface</a>, <a class="el" href="app__state_8h_source.html#l00076">app_state_t::rx_running</a>, <a class="el" href="app__state_8h_source.html#l00073">app_state_t::rx_thread</a>, <a class="el" href="app__state_8h_source.html#l00079">app_state_t::shutting_down</a>, <a class="el" href="app__state_8h_source.html#l00078">app_state_t::stats_running</a>, <a class="el" href="app__state_8h_source.html#l00075">app_state_t::stats_thread</a>, <a class="el" href="gui_8h_source.html#l00055">gui_widgets_t::toolbar_connect</a>, <a class="el" href="gui_8h_source.html#l00056">gui_widgets_t::toolbar_disconnect</a>, <a class="el" href="gui_8h_source.html#l00058">gui_widgets_t::toolbar_trace_start</a>, <a class="el" href="gui_8h_source.html#l00059">gui_widgets_t::toolbar_trace_stop</a>, <a class="el" href="app__state_8h_source.html#l00090">app_state_t::tracing</a>, <a class="el" href="app__state_8h_source.html#l00077">app_state_t::tx_running</a>, and <a class="el" href="app__state_8h_source.html#l00074">app_state_t::tx_thread</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00061">app_state_cleanup()</a>, <a class="el" href="settings__dialog_8c_source.html#l00117">gui_show_settings_dialog()</a>, <a class="el" href="main__window_8c_source.html#l00221">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00404">on_quit()</a>, and <a class="el" href="main__window_8c_source.html#l00200">on_window_delete()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00061">app_state_cleanup()</a>, <a class="el" href="settings__dialog_8c_source.html#l00117">gui_show_settings_dialog()</a>, <a class="el" href="main__window_8c_source.html#l00222">on_disconnect()</a>, <a class="el" href="main__window_8c_source.html#l00452">on_quit()</a>, and <a class="el" href="main__window_8c_source.html#l00201">on_window_delete()</a>.</p>
 
 </div>
 </div>
@@ -1113,7 +1408,7 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="threads_8c_source.html#l00038">38</a> of file <a class="el" href="threads_8c_source.html">threads.c</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="threads_8c_source.html#l00044">app_state_init()</a>, <a class="el" href="main__window_8c_source.html#l00514">build_stats_bar()</a>, <a class="el" href="main__window_8c_source.html#l00708">build_toolbar()</a>, <a class="el" href="message__view_8c_source.html#l00318">create_stats_panel()</a>, <a class="el" href="message__view_8c_source.html#l00242">create_trace_view()</a>, <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, <a class="el" href="message__view_8c_source.html#l00513">gui_clear_trace()</a>, <a class="el" href="main__window_8c_source.html#l01379">gui_create_main_window()</a>, <a class="el" href="message__view_8c_source.html#l00519">gui_refresh_trace_display()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00284">gui_show_transmit_window()</a>, <a class="el" href="message__view_8c_source.html#l00635">gui_status_message()</a>, <a class="el" href="message__view_8c_source.html#l00565">gui_update_stats()</a>, <a class="el" href="threads_8c_source.html#l00101">idle_add_message()</a>, <a class="el" href="threads_8c_source.html#l00115">idle_update_stats()</a>, <a class="el" href="main__window_8c_source.html#l00395">on_about()</a>, <a class="el" href="main__window_8c_source.html#l00212">on_connect()</a>, <a class="el" href="main__window_8c_source.html#l00404">on_quit()</a>, <a class="el" href="main__window_8c_source.html#l00386">on_settings()</a>, <a class="el" href="main__window_8c_source.html#l00322">on_trace_save()</a>, <a class="el" href="main__window_8c_source.html#l00244">on_trace_start()</a>, and <a class="el" href="main__window_8c_source.html#l00267">on_trace_stop()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="threads_8c_source.html#l00274">app_do_connect()</a>, <a class="el" href="threads_8c_source.html#l00337">app_do_disconnect()</a>, <a class="el" href="threads_8c_source.html#l00044">app_state_init()</a>, <a class="el" href="main__window_8c_source.html#l00562">build_stats_bar()</a>, <a class="el" href="main__window_8c_source.html#l00771">build_toolbar()</a>, <a class="el" href="message__view_8c_source.html#l00318">create_stats_panel()</a>, <a class="el" href="message__view_8c_source.html#l00242">create_trace_view()</a>, <a class="el" href="message__view_8c_source.html#l00383">gui_add_message()</a>, <a class="el" href="message__view_8c_source.html#l00516">gui_clear_trace()</a>, <a class="el" href="main__window_8c_source.html#l01442">gui_create_main_window()</a>, <a class="el" href="signal__view_8c_source.html#l00312">gui_create_signal_view()</a>, <a class="el" href="message__view_8c_source.html#l00522">gui_refresh_trace_display()</a>, <a class="el" href="transmit__dialog_8c_source.html#l00284">gui_show_transmit_window()</a>, <a class="el" href="signal__view_8c_source.html#l00201">gui_signal_decode_message()</a>, <a class="el" href="message__view_8c_source.html#l00638">gui_status_message()</a>, <a class="el" href="message__view_8c_source.html#l00568">gui_update_stats()</a>, <a class="el" href="threads_8c_source.html#l00101">idle_add_message()</a>, <a class="el" href="threads_8c_source.html#l00115">idle_update_stats()</a>, <a class="el" href="main__window_8c_source.html#l00443">on_about()</a>, <a class="el" href="main__window_8c_source.html#l00213">on_connect()</a>, <a class="el" href="main__window_8c_source.html#l00396">on_db_load()</a>, <a class="el" href="signal__view_8c_source.html#l00257">on_load_dbc()</a>, <a class="el" href="main__window_8c_source.html#l00452">on_quit()</a>, <a class="el" href="main__window_8c_source.html#l00387">on_settings()</a>, <a class="el" href="main__window_8c_source.html#l00323">on_trace_save()</a>, <a class="el" href="main__window_8c_source.html#l00245">on_trace_start()</a>, <a class="el" href="main__window_8c_source.html#l00268">on_trace_stop()</a>, <a class="el" href="signal__view_8c_source.html#l00086">sig_table_rebuild()</a>, and <a class="el" href="signal__view_8c_source.html#l00134">sig_update_dbc_label()</a>.</p>
 
 </div>
 </div>

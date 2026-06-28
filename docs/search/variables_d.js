@@ -1,23 +1,12 @@
 var searchData=
 [
-  ['timestamp_0',['timestamp',['../structcan__msg__t.html#a616ee9449da2ed577020606cd67d4b15',1,'can_msg_t']]],
-  ['timing_1',['timing',['../structsocketcan__ctx__t.html#ab57a0d4b61164cadd6690211563ffff3',1,'socketcan_ctx_t']]],
-  ['toolbar_5fclear_2',['toolbar_clear',['../structgui__widgets__t.html#a32ec6778744950601db4a28bf6db970a',1,'gui_widgets_t']]],
-  ['toolbar_5fconnect_3',['toolbar_connect',['../structgui__widgets__t.html#ad1aa0c5a6e7c5232ff952cf3783dcf38',1,'gui_widgets_t']]],
-  ['toolbar_5fdisconnect_4',['toolbar_disconnect',['../structgui__widgets__t.html#ace73dc89f15637116596bb5e3612c58d',1,'gui_widgets_t']]],
-  ['toolbar_5ftrace_5fstart_5',['toolbar_trace_start',['../structgui__widgets__t.html#a5f38c0dbaf48123a6ada65be95c7e95d',1,'gui_widgets_t']]],
-  ['toolbar_5ftrace_5fstop_6',['toolbar_trace_stop',['../structgui__widgets__t.html#a239993dac40979c689de0d517945acf5',1,'gui_widgets_t']]],
-  ['trace_5fbuf_7',['trace_buf',['../structapp__state__t.html#aaee3f2027bee3f66da48a60974fef14a',1,'app_state_t']]],
-  ['trace_5fcap_8',['trace_cap',['../structapp__state__t.html#a60683c16fa028576fa1c256adda4aeab',1,'app_state_t']]],
-  ['trace_5ffile_9',['trace_file',['../structapp__state__t.html#a007e5b17e41b4cea723f65a4cda68cd0',1,'app_state_t']]],
-  ['trace_5ffilename_10',['trace_filename',['../structapp__state__t.html#a62fb660758ad296886681bd4edb9ade8',1,'app_state_t']]],
-  ['trace_5flen_11',['trace_len',['../structapp__state__t.html#a0428f5c54653143a8e9d1038f002d88f',1,'app_state_t']]],
-  ['trace_5fmutex_12',['trace_mutex',['../structapp__state__t.html#a2c4db3a1be7bc333c47367ceab656419',1,'app_state_t']]],
-  ['trace_5fstore_13',['trace_store',['../structgui__widgets__t.html#affe32cb3476f5b8f059a0bf6b2088c66',1,'gui_widgets_t']]],
-  ['trace_5fview_14',['trace_view',['../structgui__widgets__t.html#ad2883383bd59f934b8c5d6cf220ee2d7',1,'gui_widgets_t']]],
-  ['tracing_15',['tracing',['../structapp__state__t.html#ac78f0a81e4af33c5fc1e18862b66a2d3',1,'app_state_t']]],
-  ['tx_5fcount_16',['tx_count',['../structapp__state__t.html#a6616fa5622712336ec2a1739c2bc4d53',1,'app_state_t::tx_count'],['../structcan__stats__t.html#af3e63fdcba8c1b021ca7b92e4602a12f',1,'can_stats_t::tx_count']]],
-  ['tx_5fqueue_17',['tx_queue',['../structapp__state__t.html#a9dc3e81b58da69b5ee4286b2999d6e2c',1,'app_state_t']]],
-  ['tx_5frunning_18',['tx_running',['../structapp__state__t.html#a671bd219dc7451676c00b9878ad2a458',1,'app_state_t']]],
-  ['tx_5fthread_19',['tx_thread',['../structapp__state__t.html#a0052892765842cd49ce05ebecafb3c49',1,'app_state_t']]]
+  ['palette_0',['PALETTE',['../signal__plot_8c.html#ac837db61663c9c724a8ccd8406fa53cc',1,'signal_plot.c']]],
+  ['path_1',['path',['../structdbc__db__t.html#aac7fdd1f5b5418ef50770fff4189ecf6',1,'dbc_db_t']]],
+  ['paused_2',['paused',['../signal__plot_8c.html#ace47c2ce612b6ad62921b62662b9aaad',1,'signal_plot.c']]],
+  ['period_5fbits_3',['period_bits',['../structapp__state__t.html#aff7d0a8b6417e4f40426e96f3ae897d2',1,'app_state_t']]],
+  ['phase_5fseg1_4',['phase_seg1',['../structcan__bit__timing__t.html#a5b4b635dddfc29e0c8e866f3354f5cff',1,'can_bit_timing_t']]],
+  ['phase_5fseg2_5',['phase_seg2',['../structcan__bit__timing__t.html#a44d936cdd89bee855adf1ca968810925',1,'can_bit_timing_t']]],
+  ['placeholder_6',['placeholder',['../main__window_8c.html#a58861202ad73895638c74ab40e4d7141',1,'main_window.c']]],
+  ['progress_5fbus_5fload_7',['progress_bus_load',['../structgui__widgets__t.html#a2ac208b013a2c2d79e8f1f961433212d',1,'gui_widgets_t']]],
+  ['prop_5fseg_8',['prop_seg',['../structcan__bit__timing__t.html#aa272047cdf3c24a418af47ac2f11fdc8',1,'can_bit_timing_t']]]
 ];

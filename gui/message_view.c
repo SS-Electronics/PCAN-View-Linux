@@ -384,6 +384,9 @@ void gui_add_message(const can_msg_t *msg)
 {
     if (!g_gui.trace_store) return;
 
+    /* Feed the Signal Analysis tab (decodes against the loaded DBC, if any). */
+    gui_signal_decode_message(msg);
+
     /* RX rows roll up by CAN ID; optional dedup mode applies the same to TX. */
     if (should_rollup_message(msg)) {
         GtkTreeIter iter;

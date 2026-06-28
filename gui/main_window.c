@@ -21,9 +21,10 @@
  *      ├─ GtkMenuBar
  *      ├─ statistics bar  (GtkBox)
  *      ├─ GtkToolbar
- *      ├─ GtkPaned (vertical)
- *      │  ├─ trace view   (scrolled GtkTreeView)
- *      │  └─ transmit panel (scrolled GtkGrid + per-row GtkFlowBox)
+ *      ├─ GtkNotebook
+ *      │  ├─ "Receive / Transmit" page     (GtkPaned: trace + transmit panel)
+ *      │  ├─ "Signal Analysis" page        (DBC-decoded signal table)
+ *      │  └─ "Signal Analysis Viewer" page (multi-signal time graph)
  *      ├─ GtkStatusbar
  *      └─ footer  (Taksys logo + credits)
  * @endverbatim
@@ -62,7 +63,7 @@ extern GtkWidget *create_trace_view(void);
  * @param name  Asset filename (e.g. "taksys_logo.png").
  * @return Static path string valid until the next call, or NULL if not found.
  */
-static const char *find_asset_path(const char *name)
+const char *gui_find_asset(const char *name)
 {
     static char buf[1024];
 
@@ -109,7 +110,7 @@ static const char *find_asset_path(const char *name)
  */
 static GdkPixbuf *gui_load_logo(int size)
 {
-    const char *p = find_asset_path("taksys_logo.png");
+    const char *p = gui_find_asset("taksys_logo.png");
     if (!p) return NULL;
     GError *err = NULL;
     GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_scale(p, size, size, TRUE, &err);
@@ -387,6 +388,53 @@ static void on_settings(GtkWidget *w, gpointer d)
 {
     (void)w; (void)d;
     gui_show_settings_dialog(g_gui.window);
+}
+
+/**
+ * @brief Database > Load — choose and load a DBC for signal analysis.
+ */
+static void on_db_load(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+    GtkWidget *dlg = gtk_file_chooser_dialog_new(
+        "Load CAN Database (DBC)",
+        GTK_WINDOW(g_gui.window),
+        GTK_FILE_CHOOSER_ACTION_OPEN,
+        "_Cancel", GTK_RESPONSE_CANCEL,
+        "_Open",   GTK_RESPONSE_ACCEPT,
+        NULL);
+
+    GtkFileFilter *ff = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(ff, "*.dbc");
+    gtk_file_filter_set_name(ff, "CAN database (*.dbc)");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), ff);
+
+    if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
+        char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+        if (fn) {
+            gui_signal_load_dbc(fn);
+            g_free(fn);
+        }
+    }
+    gtk_widget_destroy(dlg);
+}
+
+/**
+ * @brief Database > Load Demo — load the bundled demo database.
+ */
+static void on_db_demo(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+    gui_signal_load_default_dbc();
+}
+
+/**
+ * @brief Database > Clear — unload the active database.
+ */
+static void on_db_clear(GtkWidget *w, gpointer d)
+{
+    (void)w; (void)d;
+    gui_signal_clear_dbc();
 }
 
 /**
@@ -669,6 +717,21 @@ static GtkWidget *build_menubar(void)
     GtkWidget *view_item = gtk_menu_item_new_with_mnemonic("_View");
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(bar), view_item);
+
+    /* --- Database (DBC signal analysis) --- */
+    GtkWidget *db_menu = gtk_menu_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(db_menu),
+        menu_item("_Load DBC…",     G_CALLBACK(on_db_load),  NULL));
+    gtk_menu_shell_append(GTK_MENU_SHELL(db_menu),
+        menu_item("Load _Demo DBC", G_CALLBACK(on_db_demo),  NULL));
+    gtk_menu_shell_append(GTK_MENU_SHELL(db_menu),
+        gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(db_menu),
+        menu_item("_Clear Database", G_CALLBACK(on_db_clear), NULL));
+
+    GtkWidget *db_item = gtk_menu_item_new_with_mnemonic("_Database");
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(db_item), db_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(bar), db_item);
 
     /* --- Help --- */
     GtkWidget *help_menu = gtk_menu_new();
@@ -1420,15 +1483,29 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
                        gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),
                        FALSE, FALSE, 0);
 
-    /* Paned: receive trace on top, transmit rows on bottom */
-    GtkWidget *paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
-    gtk_box_pack_start(GTK_BOX(vbox), paned, TRUE, TRUE, 0);
+    /* Main content: a notebook with the live Receive/Transmit page and the
+     * Signal Analysis page (DBC-decoded individual signals, CANalyzer-style). */
+    GtkWidget *notebook = gtk_notebook_new();
+    gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
 
+    /* Page 1 — Receive / Transmit (trace on top, transmit rows below). */
+    GtkWidget *paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     GtkWidget *trace_scroll = create_trace_view();
     gtk_paned_pack1(GTK_PANED(paned), trace_scroll, TRUE, TRUE);
-
     GtkWidget *tx_panel = create_transmit_panel();
     gtk_paned_pack2(GTK_PANED(paned), tx_panel, TRUE, TRUE);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), paned,
+                             gtk_label_new("Receive / Transmit"));
+
+    /* Page 2 — Signal Analysis. */
+    GtkWidget *sig_page = gui_create_signal_view();
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), sig_page,
+                             gtk_label_new("Signal Analysis"));
+
+    /* Page 3 — Signal Analysis Viewer (multi-signal graph over time). */
+    GtkWidget *plot_page = gui_create_signal_plot();
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), plot_page,
+                             gtk_label_new("Signal Analysis Viewer"));
 
     /* Status bar */
     g_gui.statusbar    = gtk_statusbar_new();
@@ -1473,6 +1550,10 @@ GtkWidget *gui_create_main_window(GtkApplication *app)
 
     gtk_widget_show_all(window);
     gui_update_stats();
+
+    /* Auto-load the bundled demo database so the Signal Analysis tab is
+     * populated out of the box (no-op if the asset is missing). */
+    gui_signal_load_default_dbc();
     return window;
 }
 

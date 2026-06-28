@@ -97,6 +97,21 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="textblock"><p><a class="anchor" id="md_README"></a> An open-source CAN bus monitor and analyser for Linux by <b>Taksys</b>, inspired by <a href="https://www.peak-system.com/products/software/analysis-software/pcan-view/">PEAK-System PCAN-View</a>. Uses the Linux <b>SocketCAN</b> subsystem (<code>PF_CAN / SOCK_RAW</code>) and provides a <b>GTK 3</b> GUI with a live statistics bar, real-time message tracing, classic CAN and CAN FD transmission, bus-load metering, and CSV trace export.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md2"></a>
+Screenshots</h1>
+<p><b>Main window</b> — live receive trace with roll-up counts, the statistics bar below the menu, and the inline transmit panel:</p>
+<p><img src="assets/screenshots/main-window.png" alt="PCAN-View Linux main window" class="inline"/></p>
+<p><b>CAN FD transmit</b> — when CAN FD is enabled, a transmit row's DLC grows to 64 and the data-byte fields are added/removed dynamically, wrapping to fit:</p>
+<p><img src="assets/screenshots/canfd-transmit.png" alt="CAN FD transmit with 64 data bytes" class="inline"/></p>
+<p><b>Signal Analysis</b> — individual signals decoded live from a DBC database (physical values, units, ranges), CANalyzer-style:</p>
+<p><img src="assets/screenshots/signal-analysis.png" alt="Signal Analysis tab decoding a DBC database" class="inline"/></p>
+<table class="doxtable">
+<tr>
+<td width="58%"><b>Connection settings</b><br  />
+ <img src="assets/screenshots/connection-settings.png" alt="Connection settings dialog" class="inline"/>  </td><td width="42%"><b>About</b><br  />
+ <img src="assets/screenshots/about-dialog.png" alt="About dialog (Taksys)" class="inline"/>   </td></tr>
+</table>
+<hr  />
+<h1><a class="anchor" id="autotoc_md4"></a>
 Features</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -114,32 +129,40 @@ Features</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><b>Real-time trace</b>   </td><td class="markdownTableBodyNone">Sequence #, direction, timestamp, ID, type, DLC, data    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>Signal Analysis</b>   </td><td class="markdownTableBodyNone">CANalyzer-style tab that decodes individual signals from a <b>DBC database</b> (Intel/Motorola byte order, factor/offset, signed) and updates raw + physical values live; bundled <b>demo database</b> auto-loads    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><b>Message deduplication</b>   </td><td class="markdownTableBodyNone">Unique-ID view that shows latest value + hit count    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><b>Bus load</b>   </td><td class="markdownTableBodyNone">Live bar updated every 500 ms    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><b>Error frames</b>   </td><td class="markdownTableBodyNone">Highlighted in red with CAN error flags decoded    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><b>Message transmit</b>   </td><td class="markdownTableBodyNone">One-shot and cyclic (configurable interval)    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><b>CAN FD transmit</b>   </td><td class="markdownTableBodyNone">Per-row DLC up to <b>64 bytes</b>; data-byte fields are added/removed dynamically with the DLC and wrap to fit the window    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><b>Trace menu</b>   </td><td class="markdownTableBodyNone"><code>Trace &gt; Start / Stop / Save as CSV</code> — capture frames in memory, then export    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><b>Trace CSV</b>   </td><td class="markdownTableBodyNone"><code>seq, timestamp, direction, id, type, dlc, data</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><b>No-sudo vcan</b>   </td><td class="markdownTableBodyNone">Missing vcan/CAN interfaces are created and brought up automatically via a graphical (pkexec) prompt — no terminal <code>sudo</code>    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><b>Multithreading</b>   </td><td class="markdownTableBodyNone">Separate threads for RX, TX, and statistics    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><b>Virtual CAN</b>   </td><td class="markdownTableBodyNone">Works with <code>vcan0</code> for off-hardware testing    </td></tr>
+<td class="markdownTableBodyNone"><b>Multithreading</b>   </td><td class="markdownTableBodyNone">Separate threads for RX, TX, and statistics    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>Virtual CAN</b>   </td><td class="markdownTableBodyNone">Works with <code>vcan0</code> for off-hardware testing    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><b>Desktop integration</b>   </td><td class="markdownTableBodyNone"><code>make install</code> adds a launcher and Taksys icon to the application menu   </td></tr>
 </table>
 <hr  />
-<h1><a class="anchor" id="autotoc_md4"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
 Release Notes</h1>
-<h2><a class="anchor" id="autotoc_md5"></a>
+<h2><a class="anchor" id="autotoc_md7"></a>
+Unreleased</h2>
+<ul>
+<li><b>Signal Analysis tab</b> — a new Vector-CANalyzer-style page (alongside <em>Receive / Transmit</em>) that decodes individual signals from a loaded <b>DBC database</b>. Each signal shows its message, ID, raw value, scaled physical value, unit, and documented range, updating live as frames arrive. Supports Intel (little-endian) and Motorola (big-endian) bit layouts, <code>factor</code>/<code>offset</code> scaling, and signed signals — including extended-ID and CAN FD frames.</li>
+<li><b>Database menu</b> — <code>Load DBC…</code>, <code>Load Demo DBC</code>, and <code>Clear Database</code>; the bundled **<code>demo.dbc</code>** auto-loads at startup so the tab is populated out of the box.</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md8"></a>
 v1.1.0 — Taksys customer release</h2>
 <ul>
 <li><b>Statistics bar</b> moved to a permanent, always-visible bar directly below the menu bar (interface, bitrate, bus load, Rx/Tx/Err counts, bus state).</li>
@@ -150,7 +173,7 @@ v1.1.0 — Taksys customer release</h2>
 <li>Bug fixes carried forward: the connect dialog stays reachable after a connect/disconnect cycle, and closing the window while connected exits cleanly (no hang/crash).</li>
 </ul>
 <hr  />
-<h1><a class="anchor" id="autotoc_md7"></a>
+<h1><a class="anchor" id="autotoc_md10"></a>
 Project Structure</h1>
 <div class="fragment"><div class="line">PCAN-View-Linux/</div>
 <div class="line">├── main.c                     Entry point (GTK application init)</div>
@@ -160,19 +183,23 @@ Project Structure</h1>
 <div class="line">│   ├── drv_can.h              Generic driver abstraction (vtable)</div>
 <div class="line">│   ├── socketcan.h            SocketCAN back-end interface</div>
 <div class="line">│   ├── app_state.h            Global application state</div>
+<div class="line">│   ├── dbc.h                  CAN database (DBC) model / decoder API</div>
 <div class="line">│   └── gui.h                  GUI widget bundle + declarations</div>
 <div class="line">├── driver/</div>
 <div class="line">│   ├── drv_can.c              Generic driver wrapper</div>
-<div class="line">│   └── socketcan.c            SocketCAN implementation (PF_CAN)</div>
+<div class="line">│   ├── socketcan.c            SocketCAN implementation (PF_CAN)</div>
+<div class="line">│   └── dbc.c                  DBC parser + signal-bit decoder</div>
 <div class="line">├── gui/</div>
 <div class="line">│   ├── threads.c              RX / TX / stats threads + connect logic</div>
-<div class="line">│   ├── main_window.c          Main GTK window (menu, toolbar, layout)</div>
+<div class="line">│   ├── main_window.c          Main GTK window (menu, toolbar, notebook)</div>
 <div class="line">│   ├── message_view.c         Trace GtkTreeView + statistics panel</div>
+<div class="line">│   ├── signal_view.c          Signal Analysis tab (live DBC decode)</div>
 <div class="line">│   ├── settings_dialog.c      Connection settings dialog</div>
 <div class="line">│   └── transmit_dialog.c      Message transmit window</div>
 <div class="line">├── assets/</div>
 <div class="line">│   ├── taksys_logo.png        Taksys brand logo (about dialog + footer)</div>
 <div class="line">│   ├── pcan-view.png          256×256 application icon</div>
+<div class="line">│   ├── demo.dbc              Bundled demo CAN database (Signal Analysis)</div>
 <div class="line">│   └── pcan-view.desktop      Desktop launcher entry</div>
 <div class="line">├── debian/                    Debian/Ubuntu packaging (control, rules, …)</div>
 <div class="line">├── .github/workflows/         CI/CD: build/test, docs, .deb + PPA release</div>
@@ -181,7 +208,7 @@ Project Structure</h1>
 <div class="line">    ├── install_dependencies.sh  Dependency installer (Debian/Ubuntu/Arch/Fedora)</div>
 <div class="line">    └── test_without_pcan.py     Local vcan smoke-test helper</div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md9"></a>
+<h1><a class="anchor" id="autotoc_md12"></a>
 Driver Architecture</h1>
 <div class="fragment"><div class="line">Application (GUI layer)</div>
 <div class="line">        │</div>
@@ -199,7 +226,7 @@ Driver Architecture</h1>
 <div class="line">  (vcan / peak_usb / peak_pci / slcan / …)</div>
 </div><!-- fragment --><p>Adding a new back-end (e.g. PCAN-Basic chardev API) only requires implementing the <code>can_driver_t</code> function-pointer table and passing it to <code><a class="el" href="drv__can_8h.html#a062a29edbcd6c7a1c622f3e7db477e1f" title="Select a driver and open/configure a CAN interface.">drv_can_init()</a></code>.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md11"></a>
+<h1><a class="anchor" id="autotoc_md14"></a>
 Threading Model</h1>
 <div class="fragment"><div class="line">┌─────────────┐   g_idle_add   ┌─────────────┐</div>
 <div class="line">│  rx_thread  │ ─────────────► │ GTK main    │</div>
@@ -218,9 +245,9 @@ Threading Model</h1>
 <div class="line">└─────────────┘</div>
 </div><!-- fragment --><p>All GTK widget updates happen exclusively in the GTK main thread via <code>gdk_threads_add_idle()</code>.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md13"></a>
+<h1><a class="anchor" id="autotoc_md16"></a>
 Prerequisites</h1>
-<h2><a class="anchor" id="autotoc_md14"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 Dependencies</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -238,14 +265,14 @@ Dependencies</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>linux-headers</code>   </td><td class="markdownTableBodyNone">SocketCAN header files (<code>linux/can.h</code>)   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Kernel modules</h2>
 <div class="fragment"><div class="line">modprobe can</div>
 <div class="line">modprobe can_raw</div>
 <div class="line">modprobe vcan        # for virtual CAN testing</div>
 <div class="line">modprobe peak_usb    # for PEAK-System USB hardware</div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md17"></a>
+<h1><a class="anchor" id="autotoc_md20"></a>
 Install (recommended)</h1>
 <p>A single command installs the build/runtime dependencies, compiles the application, and installs it as a desktop app (launcher + Taksys icon in the application menu):</p>
 <div class="fragment"><div class="line">sudo make install</div>
@@ -269,7 +296,7 @@ Install (recommended)</h1>
 <td class="markdownTableBodyNone"><code>make</code>   </td><td class="markdownTableBodyNone">Build into <code>./build/pcan-view</code> without installing   </td></tr>
 </table>
 <p>Override the install location with <code>PREFIX=</code> / <code>DESTDIR=</code>, e.g. <code>sudo make install PREFIX=/usr</code>.</p>
-<h2><a class="anchor" id="autotoc_md18"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 Install from a &lt;tt&gt;.deb&lt;/tt&gt; package</h2>
 <p>A Debian/Ubuntu package can be built from the bundled <code>debian/</code> packaging and installed with <code>apt</code> (which resolves the GTK runtime dependencies):</p>
 <div class="fragment"><div class="line">sudo apt-get install -y devscripts debhelper build-essential pkgconf \</div>
@@ -277,7 +304,7 @@ Install from a &lt;tt&gt;.deb&lt;/tt&gt; package</h2>
 <div class="line">dpkg-buildpackage -us -uc -b          # produces ../pcan-view_&lt;version&gt;_&lt;arch&gt;.deb</div>
 <div class="line">sudo apt-get install -y ../pcan-view_*.deb</div>
 </div><!-- fragment --><p>Remove it again with <code>sudo apt-get purge -y pcan-view</code>.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
 Install from the Ubuntu PPA</h2>
 <p>Released versions are published to a Launchpad PPA. Once the PPA is added, the package installs and updates like any other:</p>
 <div class="fragment"><div class="line">sudo add-apt-repository ppa:subhajitroy/pcan-view</div>
@@ -286,18 +313,18 @@ Install from the Ubuntu PPA</h2>
 </div><!-- fragment --><blockquote class="doxtable">
 <p>&zwj;The CI pipeline (<code>.github/workflows/ppa.yml</code>) builds the signed source package per Ubuntu series and uploads it to the PPA on each version tag. </p>
 </blockquote>
-<h1><a class="anchor" id="autotoc_md20"></a>
+<h1><a class="anchor" id="autotoc_md23"></a>
 &lt;/blockquote&gt;</h1>
-<h1><a class="anchor" id="autotoc_md21"></a>
+<h1><a class="anchor" id="autotoc_md24"></a>
 Build &amp; Run (from source)</h1>
-<h2><a class="anchor" id="autotoc_md22"></a>
+<h2><a class="anchor" id="autotoc_md25"></a>
 1. Install dependencies</h2>
 <div class="fragment"><div class="line">sudo ./scripts/install_dependencies.sh</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md23"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md26"></a>
 2. Build</h2>
 <div class="fragment"><div class="line">make              # optimised release</div>
 <div class="line">make DEBUG=1      # debug build with -g -O0</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md24"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md27"></a>
 3. Run</h2>
 <div class="fragment"><div class="line"># With a virtual CAN interface (no hardware needed).</div>
 <div class="line"># The app can create/bring up vcan0 itself (graphical auth prompt), or set it up</div>
@@ -308,14 +335,14 @@ Build &amp; Run (from source)</h1>
 <div class="line"> </div>
 <div class="line">./build/pcan-view</div>
 <div class="line"># → File &gt; Connect (or F5) → select vcan0, 500 kbit/s → Connect</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md25"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md28"></a>
 4. Send a test frame (another terminal)</h2>
 <div class="fragment"><div class="line">cansend vcan0 123#DEADBEEF</div>
 <div class="line">cansend vcan0 18FF50E5#0102030405060708    # extended frame</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md26"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md29"></a>
 5. Virtual CAN test workflow</h2>
 <p>For a complete no-hardware test flow, see the <b>Virtual CAN Testing</b> section below.</p>
-<h2><a class="anchor" id="autotoc_md27"></a>
+<h2><a class="anchor" id="autotoc_md30"></a>
 6. Run with real PEAK hardware</h2>
 <p>PEAK-System USB/PCIe interfaces are supported out-of-the-box via the <code>peak_usb</code> / <code>peak_pci</code> kernel module (Linux ≥ 3.2).</p>
 <div class="fragment"><div class="line"># Check available CAN interfaces</div>
@@ -326,10 +353,10 @@ Build &amp; Run (from source)</h1>
 <div class="line"># → File &gt; Connect → interface: can0, bitrate: 500 kbit/s → Connect</div>
 </div><!-- fragment --><p>The application will automatically run <code>ip link set &lt;iface&gt; type can bitrate &lt;rate&gt;</code> and <code>ip link set &lt;iface&gt; up</code>, so <b>root privileges (or <code>CAP_NET_ADMIN</code>)</b> are required for real hardware.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md29"></a>
+<h1><a class="anchor" id="autotoc_md32"></a>
 Virtual CAN Testing</h1>
 <p>Use this workflow to test the application without PEAK/PCAN hardware. It uses Linux SocketCAN with a virtual CAN interface named <code>vcan0</code>.</p>
-<h2><a class="anchor" id="autotoc_md30"></a>
+<h2><a class="anchor" id="autotoc_md33"></a>
 1. Install prerequisites</h2>
 <p>Recommended:</p>
 <div class="fragment"><div class="line">sudo ./scripts/install_dependencies.sh</div>
@@ -342,7 +369,7 @@ Virtual CAN Testing</h1>
 <div class="line">sudo ip link set dev vcan0 up</div>
 </div><!-- fragment --><p>Check that the interface is available:</p>
 <div class="fragment"><div class="line">ip -details link show dev vcan0</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md31"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md34"></a>
 2. Run test scripts</h2>
 <p>Build the app, create/bring up <code>vcan0</code> when needed, and verify SocketCAN loopback:</p>
 <div class="fragment"><div class="line">python3 scripts/test_without_pcan.py</div>
@@ -358,7 +385,7 @@ Virtual CAN Testing</h1>
 <div class="fragment"><div class="line">cansend vcan0 123#DEADBEEF</div>
 <div class="line">cansend vcan0 18FF50E5#0102030405060708</div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md33"></a>
+<h1><a class="anchor" id="autotoc_md36"></a>
 PCAN-View Feature Comparison</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -389,7 +416,7 @@ PCAN-View Feature Comparison</h1>
 <td class="markdownTableBodyNone">Bus-off / warning states   </td><td class="markdownTableBodyNone">✅   </td></tr>
 </table>
 <hr  />
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md38"></a>
 Extending the Driver</h1>
 <div class="fragment"><div class="line"><span class="comment">/* Implement the can_driver_t interface */</span></div>
 <div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structcan__driver.html">can_driver_t</a> my_driver = {</div>
@@ -410,7 +437,7 @@ Extending the Driver</h1>
 <div class="ttc" id="astructcan__driver_html"><div class="ttname"><a href="structcan__driver.html">can_driver</a></div><div class="ttdoc">CAN driver vtable — implemented by each concrete back-end.</div><div class="ttdef"><b>Definition</b> <a href="drv__can_8h_source.html#l00073">drv_can.h:73</a></div></div>
 <div class="ttc" id="astructcan__driver_html_aa2bacd71c4496ee6887cc4cf92bfb132"><div class="ttname"><a href="structcan__driver.html#aa2bacd71c4496ee6887cc4cf92bfb132">can_driver::init</a></div><div class="ttdeci">int(* init)(const char *iface, uint32_t bitrate, uint32_t data_bitrate, int fd_mode, int listen_only, const can_bit_timing_t *timing)</div><div class="ttdoc">Open/configure the interface.</div><div class="ttdef"><b>Definition</b> <a href="drv__can_8h_source.html#l00075">drv_can.h:75</a></div></div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md37"></a>
+<h1><a class="anchor" id="autotoc_md40"></a>
 API Documentation</h1>
 <p>The codebase carries full Doxygen documentation (file, type, and function level). Generate the HTML reference locally:</p>
 <div class="fragment"><div class="line">sudo apt-get install -y doxygen graphviz</div>
@@ -420,7 +447,7 @@ API Documentation</h1>
 <p>A man page is installed with the package and is also available in the source tree at <code>debian/pcan-view.1</code>:</p>
 <div class="fragment"><div class="line">man pcan-view</div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md39"></a>
+<h1><a class="anchor" id="autotoc_md42"></a>
 Continuous Integration</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -433,11 +460,11 @@ Continuous Integration</h1>
 <td class="markdownTableBodyNone"><code>.github/workflows/ppa.yml</code>   </td><td class="markdownTableBodyNone">On a <code>vX.Y.Z</code> tag: build the <code>.deb</code> for the GitHub Release and upload the signed source package to the Ubuntu PPA.   </td></tr>
 </table>
 <hr  />
-<h1><a class="anchor" id="autotoc_md41"></a>
+<h1><a class="anchor" id="autotoc_md44"></a>
 License</h1>
 <p>Apache License 2.0 – see [LICENSE](LICENSE).</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md43"></a>
+<h1><a class="anchor" id="autotoc_md46"></a>
 References</h1>
 <ul>
 <li><a href="https://www.peak-system.com/fileadmin/media/linux/index.php">PEAK-System Linux driver documentation</a></li>

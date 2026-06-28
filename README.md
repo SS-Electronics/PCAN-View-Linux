@@ -20,6 +20,11 @@ and the data-byte fields are added/removed dynamically, wrapping to fit:
 
 ![CAN FD transmit with 64 data bytes](assets/screenshots/canfd-transmit.png)
 
+**Signal Analysis** — individual signals decoded live from a DBC database
+(physical values, units, ranges), CANalyzer-style:
+
+![Signal Analysis tab decoding a DBC database](assets/screenshots/signal-analysis.png)
+
 <table>
 <tr>
 <td width="58%"><b>Connection settings</b><br>
@@ -43,6 +48,8 @@ and the data-byte fields are added/removed dynamically, wrapping to fit:
 | **Statistics bar** | Always-visible bar below the menu (interface, bitrate, bus load, Rx/Tx/Err counts, bus state) |
 | **Listen-only mode** | Passive monitoring without ACK generation |
 | **Real-time trace** | Sequence #, direction, timestamp, ID, type, DLC, data |
+| **Signal Analysis** | CANalyzer-style tab that decodes individual signals from a **DBC database** (Intel/Motorola byte order, factor/offset, signed) and updates raw + physical values live; bundled **demo database** auto-loads |
+| **Signal Analysis Viewer** | Oscilloscope-style tab that plots any selection of decoded signals **over time** on a shared graph (per-signal colour, live legend values, adjustable time window, pause/reset); handles 1 kHz traffic with standard and extended IDs |
 | **Message deduplication** | Unique-ID view that shows latest value + hit count |
 | **Bus load** | Live bar updated every 500 ms |
 | **Error frames** | Highlighted in red with CAN error flags decoded |
@@ -58,6 +65,24 @@ and the data-byte fields are added/removed dynamically, wrapping to fit:
 ---
 
 ## Release Notes
+
+### Unreleased
+
+- **Signal Analysis tab** — a new Vector-CANalyzer-style page (alongside
+  *Receive / Transmit*) that decodes individual signals from a loaded **DBC
+  database**. Each signal shows its message, ID, raw value, scaled physical
+  value, unit, and documented range, updating live as frames arrive. Supports
+  Intel (little-endian) and Motorola (big-endian) bit layouts, `factor`/`offset`
+  scaling, and signed signals — including extended-ID and CAN FD frames.
+- **Signal Analysis Viewer tab** — an oscilloscope-style page (alongside
+  *Signal Analysis*) that plots any selection of decoded signals **over time**
+  on one shared graph. Each signal has its own colour and a live legend value;
+  the time window is adjustable and the view can be paused and reset. Verified
+  smooth at 1 kHz traffic with mixed standard and extended-ID frames over a
+  sustained run with zero frame loss.
+- **Database menu** — `Load DBC…`, `Load Demo DBC`, and `Clear Database`; the
+  bundled **`demo.dbc`** auto-loads at startup so the tab is populated out of
+  the box.
 
 ### v1.1.0 — Taksys customer release
 
@@ -90,19 +115,24 @@ PCAN-View-Linux/
 │   ├── drv_can.h              Generic driver abstraction (vtable)
 │   ├── socketcan.h            SocketCAN back-end interface
 │   ├── app_state.h            Global application state
+│   ├── dbc.h                  CAN database (DBC) model / decoder API
 │   └── gui.h                  GUI widget bundle + declarations
 ├── driver/
 │   ├── drv_can.c              Generic driver wrapper
-│   └── socketcan.c            SocketCAN implementation (PF_CAN)
+│   ├── socketcan.c            SocketCAN implementation (PF_CAN)
+│   └── dbc.c                  DBC parser + signal-bit decoder
 ├── gui/
 │   ├── threads.c              RX / TX / stats threads + connect logic
-│   ├── main_window.c          Main GTK window (menu, toolbar, layout)
+│   ├── main_window.c          Main GTK window (menu, toolbar, notebook)
 │   ├── message_view.c         Trace GtkTreeView + statistics panel
+│   ├── signal_view.c          Signal Analysis tab (live DBC decode)
+│   ├── signal_plot.c          Signal Analysis Viewer tab (signals over time)
 │   ├── settings_dialog.c      Connection settings dialog
 │   └── transmit_dialog.c      Message transmit window
 ├── assets/
 │   ├── taksys_logo.png        Taksys brand logo (about dialog + footer)
 │   ├── pcan-view.png          256×256 application icon
+│   ├── demo.dbc              Bundled demo CAN database (Signal Analysis)
 │   └── pcan-view.desktop      Desktop launcher entry
 ├── debian/                    Debian/Ubuntu packaging (control, rules, …)
 ├── .github/workflows/         CI/CD: build/test, docs, .deb + PPA release

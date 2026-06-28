@@ -1,26 +1,4 @@
 var searchData=
 [
-  ['s_5factive_5fdrv_0',['s_active_drv',['../drv__can_8c.html#ae7c466e3ad93af5ec8e08f18fb89ac76',1,'drv_can.c']]],
-  ['s_5fbitrates_1',['s_bitrates',['../settings__dialog_8c.html#a11f964ceef9045c8ddfc61721f8a4bd3',1,'settings_dialog.c']]],
-  ['s_5ffd_5fbitrates_2',['s_fd_bitrates',['../settings__dialog_8c.html#af6a7bc90c87d6bcc09ed43da1e94a486',1,'settings_dialog.c']]],
-  ['s_5fsck_5fctx_3',['s_sck_ctx',['../drv__can_8c.html#ab81ea96a70e465186b549bde2a50d044',1,'drv_can.c']]],
-  ['s_5fsocketcan_5fdriver_4',['s_socketcan_driver',['../drv__can_8c.html#aa8c73d2d3c56b3bd0a4ed6a4b871f15e',1,'drv_can.c']]],
-  ['s_5ftx_5',['s_tx',['../transmit__dialog_8c.html#a6971a7fe06fe0bf1bc5b678027ac05b8',1,'transmit_dialog.c']]],
-  ['s_5ftxp_6',['s_txp',['../main__window_8c.html#a29ea4fa056cb7c59bdb5553fa2817a3c',1,'main_window.c']]],
-  ['sample_5fpoint_7',['sample_point',['../structcan__bit__timing__t.html#a919376686615c69499043dd8b63011c2',1,'can_bit_timing_t']]],
-  ['send_8',['send',['../structcan__driver.html#a7aff9a01fc98d1f962f687abbc74eba9',1,'can_driver']]],
-  ['send_5fbtn_9',['send_btn',['../structtx__panel__row__t.html#abb88a05cb9c386734587fedcd6514005',1,'tx_panel_row_t']]],
-  ['seq_10',['seq',['../structcan__msg__t.html#acee7fddda1a4cefd917a6892780be8d1',1,'can_msg_t']]],
-  ['set_5ffilter_11',['set_filter',['../structcan__driver.html#a553e5974e6ea6a14c6b1f55aed6b11cf',1,'can_driver']]],
-  ['shutting_5fdown_12',['shutting_down',['../structapp__state__t.html#add9042208503d9c26e99df32648b6ef6',1,'app_state_t']]],
-  ['sjw_13',['sjw',['../structcan__bit__timing__t.html#a10d2a29e2a83e471d15f4ff53d6e279e',1,'can_bit_timing_t']]],
-  ['sock_5ffd_14',['sock_fd',['../structsocketcan__ctx__t.html#aad4cc3a4cb427de879090ababeb3aad1',1,'socketcan_ctx_t']]],
-  ['start_5fbtn_15',['start_btn',['../structtx__panel__row__t.html#a3c0a749794f724a741b9a78e0daeb90c',1,'tx_panel_row_t']]],
-  ['stats_5frunning_16',['stats_running',['../structapp__state__t.html#afb244c5b15f2210d35ec9a0e48aa7020',1,'app_state_t']]],
-  ['stats_5fthread_17',['stats_thread',['../structapp__state__t.html#a40baebe42edff641ced9e79e98c9af93',1,'app_state_t']]],
-  ['status_5flabel_18',['status_label',['../structtx__win__t.html#a9b0f560094ff707aa5a2262b54775fc6',1,'tx_win_t']]],
-  ['status_5flbl_19',['status_lbl',['../structtx__panel__row__t.html#a8745000f0cbb76c21edcc83f7b851622',1,'tx_panel_row_t']]],
-  ['statusbar_20',['statusbar',['../structgui__widgets__t.html#a98e6fb2ed394e58d41c08d3348297434',1,'gui_widgets_t']]],
-  ['statusbar_5fctx_21',['statusbar_ctx',['../structgui__widgets__t.html#ad46c0c78360c3ab0cd12d9cea88746ea',1,'gui_widgets_t']]],
-  ['stop_5fbtn_22',['stop_btn',['../structtx__panel__row__t.html#a8a9deddce5073ab6d8034041194e9fdb',1,'tx_panel_row_t']]]
+  ['offset_0',['offset',['../structdbc__signal__t.html#ac7383d67b809e97afb4642915a395786',1,'dbc_signal_t']]]
 ];

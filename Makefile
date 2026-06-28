@@ -45,7 +45,7 @@ CFLAGS  := -Wall -Wextra -Wpedantic -std=c11 \
            $(shell pkg-config --cflags gtk+-3.0) \
            -Iinc
 
-LDFLAGS := $(shell pkg-config --libs gtk+-3.0) -lpthread
+LDFLAGS := $(shell pkg-config --libs gtk+-3.0) -lpthread -lm
 
 ifeq ($(DEBUG),1)
 CFLAGS  += -g -O0 -DDEBUG
@@ -62,9 +62,12 @@ LDFLAGS += $(EXTRA_LDFLAGS)
 SRCS := main.c \
         driver/drv_can.c \
         driver/socketcan.c \
+        driver/dbc.c \
         gui/threads.c \
         gui/message_view.c \
         gui/main_window.c \
+        gui/signal_view.c \
+        gui/signal_plot.c \
         gui/settings_dialog.c \
         gui/transmit_dialog.c
 
@@ -140,6 +143,7 @@ install-files: $(TARGET)
 	@echo "==> Installing files to $(DESTDIR)$(PREFIX)…"
 	install -Dm755 $(TARGET)                  $(DESTDIR)$(BINDIR)/pcan-view
 	install -Dm644 assets/taksys_logo.png     $(DESTDIR)$(SHAREDIR)/taksys_logo.png
+	install -Dm644 assets/demo.dbc            $(DESTDIR)$(SHAREDIR)/demo.dbc
 	install -Dm644 assets/pcan-view.png       $(DESTDIR)$(ICONDIR)/pcan-view.png
 	install -Dm644 assets/pcan-view.desktop   $(DESTDIR)$(APPDIR)/pcan-view.desktop
 

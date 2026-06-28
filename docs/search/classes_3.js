@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['socketcan_5fctx_5ft_0',['socketcan_ctx_t',['../structsocketcan__ctx__t.html',1,'']]]
+  ['gui_5fwidgets_5ft_0',['gui_widgets_t',['../structgui__widgets__t.html',1,'']]]
 ];
